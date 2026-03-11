@@ -1,0 +1,330 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ROLE_USER
+  ROLE_ADMIN
+  ROLE_SUPER_ADMIN
+}
+
+enum CampaignRole {
+  PLAYER
+  MASTER
+  SUB_MASTER
+}
+
+enum SessionRole {
+  PLAYER
+  MASTER
+}
+
+enum Status {
+  PREPARING
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+  ON_HOLD
+}
+
+model User {
+  id        BigInt   @id @default(autoincrement())
+  discordId String?  @unique @map("discord_id") @db.VarChar(100)
+  name      String   @db.VarChar(50)
+  email     String   @unique @db.VarChar(100)
+  role      UserRole @default(ROLE_USER)
+
+  // Relations 
+  campaignMembers CampaignMember[]
+  characters      Character[]
+  sessionPlayers  SessionPlayer[]
+  sessionLogs     SessionLog[]
+  docs            Doc[]
+  logHistories    LogHistory[]
+
+  // Common Columns (Bottom)
+  useYn      String    @default("Y") @map("use_yn") @db.Char(1)
+  deleteYn   String    @default("N") @map("delete_yn") @db.Char(1)
+  creatorId  BigInt?   @map("creator_id")
+  createDate DateTime? @default(now()) @map("create_date") @db.Timestamp(6)
+  updaterId  BigInt?   @map("updater_id")
+  updateDate DateTime? @updatedAt @map("update_date") @db.Timestamp(6)
+  deleterId  BigInt?   @map("deleter_id")
+  deleteDate DateTime? @map("delete_date") @db.Timestamp(6)
+
+  @@index([name])
+  @@map("users")
+}
+
+model Campaign {
+  id          BigInt    @id @default(autoincrement())
+  name        String    @unique @db.VarChar(50)
+  description String?   @db.VarChar(1000)
+  status      String    @db.VarChar(20)
+  startDate   DateTime  @map("start_date") @db.Timestamp(6)
+  endDate     DateTime? @map("end_date") @db.Timestamp(6)
+
+  // Relations
+  members    CampaignMember[]
+  characters Character[]
+  sessions   Session[]
+
+  // Common Columns (Bottom)
+  useYn      String    @default("Y") @map("use_yn") @db.Char(1)
+  deleteYn   String    @default("N") @map("delete_yn") @db.Char(1)
+  creatorId  BigInt?   @map("creator_id")
+  createDate DateTime? @default(now()) @map("create_date") @db.Timestamp(6)
+  updaterId  BigInt?   @map("updater_id")
+  updateDate DateTime? @updatedAt @map("update_date") @db.Timestamp(6)
+  deleterId  BigInt?   @map("deleter_id")
+  deleteDate DateTime? @map("delete_date") @db.Timestamp(6)
+
+  @@index([status])
+  @@map("campaigns")
+}
+
+model CampaignMember {
+  id         BigInt       @id @default(autoincrement())
+  userId     BigInt?      @map("user_id")
+  campaignId BigInt?      @map("campaign_id")
+  role       CampaignRole @default(PLAYER)
+
+  // Relations
+  user     User?     @relation(fields: [userId], references: [id])
+  campaign Campaign? @relation(fields: [campaignId], references: [id])
+
+  // Common Columns (Bottom)
+  useYn      String    @default("Y") @map("use_yn") @db.Char(1)
+  deleteYn   String    @default("N") @map("delete_yn") @db.Char(1)
+  creatorId  BigInt?   @map("creator_id")
+  createDate DateTime? @default(now()) @map("create_date") @db.Timestamp(6)
+  updaterId  BigInt?   @map("updater_id")
+  updateDate DateTime? @updatedAt @map("update_date") @db.Timestamp(6)
+  deleterId  BigInt?   @map("deleter_id")
+  deleteDate DateTime? @map("delete_date") @db.Timestamp(6)
+
+  @@unique([userId, campaignId])
+  @@map("campaign_members")
+}
+
+model Session {
+  id          BigInt    @id @default(autoincrement())
+  campaignId  BigInt?   @map("campaign_id")
+  no          Int
+  name        String    @db.VarChar(50)
+  description String?   @db.VarChar(2000)
+  maxPlayer   Int?      @map("max_player")
+  rewardExp   Int?      @map("reward_exp")
+  rewardGold  Int?      @map("reward_gold")
+  status      Status?   @default(PREPARING)
+  playDate    DateTime? @map("play_date") @db.Timestamp(6)
+
+  // Relations
+  campaign Campaign?       @relation(fields: [campaignId], references: [id])
+  players  SessionPlayer[]
+  logs     SessionLog[]
+
+  // Common Columns (Bottom)
+  useYn      String    @default("Y") @map("use_yn") @db.Char(1)
+  deleteYn   String    @default("N") @map("delete_yn") @db.Char(1)
+  creatorId  BigInt?   @map("creator_id")
+  createDate DateTime? @default(now()) @map("create_date") @db.Timestamp(6)
+  updaterId  BigInt?   @map("updater_id")
+  updateDate DateTime? @updatedAt @map("update_date") @db.Timestamp(6)
+  deleterId  BigInt?   @map("deleter_id")
+  deleteDate DateTime? @map("delete_date") @db.Timestamp(6)
+
+  @@index([no])
+  @@index([name])
+  @@map("sessions")
+}
+
+model SessionPlayer {
+  id          BigInt      @id @default(autoincrement())
+  sessionId   BigInt      @map("session_id")
+  userId      BigInt      @map("user_id")
+  characterId BigInt      @map("character_id")
+  role        SessionRole @default(PLAYER)
+
+  // Relations
+  session   Session   @relation(fields: [sessionId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  character Character @relation(fields: [characterId], references: [id])
+
+  // Common Columns (Bottom)
+  useYn      String    @default("Y") @map("use_yn") @db.Char(1)
+  deleteYn   String    @default("N") @map("delete_yn") @db.Char(1)
+  creatorId  BigInt?   @map("creator_id")
+  createDate DateTime? @default(now()) @map("create_date") @db.Timestamp(6)
+  updaterId  BigInt?   @map("updater_id")
+  updateDate DateTime? @updatedAt @map("update_date") @db.Timestamp(6)
+  deleterId  BigInt?   @map("deleter_id")
+  deleteDate DateTime? @map("delete_date") @db.Timestamp(6)
+
+  @@map("session_players")
+}
+
+model SessionLog {
+  id        BigInt  @id @default(autoincrement())
+  sessionId BigInt  @map("session_id")
+  userId    BigInt  @map("user_id")
+  title     String  @db.VarChar(100)
+  content   String? @db.Text
+  fileUrl   String? @map("file_url") @db.VarChar(255)
+
+  // Relations
+  session Session @relation(fields: [sessionId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  // Common Columns (Bottom)
+  useYn      String    @default("Y") @map("use_yn") @db.Char(1)
+  deleteYn   String    @default("N") @map("delete_yn") @db.Char(1)
+  creatorId  BigInt?   @map("creator_id")
+  createDate DateTime? @default(now()) @map("create_date") @db.Timestamp(6)
+  updaterId  BigInt?   @map("updater_id")
+  updateDate DateTime? @updatedAt @map("update_date") @db.Timestamp(6)
+  deleterId  BigInt?   @map("deleter_id")
+  deleteDate DateTime? @map("delete_date") @db.Timestamp(6)
+
+  @@map("session_logs")
+}
+
+model Character {
+  id         BigInt  @id @default(autoincrement())
+  userId     BigInt  @map("user_id")
+  campaignId BigInt? @map("campaign_id")
+  name       String  @db.VarChar(50)
+  status     String  @db.VarChar(20)
+  race       String  @db.VarChar(30)
+  startLevel Int     @default(0) @map("start_level")
+  startExp   Int     @default(0) @map("start_exp")
+
+  // CharacterCurrency
+  startCurrencyCp Int? @map("start_currency_cp")
+  startCurrencySp Int? @map("start_currency_sp")
+  startCurrencyEp Int? @map("start_currency_ep")
+  startCurrencyGp Int? @map("start_currency_gp")
+  startCurrencyPp Int? @map("start_currency_pp")
+
+  // CharacterEquipment
+  mainHand   String? @map("main_hand") @db.VarChar(100)
+  offHand    String? @map("off_hand") @db.VarChar(100)
+  armor      String? @db.VarChar(100)
+  head       String? @db.VarChar(100)
+  gauntlet   String? @db.VarChar(100)
+  boots      String? @db.VarChar(100)
+  belt       String? @db.VarChar(100)
+  cloak      String? @db.VarChar(100)
+  accessory1 String? @db.VarChar(100)
+  accessory2 String? @db.VarChar(100)
+  accessory3 String? @db.VarChar(100)
+  accessory4 String? @db.VarChar(100)
+
+  // CharacterRequirementStrDex
+  reqStrDex8  String? @map("req_str_dex8") @db.VarChar(100)
+  reqStrDex10 String? @map("req_str_dex10") @db.VarChar(100)
+  reqStrDex12 String? @map("req_str_dex12") @db.VarChar(100)
+  reqStrDex14 String? @map("req_str_dex14") @db.VarChar(100)
+  reqStr16    String? @map("req_str16") @db.VarChar(100)
+  reqStr18    String? @map("req_str18") @db.VarChar(100)
+  reqStr20    String? @map("req_str20") @db.VarChar(100)
+
+  // CharacterRequirementCon
+  reqCon8  String? @map("req_con8") @db.VarChar(100)
+  reqCon10 String? @map("req_con10") @db.VarChar(100)
+  reqCon12 String? @map("req_con12") @db.VarChar(100)
+  reqCon14 String? @map("req_con14") @db.VarChar(100)
+  reqCon16 String? @map("req_con16") @db.VarChar(100)
+  reqCon18 String? @map("req_con18") @db.VarChar(100)
+  reqCon20 String? @map("req_con20") @db.VarChar(100)
+
+  // Relations
+  user           User             @relation(fields: [userId], references: [id])
+  campaign       Campaign?        @relation(fields: [campaignId], references: [id])
+  classes        CharacterClass[]
+  sessionPlayers SessionPlayer[]
+
+  // Common Columns (Bottom)
+  useYn      String    @default("Y") @map("use_yn") @db.Char(1)
+  deleteYn   String    @default("N") @map("delete_yn") @db.Char(1)
+  creatorId  BigInt?   @map("creator_id")
+  createDate DateTime? @default(now()) @map("create_date") @db.Timestamp(6)
+  updaterId  BigInt?   @map("updater_id")
+  updateDate DateTime? @updatedAt @map("update_date") @db.Timestamp(6)
+  deleterId  BigInt?   @map("deleter_id")
+  deleteDate DateTime? @map("delete_date") @db.Timestamp(6)
+
+  @@index([name])
+  @@index([userId])
+  @@index([status])
+  @@map("characters")
+}
+
+model CharacterClass {
+  characterId BigInt @map("character_id")
+  className   String @map("class_name") @db.VarChar(50)
+  level       Int
+
+  // Relations
+  character Character @relation(fields: [characterId], references: [id])
+
+  @@id([characterId, className])
+  @@map("character_classes")
+}
+
+model Doc {
+  id          BigInt  @id @default(autoincrement())
+  userId      BigInt  @map("user_id")
+  title       String  @db.VarChar(200)
+  description String? @db.VarChar(500)
+  category    String  @db.VarChar(50)
+  content     String? @db.Text
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  // Common Columns (Bottom)
+  useYn      String    @default("Y") @map("use_yn") @db.Char(1)
+  deleteYn   String    @default("N") @map("delete_yn") @db.Char(1)
+  creatorId  BigInt?   @map("creator_id")
+  createDate DateTime? @default(now()) @map("create_date") @db.Timestamp(6)
+  updaterId  BigInt?   @map("updater_id")
+  updateDate DateTime? @updatedAt @map("update_date") @db.Timestamp(6)
+  deleterId  BigInt?   @map("deleter_id")
+  deleteDate DateTime? @map("delete_date") @db.Timestamp(6)
+
+  @@index([title])
+  @@index([category])
+  @@map("docs")
+}
+
+model LogHistory {
+  id          BigInt  @id @default(autoincrement())
+  userId      BigInt? @map("user_id")
+  tableName   String  @map("table_name") @db.VarChar(50)
+  targetId    BigInt  @map("target_id")
+  actionType  String  @map("action_type") @db.VarChar(20)
+  oldData     String? @map("old_data") @db.Text
+  newData     String? @map("new_data") @db.Text
+  description String? @db.VarChar(1000)
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  // Common Columns (Bottom)
+  useYn      String    @default("Y") @map("use_yn") @db.Char(1)
+  deleteYn   String    @default("N") @map("delete_yn") @db.Char(1)
+  creatorId  BigInt?   @map("creator_id")
+  createDate DateTime? @default(now()) @map("create_date") @db.Timestamp(6)
+  updaterId  BigInt?   @map("updater_id")
+  updateDate DateTime? @updatedAt @map("update_date") @db.Timestamp(6)
+  deleterId  BigInt?   @map("deleter_id")
+  deleteDate DateTime? @map("delete_date") @db.Timestamp(6)
+
+  @@index([tableName, targetId])
+  @@map("log_history")
+}
