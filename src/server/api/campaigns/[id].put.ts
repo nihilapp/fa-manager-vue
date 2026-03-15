@@ -27,21 +27,11 @@ export default defineEventHandler(async (event) => {
   // 서비스 로직
   // ========== ========== ========== ==========
 
-  if (!discordId) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
-  }
+  const { user, hasPermission, error, } = await authHelper(event);
+  if (error) return error;
 
   if (!body) {
     return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
-  }
-
-  // 1. 수정 권한 확인을 위한 유저 조회
-  const user = await db.query.usersTable.findFirst({
-    where: (table, { eq, }) => eq(table.discordId, discordId),
-  });
-
-  if (!user) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND);
   }
 
   // 2. 캠페인 존재 확인
@@ -53,7 +43,12 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CAMPAIGN_NOT_FOUND);
   }
 
-  // 3. 이름 변경 시 중복 체크
+  // 3. 권한 확인 (캠페인 마스터이거나 관리자)
+  if (!hasPermission(findCampaign.userId)) {
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
+  }
+
+  // 4. 이름 변경 시 중복 체크
   if (body.name && body.name !== findCampaign.name) {
     const existName = await db
       .select({ value: count(), })

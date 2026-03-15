@@ -2,12 +2,13 @@ import { relations } from 'drizzle-orm';
 
 import { campaignMembersTable, campaignsTable } from './campaigns.table';
 import { characterClassesTable, charactersTable } from './characters.table';
+import { consumeHistoriesTable } from './consume-histories.table';
 import { docsTable } from './docs.table';
 import { logHistoriesTable } from './logHistories.table';
 import { sessionLogsTable, sessionPlayersTable, sessionsTable } from './sessions.table';
 import { usersTable } from './users.table';
 
-// 1. User Relations (총 7개 매핑 완료)
+// 1. User Relations (총 8개 매핑 완료)
 export const usersRelations = relations(usersTable, ({ many, }) => ({
   campaigns: many(campaignsTable),
   campaignMembers: many(campaignMembersTable),
@@ -16,6 +17,7 @@ export const usersRelations = relations(usersTable, ({ many, }) => ({
   sessionLogs: many(sessionLogsTable),
   docs: many(docsTable),
   logHistories: many(logHistoriesTable),
+  consumeHistories: many(consumeHistoriesTable),
 }));
 
 // 2. Campaign Relations
@@ -54,7 +56,8 @@ export const charactersRelations = relations(charactersTable, ({ one, many, }) =
   user: one(usersTable, { fields: [ charactersTable.userId, ], references: [ usersTable.id, ], }),
   campaign: one(campaignsTable, { fields: [ charactersTable.campaignId, ], references: [ campaignsTable.id, ], }),
   classes: many(characterClassesTable),
-  sessionPlayers: many(sessionPlayersTable),
+  sessions: many(sessionPlayersTable),
+  consumeHistories: many(consumeHistoriesTable),
 }));
 
 export const characterClassesRelations = relations(characterClassesTable, ({ one, }) => ({
@@ -69,4 +72,10 @@ export const docsRelations = relations(docsTable, ({ one, }) => ({
 // 6. LogHistory Relations
 export const logHistoriesRelations = relations(logHistoriesTable, ({ one, }) => ({
   user: one(usersTable, { fields: [ logHistoriesTable.userId, ], references: [ usersTable.id, ], }),
+}));
+
+// 7. ConsumeHistory Relations
+export const consumeHistoriesRelations = relations(consumeHistoriesTable, ({ one, }) => ({
+  user: one(usersTable, { fields: [ consumeHistoriesTable.userId, ], references: [ usersTable.id, ], }),
+  character: one(charactersTable, { fields: [ consumeHistoriesTable.characterId, ], references: [ charactersTable.id, ], }),
 }));

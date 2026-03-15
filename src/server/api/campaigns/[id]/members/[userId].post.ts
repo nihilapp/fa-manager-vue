@@ -28,29 +28,10 @@ export default defineEventHandler(async (event) => {
   // 서비스 로직
   // ========== ========== ========== ==========
 
-  if (!discordId) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
-  }
+  const { user: requester, hasPermission, error, } = await authHelper(event);
+  if (error) return error;
 
-  // 1. 요청자 확인 (권한 체크용)
-  const requester = await db.query.usersTable.findFirst({
-    where: (table, { eq, }) => eq(table.discordId, discordId),
-  });
-
-  if (!requester) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND);
-  }
-
-  // 2. 대상 유저 존재 확인
-  const targetUser = await db.query.usersTable.findFirst({
-    where: (table, { eq, }) => eq(table.id, Number(userId)),
-  });
-
-  if (!targetUser) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND);
-  }
-
-  // 3. 캠페인 존재 확인
+  // 2. 캠페인 존재 확인 및 권한 검증
   const campaign = await db.query.campaignsTable.findFirst({
     where: (table, { eq, }) => eq(table.id, Number(campaignId)),
   });
@@ -59,13 +40,26 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CAMPAIGN_NOT_FOUND);
   }
 
+  if (!hasPermission(campaign.userId)) {
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
+  }
+
+  // 3. 대상 유저 존재 확인
+  const targetUser = await db.query.usersTable.findFirst({
+    where: (table, { eq, }) => eq(table.id, Number(userId)),
+  });
+
+  if (!targetUser) {
+    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND);
+  }
+
   // 4. 멤버 등록 실행
   const result = await db.insert(campaignMembersTable).values({
     userId: targetUser.id,
     campaignId: campaign.id,
     role: body?.role || 'PLAYER',
-    creatorId: requester.id,
-    updaterId: requester.id,
+    creatorId: requester!.id,
+    updaterId: requester!.id,
     createDate: new Date(),
     updateDate: new Date(),
   }).returning();

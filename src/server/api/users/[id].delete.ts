@@ -27,9 +27,8 @@ export default defineEventHandler(async (event) => {
   // 서비스 로직
   // ========== ========== ========== ==========
 
-  if (!discordId) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
-  }
+  const { user, hasPermission, error, } = await authHelper(event);
+  if (error) return error;
 
   const findUser = await db.query.usersTable.findFirst({
     where: (table, { eq, }) => eq(table.id, Number(id)),
@@ -39,19 +38,23 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND);
   }
 
+  // 본인이거나 관리자여야 함
+  if (!hasPermission(findUser.id)) {
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
+  }
+
   await db.update(usersTable)
     .set({
       useYn: 'N',
       deleteYn: 'Y',
-      updaterId: findUser.id, // 삭제를 시도한 사용자(또는 본인)의 ID를 기록할 수 있으나 여기서는 findUser.id 사용
+      updaterId: user!.id,
       updateDate: new Date(),
-      deleterId: findUser.id,
+      deleterId: user!.id,
       deleteDate: new Date(),
     })
     .where(
       and(
         eq(usersTable.id, Number(id)),
-        eq(usersTable.useYn, 'Y'),
         eq(usersTable.deleteYn, 'N')
       )
     );

@@ -65,6 +65,7 @@ import {sessionsTable, sessionPlayersTable, sessionLogsTable} from '../db/table/
 import {charactersTable, characterClassesTable} from '../db/table/characters.table';
 import {docsTable} from '../db/table/docs.table';
 import {logHistoriesTable} from '../db/table/logHistories.table';
+import type {ConsumeHistoryInDto} from "@server/types/dto.types";
 
 declare global {
   // Common Utils
@@ -107,6 +108,7 @@ declare global {
   const characterClassesTable: typeof import('../db/table/characters.table')['characterClassesTable'];
   const docsTable: typeof import('../db/table/docs.table')['docsTable'];
   const logHistoriesTable: typeof import('../db/table/logHistories.table')['logHistoriesTable'];
+  const consumeHistoriesTable: typeof import('../db/table/consumeHistories.table')['consumeHistoriesTable'];
 
   // Table Inferred Types (Prefixed with 'Type')
   type TypeUser = InferSelectModel<typeof usersTable>;
@@ -129,6 +131,8 @@ declare global {
   type TypeNewDoc = InferInsertModel<typeof docsTable>;
   type TypeLogHistory = InferSelectModel<typeof logHistoriesTable>;
   type TypeNewLogHistory = InferInsertModel<typeof logHistoriesTable>;
+  type TypeConsumeHistory = InferSelectModel<typeof consumeHistoriesTable>;
+  type TypeNewConsumeHistory = InferInsertModel<typeof consumeHistoriesTable>;
 
   // Server DTO Types & Enums
   type UserRole = import('./dto.types').UserRole;
@@ -161,6 +165,8 @@ declare global {
   type DocOutDto = import('./dto.types').DocOutDto;
   type LogHistoryInDto = import('./dto.types').LogHistoryInDto;
   type LogHistoryOutDto = import('./dto.types').LogHistoryOutDto;
+  type ConsumeHistoryInDto = import('./dto.types').ConsumeHistoryInDto;
+  type ConsumeHistoryOutDto = import('./dto.types').ConsumeHistoryOutDto;
 
   // Server Response Types
   type BaseResponseType<T = null> = import('./response.types').BaseResponseType<T>;
@@ -188,6 +194,7 @@ declare global {
   // Server Utils
   const BaseResponse: typeof import('../utils/base-response')['BaseResponse'];
   const ListData: typeof import('../utils/list-data')['ListData'];
+  const authHelper: typeof import('../utils/auth')['authHelper'];
   const db: typeof import('../utils/drizzle')['db'];
   const sortHelper: typeof import('../utils/sort.helper')['sortHelper'];
   const buildDrizzleWhere: typeof import('../utils/where.helper')['buildDrizzleWhere'];
