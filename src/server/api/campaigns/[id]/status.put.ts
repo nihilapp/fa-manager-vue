@@ -27,20 +27,11 @@ export default defineEventHandler(async (event) => {
   // 서비스 로직
   // ========== ========== ========== ==========
 
-  if (!discordId) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
-  }
+  const { user, hasPermission, error, } = await authHelper(event);
+  if (error) return error;
 
   if (!body || !body.status) {
     return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
-  }
-
-  const user = await db.query.usersTable.findFirst({
-    where: (table, { eq, }) => eq(table.discordId, discordId),
-  });
-
-  if (!user) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND);
   }
 
   const findCampaign = await db.query.campaignsTable.findFirst({
@@ -51,11 +42,15 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CAMPAIGN_NOT_FOUND);
   }
 
+  if (!hasPermission(findCampaign.userId)) {
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
+  }
+
   const oldStatus = findCampaign.status;
 
   const result = await db.update(campaignsTable).set({
     status: body.status,
-    updaterId: user.id,
+    updaterId: user!.id,
     updateDate: new Date(),
   }).where(
     eq(campaignsTable.id, Number(id))

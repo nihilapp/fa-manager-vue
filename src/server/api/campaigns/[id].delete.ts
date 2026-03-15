@@ -27,18 +27,8 @@ export default defineEventHandler(async (event) => {
   // 서비스 로직
   // ========== ========== ========== ==========
 
-  if (!discordId) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
-  }
-
-  // 1. 삭제 권한 확인용 유저 조회
-  const user = await db.query.usersTable.findFirst({
-    where: (table, { eq, }) => eq(table.discordId, discordId),
-  });
-
-  if (!user) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND);
-  }
+  const { user, hasPermission, error, } = await authHelper(event);
+  if (error) return error;
 
   // 2. 캠페인 존재 확인
   const findCampaign = await db.query.campaignsTable.findFirst({
@@ -49,12 +39,17 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CAMPAIGN_NOT_FOUND);
   }
 
-  // 3. 소프트 딜리트 실행
+  // 3. 권한 확인 (캠페인 마스터이거나 관리자)
+  if (!hasPermission(findCampaign.userId)) {
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
+  }
+
+  // 4. 소프트 딜리트 실행
   await db.update(campaignsTable).set({
     useYn: 'N',
     deleteYn: 'Y',
-    updaterId: user.id,
-    deleterId: user.id,
+    updaterId: user!.id,
+    deleterId: user!.id,
     updateDate: new Date(),
     deleteDate: new Date(),
   }).where(

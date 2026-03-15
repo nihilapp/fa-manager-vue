@@ -188,6 +188,7 @@ declare global {
   // Server Utils
   const BaseResponse: typeof import('../utils/base-response')['BaseResponse'];
   const ListData: typeof import('../utils/list-data')['ListData'];
+  const authHelper: typeof import('../utils/auth')['authHelper'];
   const db: typeof import('../utils/drizzle')['db'];
   const sortHelper: typeof import('../utils/sort.helper')['sortHelper'];
   const buildDrizzleWhere: typeof import('../utils/where.helper')['buildDrizzleWhere'];

@@ -27,21 +27,11 @@ export default defineEventHandler(async (event) => {
   // 서비스 로직
   // ========== ========== ========== ==========
 
-  if (!discordId) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
-  }
+  const { user, error, } = await authHelper(event);
+  if (error) return error;
 
   if (!body || !body.name || !body.startDate) {
     return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
-  }
-
-  // 1. 생성자 유저 확인
-  const creator = await db.query.usersTable.findFirst({
-    where: (table, { eq, }) => eq(table.discordId, discordId),
-  });
-
-  if (!creator) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND);
   }
 
   // 2. 이름 중복 체크
@@ -58,7 +48,7 @@ export default defineEventHandler(async (event) => {
   const result = await db.transaction(async (tx) => {
     // 캠페인 생성
     const newCampaign = await tx.insert(campaignsTable).values({
-      userId: creator.id,
+      userId: user!.id,
       name: body.name!,
       description: body.description,
       status: body.status || 'PREPARING',
@@ -66,19 +56,19 @@ export default defineEventHandler(async (event) => {
       endDate: body.endDate
         ? new Date(body.endDate)
         : null,
-      creatorId: creator.id,
-      updaterId: creator.id,
+      creatorId: user!.id,
+      updaterId: user!.id,
       createDate: new Date(),
       updateDate: new Date(),
     }).returning();
 
     // 생성자를 MASTER 멤버로 등록
     await tx.insert(campaignMembersTable).values({
-      userId: creator.id,
+      userId: user!.id,
       campaignId: newCampaign[0]!.id,
       role: 'MASTER',
-      creatorId: creator.id,
-      updaterId: creator.id,
+      creatorId: user!.id,
+      updaterId: user!.id,
       createDate: new Date(),
       updateDate: new Date(),
     });

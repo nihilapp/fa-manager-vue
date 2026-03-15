@@ -24,9 +24,8 @@ export default defineEventHandler(async (event) => {
   // 서비스 로직
   // ========== ========== ========== ==========
 
-  if (!discordId) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
-  }
+  const { user, hasPermission, error, } = await authHelper(event);
+  if (error) return error;
 
   if (!body) {
     return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
@@ -41,7 +40,12 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND);
   }
 
-  // 2. 이름 변경 시 중복 체크
+  // 2. 권한 확인 (본인이거나 관리자)
+  if (!hasPermission(findUser.id)) {
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
+  }
+
+  // 3. 이름 변경 시 중복 체크
   if (body.name && body.name !== findUser.name) {
     const existName = await db
       .select({ value: count(), })

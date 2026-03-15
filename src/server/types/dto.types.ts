@@ -7,6 +7,7 @@ export type DocStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'DELETED';
 export type CharacterStatus = 'ACTIVE' | 'RESTING' | 'RETIRED' | 'DECEASED';
 
 export interface CommonInDto {
+  [key: string]: any; // 동적 쿼리 파라미터 (suffix 등) 허용
   id?: number;
   idList?: number[]; // 복수 처리를 위한 idList 추가
   page?: number;
@@ -189,6 +190,8 @@ export interface CharacterInDto extends CommonInDto {
   startLevel?: number;
   startExp?: number;
 
+  currentLevel?: number;
+
   // D&D Stats
   str?: number | null;
   dex?: number | null;
@@ -306,7 +309,7 @@ export interface CharacterOutDto extends CommonOutDto {
   user?: UserOutDto;
   campaign?: CampaignOutDto;
   classes?: CharacterClassOutDto[];
-  sessionPlayers?: SessionPlayerOutDto[];
+  sessions?: SessionPlayerOutDto[];
 }
 
 /**
@@ -374,4 +377,37 @@ export interface LogHistoryOutDto extends CommonOutDto {
   description?: string | null;
 
   user?: UserOutDto;
+}
+
+/**
+ * Currency DTO (JSON Storage)
+ */
+export interface CurrencyDto {
+  cp: number;
+  sp: number;
+  ep: number;
+  gp: number;
+  pp: number;
+}
+
+/**
+ * ConsumeHistory DTO
+ */
+export interface ConsumeHistoryInDto extends CommonInDto {
+  userId?: number;
+  characterId?: number;
+  description?: string;
+  beforeCurrency?: CurrencyDto;
+  afterCurrency?: CurrencyDto;
+}
+
+export interface ConsumeHistoryOutDto extends CommonOutDto {
+  userId?: number;
+  characterId?: number;
+  description?: string;
+  beforeCurrency?: CurrencyDto;
+  afterCurrency?: CurrencyDto;
+
+  user?: UserOutDto;
+  character?: CharacterOutDto;
 }

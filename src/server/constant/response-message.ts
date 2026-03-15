@@ -34,10 +34,11 @@ export class RESPONSE_MESSAGE {
   static UPDATE_USER_SUCCESS = '사용자 정보가 성공적으로 수정되었습니다.';
   static UPDATE_USER_FAILURE = '사용자 정보를 수정할 수 없습니다.';
   static UPDATE_USER_FORBIDDEN = '해당 사용자를 수정할 권한이 없습니다.';
-  static DELETE_USER_SUCCESS = '사용자 계정이 성공적으로 삭제되었습니다.';
+  static DELETE_USER_SUCCESS = '사용자 계정 성공적으로 삭제되었습니다.';
   static DELETE_USER_FAILURE = '사용자를 삭제할 수 없습니다.';
   static DELETE_USER_FORBIDDEN = '해당 사용자를 삭제할 권한이 없습니다.';
   static REQUIRE_DISCORD_ID = '디스코드 사용자 ID가 누락되었습니다.';
+  static USER_FORBIDDEN = '해당 작업에 대한 권한이 없습니다.';
 
   // ========== ========== ========== ==========
   // 캠페인 관련 메시지
@@ -71,12 +72,14 @@ export class RESPONSE_MESSAGE {
 
   static GET_CHARACTER_LIST_SUCCESS = '캐릭터 목록 조회 성공';
   static GET_CHARACTER_DETAIL_SUCCESS = '캐릭터 상세 정보 조회 성공';
+  static GET_CHARACTER_SUCCESS = '캐릭터 정보 조회 성공';
   static CHARACTER_NOT_FOUND = '캐릭터를 찾을 수 없습니다.';
   static CREATE_CHARACTER_SUCCESS = '캐릭터가 생성되었습니다.';
   static UPDATE_CHARACTER_SUCCESS = '캐릭터 정보가 성공적으로 수정되었습니다.';
   static UPDATE_CHARACTER_FAILURE = '캐릭터 정보를 수정할 수 없습니다.';
   static DELETE_CHARACTER_SUCCESS = '캐릭터가 삭제되었습니다.';
   static DELETE_CHARACTER_FAILURE = '캐릭터를 삭제할 수 없습니다.';
+  static CHARACTER_FORBIDDEN = '해당 캐릭터에 대한 권한이 없습니다.';
 
   static CHARACTER_STATUS_UPDATED = function (
     characterId: string, oldStatus: string, newStatus: string
@@ -86,6 +89,14 @@ export class RESPONSE_MESSAGE {
 
   static UPDATE_CHARACTER_STATUS_FAILURE = '캐릭터 상태를 수정할 수 없습니다.';
   static CHARACTER_WEALTH_UPDATED = '캐릭터 소지금이 변동되었습니다.';
+
+  // 캐릭터 클래스 관련
+  static GET_CHARACTER_CLASS_LIST_SUCCESS = '캐릭터 클래스 목록 조회 성공';
+  static CREATE_CHARACTER_CLASS_SUCCESS = '캐릭터 클래스가 추가되었습니다.';
+  static UPDATE_CHARACTER_CLASS_SUCCESS = '캐릭터 클래스 정보가 수정되었습니다.';
+  static DELETE_CHARACTER_CLASS_SUCCESS = '캐릭터 클래스가 제거되었습니다.';
+  static CHARACTER_CLASS_NOT_FOUND = '해당 캐릭터 클래스 정보를 찾을 수 없습니다.';
+
 
   // ========== ========== ========== ==========
   // 세션 관련 메시지
@@ -99,6 +110,9 @@ export class RESPONSE_MESSAGE {
   static UPDATE_SESSION_FAILURE = '세션 정보를 수정할 수 없습니다.';
   static DELETE_SESSION_SUCCESS = '세션이 삭제되었습니다.';
   static DELETE_SESSION_FAILURE = '세션을 삭제할 수 없습니다.';
+  static SESSION_FORBIDDEN = '해당 세션에 대한 권한이 없습니다. 캠페인 마스터만 가능합니다.';
+  static PLAYER_FORBIDDEN = '플레이어 관리 권한이 없습니다.';
+  static PLAYER_ALREADY_EXISTS = '이미 해당 세션에 등록된 캐릭터입니다.';
 
   static SESSION_STATUS_UPDATED = function (
     sessionId: string, oldStatus: string, newStatus: string
