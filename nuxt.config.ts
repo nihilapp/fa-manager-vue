@@ -1,4 +1,7 @@
+import { fileURLToPath } from 'node:url';
+
 import tailwindcss from '@tailwindcss/vite';
+import { defineNuxtConfig } from 'nuxt/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -9,6 +12,19 @@ export default defineNuxtConfig({
   srcDir: 'src/',
   serverDir: 'src/server/',
 
+  dir: {
+    pages: 'app/pages',
+    layouts: 'app/layouts',
+    middleware: 'app/middleware',
+    assets: 'app/assets',
+  },
+
+  alias: {
+    '@src': fileURLToPath(new URL('./src', import.meta.url)),
+    '@app': fileURLToPath(new URL('./src/app', import.meta.url)),
+    '@server': fileURLToPath(new URL('./src/server', import.meta.url)),
+  },
+
   modules: [
     '@pinia/nuxt',
     '@nuxt/eslint',
@@ -16,7 +32,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
   ],
 
-  css: [ '~/app/assets/styles/tailwind.css', ],
+  css: [ '@/app/assets/styles/tailwind.css', ],
 
   vite: {
     plugins: [
@@ -29,31 +45,13 @@ export default defineNuxtConfig({
     normalizeComponentNames: true,
   },
 
-  components: [
-    {
-      path: '~/app/components',
-      pathPrefix: false,
-      global: true, // 하위 폴더 컴포넌트도 전역 사용
-    },
-  ],
+  components: false, // 컴포넌트 자동 등록 비활성화
 
   imports: {
-    dirs: [
-      '~/app/composables/**',
-      '~/app/utils/**',
-      '~/app/types/**', // 프론트엔드/백엔드 공용 타입 자동 임포트
-      '~/common/**', // 공통 코드
-    ],
+    autoImport: false, // App 오토임포트 비활성화
   },
 
   nitro: {
-    imports: {
-      dirs: [
-        './src/server/utils/**', // 서버 유틸 하위 폴더
-        './src/server/db/**', // db 및 schema 등 자동 임포트
-        './src/app/types/**', // 백엔드 공용 타입 자동 임포트 추가
-        './src/common/**', // 공통 코드
-      ],
-    },
+    imports: false, // Nitro 오토임포트 비활성화
   },
 });

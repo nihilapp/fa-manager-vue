@@ -6,7 +6,10 @@ export default defineEventHandler(async (event) => {
   // const query = getQuery<{ name: string }>(event);
 
   // 2. 패스 파라미터: URL 경로에 정의된 특정 파라미터 값을 가져옵니다. (기본 string | undefined)
-  // const id = getRouterParam(event, 'id');
+  const id = getRouterParam(event, 'id');
+
+  // 3. 패스 파라미터 객체: 전체 파라미터를 객체 형태로 가져옵니다.
+  // const params = getRouterParams(event) as { id: string };
 
   // 4. 전체 헤더: 요청에 포함된 모든 헤더를 객체로 가져옵니다.
   // const headers = Object.fromEntries(event.req.headers.entries());
@@ -21,11 +24,42 @@ export default defineEventHandler(async (event) => {
   // const body = await readBody<{ title: string }>(event);
 
   // ========== ========== ========== ==========
+  // 서비스 로직
+  // ========== ========== ========== ==========
+
+  // const user = await db
+  //   .select()
+  //   .from(usersTable)
+  //   .where(
+  //     eq(usersTable.id, Number(id))
+  //   );
+
+  const user = await db.query.usersTable.findFirst({
+    where: (
+      usersTable,
+      { eq, }) => eq(usersTable.id, Number(id)
+    ),
+    with: {
+      campaigns: true,
+      campaignMembers: true,
+      characters: true,
+      sessionPlayers: true,
+      sessionLogs: true,
+      docs: true,
+      logHistories: true,
+    },
+  });
+
+  if (!user) {
+    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND);
+  }
+
+  // ========== ========== ========== ==========
   // 응답
   // ========== ========== ========== ==========
 
   // 단건이면
-  return BaseResponse.data<boolean>(true, RESPONSE_CODE.OK, RESPONSE_MESSAGE.SERVER_IS_ALIVE);
+  return BaseResponse.data(user, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_USER_DETAIL_SUCCESS);
 
   // 다건이면
   // return BaseResponse.page();

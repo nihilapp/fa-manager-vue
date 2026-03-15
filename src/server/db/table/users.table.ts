@@ -1,0 +1,16 @@
+import { index, pgTable, varchar } from 'drizzle-orm/pg-core';
+
+import { commonColumns, userRoleEnum } from './common';
+
+export const usersTable = pgTable('users', {
+  id: commonColumns.id,
+
+  discordId: varchar('discord_id', { length: 100, }).unique(), // Null 허용
+  name: varchar('name', { length: 50, }).notNull(),
+  email: varchar('email', { length: 100, }).unique().notNull(),
+  role: userRoleEnum('role').default('ROLE_USER').notNull(),
+
+  ...commonColumns.meta,
+}, (table) => [
+  index('idx_users_name').on(table.name),
+]);

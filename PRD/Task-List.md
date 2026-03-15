@@ -2,6 +2,7 @@
 
 ## [Phase 1] 초기화 및 기반 구축
 - [x] 프로젝트 초기화 및 PRD 셋업 (진행 완료)
+- [x] buildPrismaWhere 유틸리티 개선 (AND/OR 지원 및 반환값 추가) (완료)
 - [ ] Drizzle ORM 셋업 및 DB 연결 환경 구축
 - [ ] 데이터베이스 스키마 및 관계 정의
   - Player/User DB, Campaign, CampaignMember, PC, Session, ActionLogs(Exp/Resource)
