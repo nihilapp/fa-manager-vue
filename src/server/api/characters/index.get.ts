@@ -1,32 +1,37 @@
 export default defineEventHandler(async (event) => {
+  const sumCurrentCurrency = (transactions: TypeCurrencyTransaction[] = []) => {
+    return transactions
+      .filter((transaction) => transaction.deleteYn !== 'Y')
+      .reduce((acc, transaction) => {
+        acc.cp += transaction.deltaCp || 0;
+        acc.sp += transaction.deltaSp || 0;
+        acc.ep += transaction.deltaEp || 0;
+        acc.gp += transaction.deltaGp || 0;
+        acc.pp += transaction.deltaPp || 0;
+        return acc;
+      }, {
+        cp: 0,
+        sp: 0,
+        ep: 0,
+        gp: 0,
+        pp: 0,
+      });
+  };
+
   // ========== ========== ========== ==========
-  // 간단 가이드
+  // 기본 정보
   // ========== ========== ========== ==========
-  // 1. 쿼리 스트링: 제네릭을 통해 반환 값의 타입을 직접 지정합니다.
-  const query = getQuery<CharacterInDto>(event);
+  const query = getQuery<CharacterQueryDto>(event);
   query.deleteYn = query.deleteYn || 'N';
-
-  // 2. 패스 파라미터: URL 경로에 정의된 특정 파라미터 값을 가져옵니다. (기본 string | undefined)
-  // const id = getRouterParam(event, 'id');
-
-  // 4. 전체 헤더: 요청에 포함된 모든 헤더를 객체로 가져옵니다.
-  // const headers = Object.fromEntries(event.req.headers.entries());
-
-  // 5. 특정 헤더: 특정 헤더 값 하나만 가져옵니다. (대소문자 구분 없음)
-  // const discordId = event.req.headers.get('X-Discord-ID');
-
-  // 6. 쿠키: 모든 쿠키를 파싱하여 객체로 반환합니다.
-  // const cookies = parseCookies(event);
-
-  // 7. 요청 바디: POST/PUT 요청의 본문을 가져오며, 제네릭으로 타이핑합니다.
-  // const body = await readBody<{ title: string }>(event);
 
   // ========== ========== ========== ==========
   // 서비스 로직
   // ========== ========== ========== ==========
 
   const columns = getTableColumns(charactersTable);
-  const where = buildDrizzleWhere<CharacterInDto>(query, {
+
+  // 1. Where 조건 구성
+  const where = buildDrizzleWhere<CharacterQueryDto>(query, {
     id: 'eq',
     idList: 'in',
     userId: 'eq',
@@ -54,22 +59,24 @@ export default defineEventHandler(async (event) => {
     deleteYn: 'eq',
   }, columns);
 
-  const total = await db
+  // 2. 카운트 조회
+  const totalRes = await db
     .select({ count: count(), })
     .from(charactersTable);
+  const totalElements = totalRes[0]!.count;
 
-  const filtered = await db
+  const filteredRes = await db
     .select({ count: count(), })
     .from(charactersTable)
     .where(where);
+  const filteredElements = filteredRes[0]!.count;
 
-  const totalElements = total[0]!.count;
-  const filteredElements = filtered[0]!.count;
-
+  // 3. 페이징 설정
   const page = Number(query.page || 0);
   const size = Number(query.size || 0);
   const isPaged = size > 0;
 
+  // 4. 목록 조회
   const list = await db.query.charactersTable.findMany({
     where,
     orderBy: sortHelper(query.sort || '', columns) as SQL[],
@@ -83,32 +90,34 @@ export default defineEventHandler(async (event) => {
       user: true,
       campaign: true,
       classes: true,
-      sessions: true,
-      consumeHistories: true,
+      sessions: {
+        with: {
+          session: true,
+        },
+      },
+      currencyTransactions: true,
     },
   });
 
+  // 5. 응답 데이터 가공 (동적 필드 계산)
   const listData = new ListData<CharacterOutDto>(
     (list as any[]).map((character) => {
       const classes = character.classes || [];
       const sessions = character.sessions || [];
-      const consumes = character.consumeHistories || [];
+      const currentCurrency = sumCurrentCurrency(character.currencyTransactions || []);
 
-      // 동적 필드 계산
       const currentLevel = classes.reduce((acc: number, curr: any) => acc + (curr.level || 0), 0) || character.startLevel || 1;
       const sessionExp = sessions.reduce((acc: number, curr: any) => acc + (curr.session?.rewardExp || 0), 0);
-      const sessionGold = sessions.reduce((acc: number, curr: any) => acc + (curr.session?.rewardGold || 0), 0);
-      const consumeGold = consumes.reduce((acc: number, curr: any) => acc + ((curr.beforeCurrency as any).gp - (curr.afterCurrency as any).gp), 0);
 
       return {
         ...character,
         currentLevel,
         currentExp: (character.startExp || 0) + sessionExp,
-        currentCurrencyGp: (character.startCurrencyGp || 0) + sessionGold - consumeGold,
-        currentCurrencyCp: character.startCurrencyCp,
-        currentCurrencySp: character.startCurrencySp,
-        currentCurrencyEp: character.startCurrencyEp,
-        currentCurrencyPp: character.startCurrencyPp,
+        currentCurrencyCp: currentCurrency.cp,
+        currentCurrencySp: currentCurrency.sp,
+        currentCurrencyEp: currentCurrency.ep,
+        currentCurrencyGp: currentCurrency.gp,
+        currentCurrencyPp: currentCurrency.pp,
       } as CharacterOutDto;
     }),
     totalElements,
@@ -124,13 +133,5 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
   // 응답
   // ========== ========== ========== ==========
-
-  // 단건이면
-  // return BaseResponse.data();
-
-  // 다건이면
   return BaseResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CHARACTER_LIST_SUCCESS);
-
-  // 실패면
-  // return BaseResponse.error();
 });

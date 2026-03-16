@@ -1,12 +1,24 @@
 export default defineEventHandler(async (event) => {
+  // ========== ========== ========== ==========
+  // 기본 정보
+  // ========== ========== ========== ==========
   const id = Number(getRouterParam(event, 'id'));
-  const discordId = event.req.headers.get('X-Discord-ID');
   const body = await readBody<{ status: CharacterStatus }>(event);
 
+  // ========== ========== ========== ==========
+  // 서비스 로직
+  // ========== ========== ========== ==========
+
+  // 1. 필수값 확인
+  if (!body || !body.status) {
+    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
+  }
+
+  // 2. 권한 확인 (X-Discord-ID 헤더 체크 및 유저 검증 포함)
   const { user, hasPermission, error, } = await authHelper(event);
   if (error) return error;
 
-  // 2. 캐릭터 존재 여부 및 소유권 확인
+  // 3. 캐릭터 존재 여부 확인
   const character = await db.query.charactersTable.findFirst({
     where: (table, { eq, and, }) => and(
       eq(table.id, id),
@@ -18,11 +30,12 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CHARACTER_NOT_FOUND);
   }
 
+  // 4. 소유권 확인
   if (!hasPermission(character.userId)) {
     return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CHARACTER_FORBIDDEN);
   }
 
-  // 3. 상태 업데이트
+  // 5. 상태 업데이트
   const [ updatedCharacter, ] = await db.update(charactersTable)
     .set({
       status: body.status,
@@ -32,6 +45,9 @@ export default defineEventHandler(async (event) => {
     .where(eq(charactersTable.id, id))
     .returning();
 
+  // ========== ========== ========== ==========
+  // 응답
+  // ========== ========== ========== ==========
   return BaseResponse.data(
     updatedCharacter,
     RESPONSE_CODE.OK,

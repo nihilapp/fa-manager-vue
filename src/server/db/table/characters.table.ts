@@ -32,13 +32,6 @@ export const charactersTable = pgTable('characters', {
   resistance: text('resistance'),
   immunity: text('immunity'),
 
-  // 캐릭터 화폐 (Prisma 복구)
-  startCurrencyCp: integer('start_currency_cp'),
-  startCurrencySp: integer('start_currency_sp'),
-  startCurrencyEp: integer('start_currency_ep'),
-  startCurrencyGp: integer('start_currency_gp'),
-  startCurrencyPp: integer('start_currency_pp'),
-
   // 캐릭터 장비 (Prisma 복구)
   mainHand: varchar('main_hand', { length: 100, }),
   offHand: varchar('off_hand', { length: 100, }),

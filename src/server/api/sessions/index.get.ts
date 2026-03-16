@@ -1,9 +1,9 @@
 export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
-  // 간단 가이드
+  // 기본 정보
   // ========== ========== ========== ==========
   // 1. 쿼리 스트링: 제네릭을 통해 반환 값의 타입을 직접 지정합니다.
-  const query = getQuery<SessionInDto>(event);
+  const query = getQuery<SessionQueryDto>(event);
   query.deleteYn = query.deleteYn || 'N';
 
   // ========== ========== ========== ==========
@@ -12,10 +12,11 @@ export default defineEventHandler(async (event) => {
 
   // 1. Where 조건 구성
   const columns = getTableColumns(sessionsTable);
-  const where = buildDrizzleWhere<SessionInDto>(query, {
+  const where = buildDrizzleWhere<SessionQueryDto>(query, {
     id: 'eq',
     idList: 'in',
     campaignId: 'eq',
+    no: 'eq',
     status: 'dynamic',
     name: 'like',
     useYn: 'eq',

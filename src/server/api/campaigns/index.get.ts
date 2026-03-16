@@ -1,9 +1,9 @@
 export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
-  // 간단 가이드
+  // 기본 정보
   // ========== ========== ========== ==========
   // 1. 쿼리 스트링: 제네릭을 통해 반환 값의 타입을 직접 지정합니다.
-  const query = getQuery<CampaignInDto>(event);
+  const query = getQuery<CampaignQueryDto>(event);
   query.deleteYn = query.deleteYn || 'N';
 
   // 2. 패스 파라미터: URL 경로에 정의된 특정 파라미터 값을 가져옵니다. (기본 string | undefined)
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
 
   // 1. Where 조건 구성
   const columns = getTableColumns(campaignsTable);
-  const where = buildDrizzleWhere<CampaignInDto>(query, {
+  const where = buildDrizzleWhere<CampaignQueryDto>(query, {
     id: 'eq',
     idList: 'in',
     name: 'like',

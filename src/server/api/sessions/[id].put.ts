@@ -1,14 +1,13 @@
 export default defineEventHandler(async (event) => {
   const id = Number(getRouterParam(event, 'id'));
-  const discordId = event.req.headers.get('X-Discord-ID');
-  const body = await readBody<SessionInDto>(event);
-
-  if (!discordId) {
-    return BaseResponse.error(RESPONSE_CODE.UNAUTHORIZED, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
-  }
+  const body = await readBody<SessionUpdateDto>(event);
 
   const { user, hasPermission, error, } = await authHelper(event);
   if (error) return error;
+
+  if (!Number.isFinite(id) || !body) {
+    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.BAD_REQUEST);
+  }
 
   // 2. 세션 및 캠페인 마스터 권한 확인
   const session = await db.query.sessionsTable.findFirst({
@@ -30,9 +29,41 @@ export default defineEventHandler(async (event) => {
   }
 
   // 3. 세션 업데이트
+  const isStatusChanged = body.status !== undefined && body.status !== session.status;
   const [ updatedSession, ] = await db.update(sessionsTable)
     .set({
-      ...body,
+      no: body.no !== undefined
+        ? body.no
+        : session.no,
+      name: body.name !== undefined
+        ? body.name
+        : session.name,
+      description: body.description !== undefined
+        ? body.description
+        : session.description,
+      maxPlayer: body.maxPlayer !== undefined
+        ? body.maxPlayer
+        : session.maxPlayer,
+      rewardExp: body.rewardExp !== undefined
+        ? body.rewardExp
+        : session.rewardExp,
+      rewardGold: body.rewardGold !== undefined
+        ? body.rewardGold
+        : session.rewardGold,
+      status: body.status !== undefined
+        ? body.status
+        : session.status,
+      playDate: body.playDate !== undefined
+        ? (body.playDate
+          ? new Date(body.playDate)
+          : null)
+        : session.playDate,
+      useYn: body.useYn !== undefined
+        ? body.useYn
+        : session.useYn,
+      deleteYn: body.deleteYn !== undefined
+        ? body.deleteYn
+        : session.deleteYn,
       updaterId: user!.id,
       updateDate: new Date(),
     })
@@ -40,11 +71,11 @@ export default defineEventHandler(async (event) => {
     .returning();
 
   // 상태가 변경된 경우 전용 메시지 반환
-  if (body.status && body.status !== session.status) {
+  if (isStatusChanged) {
     return BaseResponse.data(
       updatedSession,
       RESPONSE_CODE.OK,
-      RESPONSE_MESSAGE.SESSION_STATUS_UPDATED(String(id), session.status!, body.status)
+      RESPONSE_MESSAGE.SESSION_STATUS_UPDATED(String(id), String(session.status), String(body.status))
     );
   }
 

@@ -1,13 +1,12 @@
 export default defineEventHandler(async (event) => {
-  const discordId = event.req.headers.get('X-Discord-ID');
-  const body = await readBody<SessionInDto>(event);
-
-  if (!discordId) {
-    return BaseResponse.error(RESPONSE_CODE.UNAUTHORIZED, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
-  }
+  const body = await readBody<SessionCreateDto>(event);
 
   const { user, hasPermission, error, } = await authHelper(event);
   if (error) return error;
+
+  if (!body || !body.campaignId || body.no === undefined || !body.name) {
+    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
+  }
 
   // 2. 캠페인 조회 및 마스터 권한 확인
   const campaign = await db.query.campaignsTable.findFirst({
@@ -24,8 +23,23 @@ export default defineEventHandler(async (event) => {
 
   // 3. 세션 생성
   const [ session, ] = await db.insert(sessionsTable).values({
-    ...body,
+    campaignId: body.campaignId,
+    no: body.no,
+    name: body.name,
+    description: body.description,
+    maxPlayer: body.maxPlayer,
+    rewardExp: body.rewardExp,
+    rewardGold: body.rewardGold,
+    status: body.status,
+    playDate: body.playDate
+      ? new Date(body.playDate)
+      : body.playDate === null
+        ? null
+        : undefined,
     creatorId: user!.id,
+    updaterId: user!.id,
+    createDate: new Date(),
+    updateDate: new Date(),
   }).returning();
 
   return BaseResponse.data(session, RESPONSE_CODE.CREATED, RESPONSE_MESSAGE.CREATE_SESSION_SUCCESS);

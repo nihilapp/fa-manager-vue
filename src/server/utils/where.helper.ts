@@ -1,23 +1,3 @@
-import {
-  and,
-  between,
-  eq,
-  gt,
-  gte,
-  ilike,
-  inArray,
-  isNotNull,
-  isNull,
-  lt,
-  lte,
-  ne,
-  notBetween,
-  notInArray,
-  or,
-  type SQL
-} from 'drizzle-orm';
-import { type PgColumn } from 'drizzle-orm/pg-core';
-
 /**
  * Drizzle 지원 연산자 타입 확장
  */
@@ -29,6 +9,18 @@ type Operator
     | 'between' | 'notBetween'
     | 'isNull' | 'isNotNull'
     | 'dynamic'; // 접미사 기반 동적 연산자
+
+function normalizeIdList(value: unknown): number[] {
+  const rawValues = Array.isArray(value)
+    ? value
+    : typeof value === 'string'
+      ? value.split(',')
+      : [];
+
+  return rawValues
+    .map((item) => Number(String(item).trim()))
+    .filter((item) => Number.isFinite(item));
+}
 
 /**
  * Drizzle용 동적 Where 절 빌더 (확장형)
@@ -43,6 +35,18 @@ export function buildDrizzleWhere<T extends Record<string, any>>(
 
   for (const [ key, operator, ] of Object.entries(mapping)) {
     const dtoKey = key as keyof T & string;
+
+    // `idList` 는 DTO 필드명이고 실제 컬럼은 `id` 이므로 별도 처리한다.
+    if (dtoKey === 'idList' && operator === 'in') {
+      const idColumn = tableColumns.id;
+      const idList = normalizeIdList(query[dtoKey]);
+
+      if (idColumn && idList.length > 0) {
+        conditions.push(inArray(idColumn, idList));
+      }
+      continue;
+    }
+
     const column = tableColumns[dtoKey];
     if (!column) continue;
 

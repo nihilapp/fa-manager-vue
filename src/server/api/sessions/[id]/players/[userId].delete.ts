@@ -1,14 +1,13 @@
 export default defineEventHandler(async (event) => {
   const sessionId = Number(getRouterParam(event, 'id'));
   const targetUserId = Number(getRouterParam(event, 'userId'));
-  const discordId = event.req.headers.get('X-Discord-ID');
 
-  if (!discordId) {
-    return BaseResponse.error(RESPONSE_CODE.UNAUTHORIZED, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
-  }
-
-  const { user, isAdmin, hasPermission, error, } = await authHelper(event);
+  const { user, error, } = await authHelper(event);
   if (error) return error;
+
+  if (!Number.isFinite(sessionId) || !Number.isFinite(targetUserId)) {
+    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.BAD_REQUEST);
+  }
 
   // 2. 세션 및 캠페인 권한 확인
   const session = await db.query.sessionsTable.findFirst({
@@ -25,11 +24,7 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.SESSION_NOT_FOUND);
   }
 
-  // 권한 확인: 캠페인 마스터이거나, 관리자이거나, 본인의 참여를 취소하는 경우만 허용
-  const isMaster = session.campaign?.userId === user!.id;
-  const isSelf = targetUserId === user!.id;
-
-  if (!isAdmin && !isMaster && !isSelf) {
+  if (targetUserId !== user.id) {
     return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.PLAYER_FORBIDDEN);
   }
 
@@ -37,7 +32,7 @@ export default defineEventHandler(async (event) => {
   await db.delete(sessionPlayersTable)
     .where(and(
       eq(sessionPlayersTable.sessionId, sessionId),
-      eq(sessionPlayersTable.userId, targetUserId)
+      eq(sessionPlayersTable.userId, user.id)
     ));
 
   return BaseResponse.data(null, RESPONSE_CODE.OK, RESPONSE_MESSAGE.PLAYER_DELETED);

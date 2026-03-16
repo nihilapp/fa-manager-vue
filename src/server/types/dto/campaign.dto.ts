@@ -1,0 +1,60 @@
+import type {
+  CharacterOutDto,
+  SessionOutDto,
+  UserOutDto,
+} from '../dto.types';
+import type {
+  CommonOutDto,
+  CommonQueryDto,
+  Status,
+} from './common.dto';
+
+export interface CampaignQueryDto extends CommonQueryDto {
+  userId?: number;
+  name?: string;
+  status?: Status;
+}
+
+export interface CampaignCreateDto {
+  name: string;
+  description?: string | null;
+  status?: Status;
+  startDate: Date | string;
+  endDate?: Date | string | null;
+}
+
+export interface CampaignUpdateDto {
+  name?: string;
+  description?: string | null;
+  status?: Status;
+  startDate?: Date | string;
+  endDate?: Date | string | null;
+  useYn?: 'Y' | 'N';
+  deleteYn?: 'Y' | 'N';
+}
+
+export interface CampaignOutDto extends CommonOutDto {
+  userId?: number;
+  name?: string;
+  description?: string | null;
+  status?: Status;
+  startDate?: Date | string;
+  endDate?: Date | string | null;
+
+  user?: UserOutDto;
+  members?: CampaignMemberOutDto[];
+  sessions?: SessionOutDto[];
+  characters?: CharacterOutDto[];
+}
+
+export interface CampaignMemberCreateDto {
+}
+
+export interface CampaignMemberOutDto extends CommonOutDto {
+  userId?: number;
+  campaignId?: number;
+  role?: CampaignRole;
+
+  user?: UserOutDto;
+  campaign?: CampaignOutDto;
+}

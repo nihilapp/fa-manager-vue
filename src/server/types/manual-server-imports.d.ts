@@ -45,6 +45,31 @@ import {
   type InferInsertModel
 } from 'drizzle-orm';
 
+import {
+  pgTable,
+  bigint,
+  varchar,
+  text,
+  integer,
+  char,
+  timestamp,
+  jsonb,
+  index,
+  uniqueIndex,
+  primaryKey,
+  pgEnum,
+  type PgTable,
+  type PgColumn,
+  type PgBigInt53,
+  type PgVarchar,
+  type PgText,
+  type PgInteger,
+  type PgChar,
+  type PgTimestamp,
+  type PgJsonb,
+  type PgEnum
+} from 'drizzle-orm/pg-core';
+
 import _ from 'lodash-es';
 import {DateTime} from 'luxon';
 import {v4 as uuidv4} from 'uuid';
@@ -63,9 +88,19 @@ import {usersTable} from '../db/table/users.table';
 import {campaignsTable, campaignMembersTable} from '../db/table/campaigns.table';
 import {sessionsTable, sessionPlayersTable, sessionLogsTable} from '../db/table/sessions.table';
 import {charactersTable, characterClassesTable} from '../db/table/characters.table';
+import {currencyTransactionsTable} from '../db/table/currency-transactions.table';
 import {docsTable} from '../db/table/docs.table';
 import {logHistoriesTable} from '../db/table/logHistories.table';
-import type {ConsumeHistoryInDto} from "@server/types/dto.types";
+import {
+  commonColumns,
+  statusEnum,
+  campaignRoleEnum,
+  sessionRoleEnum,
+  userRoleEnum,
+  docVisibilityEnum,
+  docStatusEnum,
+  characterStatusEnum, transactionTypeEnum
+} from '../db/table/common';
 
 declare global {
   // Common Utils
@@ -97,6 +132,41 @@ declare global {
   const desc: typeof import('drizzle-orm')['desc'];
   const getTableColumns: typeof import('drizzle-orm')['getTableColumns'];
 
+  // Drizzle PG Core
+  const pgTable: typeof import('drizzle-orm/pg-core')['pgTable'];
+  type PgTable = import('drizzle-orm/pg-core').PgTable;
+  type PgColumn = import('drizzle-orm/pg-core').PgColumn;
+  const bigint: typeof import('drizzle-orm/pg-core')['bigint'];
+  type PgBigInt53 = import('drizzle-orm/pg-core').PgBigInt53;
+  const varchar: typeof import('drizzle-orm/pg-core')['varchar'];
+  type PgVarchar = import('drizzle-orm/pg-core').PgVarchar;
+  const text: typeof import('drizzle-orm/pg-core')['text'];
+  type PgText = import('drizzle-orm/pg-core').PgText;
+  const integer: typeof import('drizzle-orm/pg-core')['integer'];
+  type PgInteger = import('drizzle-orm/pg-core').PgInteger;
+  const char: typeof import('drizzle-orm/pg-core')['char'];
+  type PgChar = import('drizzle-orm/pg-core').PgChar;
+  const timestamp: typeof import('drizzle-orm/pg-core')['timestamp'];
+  type PgTimestamp = import('drizzle-orm/pg-core').PgTimestamp;
+  const jsonb: typeof import('drizzle-orm/pg-core')['jsonb'];
+  type PgJsonb = import('drizzle-orm/pg-core').PgJsonb;
+  const index: typeof import('drizzle-orm/pg-core')['index'];
+  const uniqueIndex: typeof import('drizzle-orm/pg-core')['uniqueIndex'];
+  const primaryKey: typeof import('drizzle-orm/pg-core')['primaryKey'];
+  const pgEnum: typeof import('drizzle-orm/pg-core')['pgEnum'];
+  type PgEnum<TValues extends readonly string[]> = import('drizzle-orm/pg-core').PgEnum<TValues>;
+
+  // Server Common (Enums & Common Columns)
+  const commonColumns: typeof import('../db/table/common')['commonColumns'];
+  const statusEnum: typeof import('../db/table/common')['statusEnum'];
+  const campaignRoleEnum: typeof import('../db/table/common')['campaignRoleEnum'];
+  const sessionRoleEnum: typeof import('../db/table/common')['sessionRoleEnum'];
+  const userRoleEnum: typeof import('../db/table/common')['userRoleEnum'];
+  const docVisibilityEnum: typeof import('../db/table/common')['docVisibilityEnum'];
+  const docStatusEnum: typeof import('../db/table/common')['docStatusEnum'];
+  const characterStatusEnum: typeof import('../db/table/common')['characterStatusEnum'];
+  const transactionTypeEnum: typeof import('../db/table/common')['transactionTypeEnum'];
+
   // Server Tables
   const usersTable: typeof import('../db/table/users.table')['usersTable'];
   const campaignsTable: typeof import('../db/table/campaigns.table')['campaignsTable'];
@@ -106,9 +176,9 @@ declare global {
   const sessionLogsTable: typeof import('../db/table/sessions.table')['sessionLogsTable'];
   const charactersTable: typeof import('../db/table/characters.table')['charactersTable'];
   const characterClassesTable: typeof import('../db/table/characters.table')['characterClassesTable'];
+  const currencyTransactionsTable: typeof import('../db/table/currency-transactions.table')['currencyTransactionsTable'];
   const docsTable: typeof import('../db/table/docs.table')['docsTable'];
   const logHistoriesTable: typeof import('../db/table/logHistories.table')['logHistoriesTable'];
-  const consumeHistoriesTable: typeof import('../db/table/consumeHistories.table')['consumeHistoriesTable'];
 
   // Table Inferred Types (Prefixed with 'Type')
   type TypeUser = InferSelectModel<typeof usersTable>;
@@ -127,12 +197,12 @@ declare global {
   type TypeNewCharacter = InferInsertModel<typeof charactersTable>;
   type TypeCharacterClass = InferSelectModel<typeof characterClassesTable>;
   type TypeNewCharacterClass = InferInsertModel<typeof characterClassesTable>;
+  type TypeCurrencyTransaction = InferSelectModel<typeof currencyTransactionsTable>;
+  type TypeNewCurrencyTransaction = InferInsertModel<typeof currencyTransactionsTable>;
   type TypeDoc = InferSelectModel<typeof docsTable>;
   type TypeNewDoc = InferInsertModel<typeof docsTable>;
   type TypeLogHistory = InferSelectModel<typeof logHistoriesTable>;
   type TypeNewLogHistory = InferInsertModel<typeof logHistoriesTable>;
-  type TypeConsumeHistory = InferSelectModel<typeof consumeHistoriesTable>;
-  type TypeNewConsumeHistory = InferInsertModel<typeof consumeHistoriesTable>;
 
   // Server DTO Types & Enums
   type UserRole = import('./dto.types').UserRole;
@@ -142,31 +212,50 @@ declare global {
   type DocVisibility = import('./dto.types').DocVisibility;
   type DocStatus = import('./dto.types').DocStatus;
   type CharacterStatus = import('./dto.types').CharacterStatus;
+  type TransactionType = import('./dto.types').TransactionType;
+  type LogActionType = import('./dto.types').LogActionType;
 
   type CommonInDto = import('./dto.types').CommonInDto;
+  type CommonQueryDto = import('./dto.types').CommonQueryDto;
   type CommonOutDto = import('./dto.types').CommonOutDto;
-  type UserInDto = import('./dto.types').UserInDto;
+  type UserQueryDto = import('./dto.types').UserQueryDto;
+  type UserCreateDto = import('./dto.types').UserCreateDto;
+  type UserUpdateDto = import('./dto.types').UserUpdateDto;
   type UserOutDto = import('./dto.types').UserOutDto;
-  type CampaignInDto = import('./dto.types').CampaignInDto;
+  type CampaignQueryDto = import('./dto.types').CampaignQueryDto;
+  type CampaignCreateDto = import('./dto.types').CampaignCreateDto;
+  type CampaignUpdateDto = import('./dto.types').CampaignUpdateDto;
   type CampaignOutDto = import('./dto.types').CampaignOutDto;
-  type CampaignMemberInDto = import('./dto.types').CampaignMemberInDto;
+  type CampaignMemberCreateDto = import('./dto.types').CampaignMemberCreateDto;
   type CampaignMemberOutDto = import('./dto.types').CampaignMemberOutDto;
-  type SessionInDto = import('./dto.types').SessionInDto;
+  type SessionQueryDto = import('./dto.types').SessionQueryDto;
+  type SessionCreateDto = import('./dto.types').SessionCreateDto;
+  type SessionUpdateDto = import('./dto.types').SessionUpdateDto;
   type SessionOutDto = import('./dto.types').SessionOutDto;
-  type SessionPlayerInDto = import('./dto.types').SessionPlayerInDto;
+  type SessionPlayerCreateDto = import('./dto.types').SessionPlayerCreateDto;
   type SessionPlayerOutDto = import('./dto.types').SessionPlayerOutDto;
-  type SessionLogInDto = import('./dto.types').SessionLogInDto;
+  type SessionLogQueryDto = import('./dto.types').SessionLogQueryDto;
+  type SessionLogCreateDto = import('./dto.types').SessionLogCreateDto;
+  type SessionLogUpdateDto = import('./dto.types').SessionLogUpdateDto;
   type SessionLogOutDto = import('./dto.types').SessionLogOutDto;
-  type CharacterInDto = import('./dto.types').CharacterInDto;
+  type CharacterQueryDto = import('./dto.types').CharacterQueryDto;
+  type CharacterCreateDto = import('./dto.types').CharacterCreateDto;
+  type CharacterUpdateDto = import('./dto.types').CharacterUpdateDto;
   type CharacterOutDto = import('./dto.types').CharacterOutDto;
-  type CharacterClassInDto = import('./dto.types').CharacterClassInDto;
+  type CharacterClassQueryDto = import('./dto.types').CharacterClassQueryDto;
+  type CharacterClassCreateDto = import('./dto.types').CharacterClassCreateDto;
+  type CharacterClassUpdateDto = import('./dto.types').CharacterClassUpdateDto;
   type CharacterClassOutDto = import('./dto.types').CharacterClassOutDto;
   type DocInDto = import('./dto.types').DocInDto;
   type DocOutDto = import('./dto.types').DocOutDto;
-  type LogHistoryInDto = import('./dto.types').LogHistoryInDto;
+  type LogHistoryQueryDto = import('./dto.types').LogHistoryQueryDto;
+  type LogHistoryCreateDto = import('./dto.types').LogHistoryCreateDto;
+  type LogHistoryUpdateDto = import('./dto.types').LogHistoryUpdateDto;
   type LogHistoryOutDto = import('./dto.types').LogHistoryOutDto;
-  type ConsumeHistoryInDto = import('./dto.types').ConsumeHistoryInDto;
-  type ConsumeHistoryOutDto = import('./dto.types').ConsumeHistoryOutDto;
+  type CurrencyTransactionQueryDto = import('./dto.types').CurrencyTransactionQueryDto;
+  type CurrencyTransactionCreateDto = import('./dto.types').CurrencyTransactionCreateDto;
+  type CurrencyTransactionUpdateDto = import('./dto.types').CurrencyTransactionUpdateDto;
+  type CurrencyTransactionOutDto = import('./dto.types').CurrencyTransactionOutDto;
 
   // Server Response Types
   type BaseResponseType<T = null> = import('./response.types').BaseResponseType<T>;
@@ -188,11 +277,15 @@ declare global {
   const deleteCookie: typeof import('h3')['deleteCookie'];
 
   // Server Constants
+  type RESPONSE_CODE = import('../constant/response-code').RESPONSE_CODE;
   const RESPONSE_CODE: typeof import('../constant/response-code')['RESPONSE_CODE'];
+  type RESPONSE_MESSAGE = import('../constant/response-message').RESPONSE_MESSAGE;
   const RESPONSE_MESSAGE: typeof import('../constant/response-message')['RESPONSE_MESSAGE'];
 
   // Server Utils
+  type BaseResponse<T = null> = import('../utils/base-response').BaseResponse<T>;
   const BaseResponse: typeof import('../utils/base-response')['BaseResponse'];
+  type ListData<T = null> = import('../utils/list-data').ListData<T>;
   const ListData: typeof import('../utils/list-data')['ListData'];
   const authHelper: typeof import('../utils/auth')['authHelper'];
   const db: typeof import('../utils/drizzle')['db'];

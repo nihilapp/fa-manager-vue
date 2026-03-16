@@ -15,6 +15,13 @@
       "when": 1773525372262,
       "tag": "0001_strange_ogun",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773675732500,
+      "tag": "0002_even_amphibian",
+      "breakpoints": true
     }
   ]
 }

@@ -30,6 +30,7 @@ export class RESPONSE_MESSAGE {
   static USER_NOT_FOUND = '해당 사용자를 찾을 수 없습니다.';
   static USERNAME_ALREADY_EXISTS = '이미 사용 중인 사용자 이름입니다.';
   static EMAIL_ALREADY_EXISTS = '이미 등록된 이메일 주소입니다.';
+  static DISCORD_ID_ALREADY_EXISTS = '이미 등록된 디스코드 사용자 ID입니다.';
   static CREATE_USER_SUCCESS = '사용자 계정이 생성되었습니다.';
   static UPDATE_USER_SUCCESS = '사용자 정보가 성공적으로 수정되었습니다.';
   static UPDATE_USER_FAILURE = '사용자 정보를 수정할 수 없습니다.';
@@ -62,7 +63,9 @@ export class RESPONSE_MESSAGE {
   static UPDATE_CAMPAIGN_STATUS_FAILURE = '캠페인 상태를 수정할 수 없습니다.';
 
   static PLAYER_REGISTERED = '플레이어가 캠페인에 등록되었습니다.';
+  static PLAYER_ALREADY_REGISTERED = '이미 캠페인에 참여 중입니다.';
   static PLAYER_DELETED = '플레이어가 캠페인에서 삭제되었습니다.';
+  static CAMPAIGN_OWNER_CANNOT_LEAVE = '캠페인 생성자는 캠페인에서 이탈할 수 없습니다.';
   static CHARACTER_REGISTERED = '캐릭터가 캠페인에 등록되었습니다.';
   static CHARACTER_DELETED = '캐릭터가 캠페인에서 삭제되었습니다.';
 
@@ -96,6 +99,15 @@ export class RESPONSE_MESSAGE {
   static UPDATE_CHARACTER_CLASS_SUCCESS = '캐릭터 클래스 정보가 수정되었습니다.';
   static DELETE_CHARACTER_CLASS_SUCCESS = '캐릭터 클래스가 제거되었습니다.';
   static CHARACTER_CLASS_NOT_FOUND = '해당 캐릭터 클래스 정보를 찾을 수 없습니다.';
+  static GET_CURRENCY_TRANSACTION_LIST_SUCCESS = '재화 변동 이력 목록 조회 성공';
+  static GET_CURRENCY_TRANSACTION_SUCCESS = '재화 변동 이력 조회 성공';
+  static CREATE_CURRENCY_TRANSACTION_SUCCESS = '재화 변동 이력이 생성되었습니다.';
+  static UPDATE_CURRENCY_TRANSACTION_SUCCESS = '재화 변동 이력이 수정되었습니다.';
+  static DELETE_CURRENCY_TRANSACTION_SUCCESS = '재화 변동 이력이 삭제되었습니다.';
+  static CURRENCY_TRANSACTION_NOT_FOUND = '재화 변동 이력을 찾을 수 없습니다.';
+  static CURRENCY_TRANSACTION_FORBIDDEN = '재화 변동 이력에 대한 권한이 없습니다.';
+  static CURRENCY_TRANSACTION_ADMIN_ONLY = '재화 변동 이력 수정 및 삭제는 관리자만 가능합니다.';
+  static CHARACTER_INIT_TRANSACTION_ALREADY_EXISTS = '해당 캐릭터에는 이미 초기 자금 이력이 존재합니다.';
 
 
   // ========== ========== ========== ==========
@@ -113,6 +125,14 @@ export class RESPONSE_MESSAGE {
   static SESSION_FORBIDDEN = '해당 세션에 대한 권한이 없습니다. 캠페인 마스터만 가능합니다.';
   static PLAYER_FORBIDDEN = '플레이어 관리 권한이 없습니다.';
   static PLAYER_ALREADY_EXISTS = '이미 해당 세션에 등록된 캐릭터입니다.';
+  static SESSION_PLAYER_ALREADY_REGISTERED = '이미 세션에 참여 중입니다.';
+  static GET_SESSION_LOG_LIST_SUCCESS = '세션 로그 목록 조회 성공';
+  static GET_SESSION_LOG_SUCCESS = '세션 로그 조회 성공';
+  static CREATE_SESSION_LOG_SUCCESS = '세션 로그가 생성되었습니다.';
+  static UPDATE_SESSION_LOG_SUCCESS = '세션 로그가 수정되었습니다.';
+  static DELETE_SESSION_LOG_SUCCESS = '세션 로그가 삭제되었습니다.';
+  static SESSION_LOG_NOT_FOUND = '세션 로그를 찾을 수 없습니다.';
+  static SESSION_LOG_FORBIDDEN = '해당 세션 로그에 대한 권한이 없습니다.';
 
   static SESSION_STATUS_UPDATED = function (
     sessionId: string, oldStatus: string, newStatus: string
@@ -128,7 +148,11 @@ export class RESPONSE_MESSAGE {
 
   static GET_LOG_LIST_SUCCESS = '시스템 로그 이력 목록 조회 성공';
   static GET_LOG_DETAIL_SUCCESS = '시스템 로그 상세 정보 조회 성공';
+  static CREATE_LOG_SUCCESS = '시스템 로그 이력이 생성되었습니다.';
+  static UPDATE_LOG_SUCCESS = '시스템 로그 이력이 수정되었습니다.';
+  static DELETE_LOG_SUCCESS = '시스템 로그 이력이 삭제되었습니다.';
   static LOG_NOT_FOUND = '해당 로그 이력을 찾을 수 없습니다.';
+  static LOG_ADMIN_ONLY = '시스템 로그 이력 조회 및 변경은 관리자만 가능합니다.';
   static LOG_RESTORE_SUCCESS = '데이터가 과거 시점으로 성공적으로 복원되었습니다.';
   static LOG_RESTORE_FAILURE = '데이터 복원에 실패했습니다.';
 

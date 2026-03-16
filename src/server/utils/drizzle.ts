@@ -4,6 +4,7 @@ import 'dotenv/config';
 
 import * as campaigns from '@server/db/table/campaigns.table';
 import * as characters from '@server/db/table/characters.table';
+import * as currencyTransactions from '@server/db/table/currency-transactions.table';
 import * as docs from '@server/db/table/docs.table';
 import * as logHistories from '@server/db/table/logHistories.table';
 import * as relations from '@server/db/table/relations';
@@ -19,6 +20,7 @@ const schema = {
   ...campaigns,
   ...sessions,
   ...characters,
+  ...currencyTransactions,
   ...docs,
   ...logHistories,
   ...relations,

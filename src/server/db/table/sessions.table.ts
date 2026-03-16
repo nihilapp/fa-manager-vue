@@ -1,9 +1,9 @@
-import { bigint, index, integer, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { bigint, index, integer, pgTable, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
 
+import { campaignsTable } from './campaigns.table';
 import { charactersTable } from './characters.table';
 import { commonColumns, sessionRoleEnum, statusEnum } from './common';
 import { usersTable } from './users.table';
-import { campaignsTable } from './campaigns.table';
 
 export const sessionsTable = pgTable('sessions', {
   id: commonColumns.id,
@@ -33,7 +33,9 @@ export const sessionPlayersTable = pgTable('session_players', {
   role: sessionRoleEnum('role').default('PLAYER').notNull(),
 
   ...commonColumns.meta,
-});
+}, (table) => [
+  uniqueIndex('idx_session_players_session_user').on(table.sessionId, table.userId),
+]);
 
 export const sessionLogsTable = pgTable('session_logs', {
   id: commonColumns.id,

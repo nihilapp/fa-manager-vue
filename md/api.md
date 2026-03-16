@@ -1,0 +1,710 @@
+# API 정리
+
+현재 `src/server/api` 기준으로 구현되어 있는 엔드포인트만 정리했다.
+이 문서는 Swagger 대용으로 "이 API가 어떤 데이터를 받을 수 있는지" 빠르게 확인하는 용도다.
+
+## 공통 규칙
+
+### 인증
+
+- 인증이 필요한 API는 요청 헤더 `X-Discord-ID` 가 필요하다.
+- 인증은 [auth.ts](/C:/Users/nihil/coding/app/fa-manager/src/server/utils/auth.ts) 기준이다.
+- `X-Discord-ID` 가 없으면 `401`
+- 해당 `discordId` 유저가 없으면 `404`
+
+### 공통 Query 필드
+
+목록 조회 API 대부분은 아래 공통 query를 받을 수 있다.
+
+- `id?: number`
+- `idList?: number[]`
+- `page?: number`
+- `size?: number`
+- `sort?: string`
+- `useYn?: 'Y' | 'N'`
+- `deleteYn?: 'Y' | 'N'`
+- `creatorId?: number`
+- `createDate?: string`
+- `updaterId?: number`
+- `updateDate?: string`
+- `deleterId?: number`
+- `deleteDate?: string`
+
+기본적으로 목록 API는 `deleteYn` 을 전달하지 않으면 내부에서 `N` 으로 처리한다.
+
+## Health
+
+### `GET /api/health`
+
+- 설명: 서버 생존 확인
+- 인증: 불필요
+- 입력 데이터: 없음
+
+## Users
+
+### `GET /api/users`
+
+- 설명: 유저 목록 조회
+- 인증: 불필요
+- Query:
+- `id`, `idList`, `page`, `size`, `sort`, `useYn`, `deleteYn`
+- `discordId?: string`
+- `name?: string`
+- `email?: string`
+- `role?: 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN'`
+
+### `POST /api/users`
+
+- 설명: 유저 생성
+- 인증: 불필요
+- Body:
+- `discordId: string` 필수
+- `name: string` 필수
+- `email: string` 필수
+- `role?: 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN'`
+- `creatorId?: number`
+
+### `GET /api/users/:id`
+
+- 설명: 유저 단건 조회
+- 인증: 불필요
+- Path:
+- `id: number` 필수
+
+### `PUT /api/users/:id`
+
+- 설명: 유저 수정
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body:
+- `name?: string`
+- `role?: 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN'`
+- `useYn?: 'Y' | 'N'`
+- `deleteYn?: 'Y' | 'N'`
+- `updaterId?: number`
+- 비고: body 객체 자체는 필요하지만, 특정 필드를 필수로 강제하지는 않는다.
+
+### `DELETE /api/users/:id`
+
+- 설명: 유저 삭제 처리
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body: 없음
+
+## Campaigns
+
+### `GET /api/campaigns`
+
+- 설명: 캠페인 목록 조회
+- 인증: 불필요
+- Query:
+- `id`, `idList`, `page`, `size`, `sort`, `useYn`, `deleteYn`
+- `userId?: number`
+- `name?: string`
+- `status?: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD'`
+
+### `POST /api/campaigns`
+
+- 설명: 캠페인 생성
+- 인증: 필요
+- Body:
+- `name: string` 필수
+- `startDate: string | Date` 필수
+- `description?: string | null`
+- `status?: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD'`
+- `endDate?: string | Date | null`
+- 비고: `userId` 는 body로 받지 않고 인증 사용자로 고정된다.
+
+### `GET /api/campaigns/:id`
+
+- 설명: 캠페인 단건 조회
+- 인증: 불필요
+- Path:
+- `id: number` 필수
+
+### `PUT /api/campaigns/:id`
+
+- 설명: 캠페인 수정
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body:
+- `name?: string`
+- `description?: string | null`
+- `status?: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD'`
+- `startDate?: string | Date`
+- `endDate?: string | Date | null`
+- `useYn?: 'Y' | 'N'`
+- `deleteYn?: 'Y' | 'N'`
+
+### `DELETE /api/campaigns/:id`
+
+- 설명: 캠페인 삭제 처리
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body: 없음
+
+### `PUT /api/campaigns/:id/status`
+
+- 설명: 캠페인 상태만 수정
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body:
+- `status: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD'` 필수
+
+### `POST /api/campaigns/:id/members/:userId`
+
+- 설명: 캠페인 참여
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- `userId: number` 필수
+- Body:
+- 없음
+- 비고:
+- 실질적으로는 `userId` 와 인증 사용자 ID가 같아야 한다.
+- 중복 참여는 멱등 처리된다.
+
+### `DELETE /api/campaigns/:id/members/:userId`
+
+- 설명: 캠페인 이탈
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- `userId: number` 필수
+- Body: 없음
+- 비고:
+- 실질적으로는 `userId` 와 인증 사용자 ID가 같아야 한다.
+- 캠페인 생성자는 이탈할 수 없다.
+
+### `POST /api/campaigns/:campaignId/characters/:characterId`
+
+- 설명: 캐릭터를 캠페인에 연결
+- 인증: 필요
+- Path:
+- `campaignId: number` 필수
+- `characterId: number` 필수
+- Body: 없음
+
+### `DELETE /api/campaigns/:campaignId/characters/:characterId`
+
+- 설명: 캐릭터의 캠페인 연결 해제
+- 인증: 필요
+- Path:
+- `campaignId: number` 필수
+- `characterId: number` 필수
+- Body: 없음
+
+## Characters
+
+### `GET /api/characters`
+
+- 설명: 캐릭터 목록 조회
+- 인증: 불필요
+- Query:
+- `id`, `idList`, `page`, `size`, `sort`, `useYn`, `deleteYn`
+- `userId?: number`
+- `campaignId?: number`
+- `name?: string`
+- `status?: 'ACTIVE' | 'RESTING' | 'RETIRED' | 'DECEASED'`
+- `race?: string`
+- `currentLevel?: number`
+- `str?: number`
+- `dex?: number`
+- `con?: number`
+- `int?: number`
+- `wis?: number`
+- `cha?: number`
+- `ac?: number`
+- `hp?: number`
+- `speed?: string`
+- `vision?: string`
+- `skills?: string`
+- `advantage?: string`
+- `disadvantage?: string`
+- `resistance?: string`
+- `immunity?: string`
+
+### `POST /api/characters`
+
+- 설명: 캐릭터 생성
+- 인증: 필요
+- Body:
+- `name: string` 필수
+- `race: string` 필수
+- `campaignId?: number`
+- `status?: 'ACTIVE' | 'RESTING' | 'RETIRED' | 'DECEASED'`
+- `startLevel?: number`
+- `startExp?: number`
+- `str?: number`
+- `dex?: number`
+- `con?: number`
+- `int?: number`
+- `wis?: number`
+- `cha?: number`
+- `ac?: number`
+- `hp?: number`
+- `speed?: string`
+- `vision?: string`
+- `skills?: string`
+- `advantage?: string`
+- `disadvantage?: string`
+- `resistance?: string`
+- `immunity?: string`
+- `startCurrencyCp?: number`
+- `startCurrencySp?: number`
+- `startCurrencyEp?: number`
+- `startCurrencyGp?: number`
+- `startCurrencyPp?: number`
+- `mainHand?: string`
+- `offHand?: string`
+- `armor?: string`
+- `head?: string`
+- `gauntlet?: string`
+- `boots?: string`
+- `belt?: string`
+- `cloak?: string`
+- `accessory1?: string`
+- `accessory2?: string`
+- `accessory3?: string`
+- `accessory4?: string`
+- `reqStrDex8?: string`
+- `reqStrDex10?: string`
+- `reqStrDex12?: string`
+- `reqStrDex14?: string`
+- `reqStr16?: string`
+- `reqStr18?: string`
+- `reqStr20?: string`
+- `reqCon8?: string`
+- `reqCon10?: string`
+- `reqCon12?: string`
+- `reqCon14?: string`
+- `reqCon16?: string`
+- `reqCon18?: string`
+- `reqCon20?: string`
+
+### `GET /api/characters/:id`
+
+- 설명: 캐릭터 단건 조회
+- 인증: 불필요
+- Path:
+- `id: number` 필수
+
+### `PUT /api/characters/:id`
+
+- 설명: 캐릭터 수정
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body:
+- `name?: string`
+- `campaignId?: number | null`
+- `status?: 'ACTIVE' | 'RESTING' | 'RETIRED' | 'DECEASED'`
+- `race?: string`
+- `startLevel?: number`
+- `startExp?: number`
+- `str?: number | null`
+- `dex?: number | null`
+- `con?: number | null`
+- `int?: number | null`
+- `wis?: number | null`
+- `cha?: number | null`
+- `ac?: number | null`
+- `hp?: number | null`
+- `speed?: string | null`
+- `vision?: string | null`
+- `skills?: string | null`
+- `advantage?: string | null`
+- `disadvantage?: string | null`
+- `resistance?: string | null`
+- `immunity?: string | null`
+- `mainHand?: string | null`
+- `offHand?: string | null`
+- `armor?: string | null`
+- `head?: string | null`
+- `gauntlet?: string | null`
+- `boots?: string | null`
+- `belt?: string | null`
+- `cloak?: string | null`
+- `accessory1?: string | null`
+- `accessory2?: string | null`
+- `accessory3?: string | null`
+- `accessory4?: string | null`
+- `reqStrDex8?: string | null`
+- `reqStrDex10?: string | null`
+- `reqStrDex12?: string | null`
+- `reqStrDex14?: string | null`
+- `reqStr16?: string | null`
+- `reqStr18?: string | null`
+- `reqStr20?: string | null`
+- `reqCon8?: string | null`
+- `reqCon10?: string | null`
+- `reqCon12?: string | null`
+- `reqCon14?: string | null`
+- `reqCon16?: string | null`
+- `reqCon18?: string | null`
+- `reqCon20?: string | null`
+- `useYn?: 'Y' | 'N'`
+- `deleteYn?: 'Y' | 'N'`
+
+### `DELETE /api/characters/:id`
+
+- 설명: 캐릭터 삭제 처리
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body: 없음
+
+### `PUT /api/characters/:id/status`
+
+- 설명: 캐릭터 상태만 수정
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body:
+- `status: 'ACTIVE' | 'RESTING' | 'RETIRED' | 'DECEASED'` 필수
+
+### `POST /api/characters/:id/classes`
+
+- 설명: 캐릭터 클래스 추가
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body:
+- `className: string` 필수
+- `level?: number`
+
+### `PUT /api/characters/:id/classes/:className`
+
+- 설명: 캐릭터 클래스 수정
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- `className: string` 필수
+- Body:
+- `level?: number`
+
+### `DELETE /api/characters/:id/classes/:className`
+
+- 설명: 캐릭터 클래스 삭제
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- `className: string` 필수
+- Body: 없음
+
+## Sessions
+
+### `GET /api/sessions`
+
+- 설명: 세션 목록 조회
+- 인증: 불필요
+- Query:
+- `id`, `idList`, `page`, `size`, `sort`, `useYn`, `deleteYn`
+- `campaignId?: number`
+- `no?: number`
+- `name?: string`
+- `status?: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD' | null`
+
+### `POST /api/sessions`
+
+- 설명: 세션 생성
+- 인증: 필요
+- Body:
+- `campaignId: number` 필수
+- `no: number` 필수
+- `name: string` 필수
+- `description?: string | null`
+- `maxPlayer?: number | null`
+- `rewardExp?: number | null`
+- `rewardGold?: number | null`
+- `status?: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD' | null`
+- `playDate?: string | Date | null`
+
+### `GET /api/sessions/:id`
+
+- 설명: 세션 단건 조회
+- 인증: 불필요
+- Path:
+- `id: number` 필수
+
+### `PUT /api/sessions/:id`
+
+- 설명: 세션 수정
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body:
+- `no?: number`
+- `name?: string`
+- `description?: string | null`
+- `maxPlayer?: number | null`
+- `rewardExp?: number | null`
+- `rewardGold?: number | null`
+- `status?: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD' | null`
+- `playDate?: string | Date | null`
+- `useYn?: 'Y' | 'N'`
+- `deleteYn?: 'Y' | 'N'`
+
+### `DELETE /api/sessions/:id`
+
+- 설명: 세션 삭제 처리
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body: 없음
+
+### `POST /api/sessions/:id/players`
+
+- 설명: 세션 참여
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body:
+- `characterId: number` 필수
+- 비고:
+- 인증 사용자 본인 캐릭터만 허용
+- 캐릭터의 `campaignId` 와 세션의 `campaignId` 가 같아야 함
+- 중복 참여는 멱등 처리
+
+### `DELETE /api/sessions/:id/players/:userId`
+
+- 설명: 세션 이탈
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- `userId: number` 필수
+- Body: 없음
+- 비고: 실질적으로는 `userId` 와 인증 사용자 ID가 같아야 한다.
+
+## Session Logs
+
+### `GET /api/sessions/:id/logs`
+
+- 설명: 특정 세션의 로그 목록 조회
+- 인증: 불필요
+- Path:
+- `id: number` 필수
+- Query:
+- `id?: number`
+- `idList?: number[]`
+- `page?: number`
+- `size?: number`
+- `sort?: string`
+- `useYn?: 'Y' | 'N'`
+- `deleteYn?: 'Y' | 'N'`
+- `creatorId?: number`
+- `createDate?: string`
+- `updaterId?: number`
+- `updateDate?: string`
+- `deleterId?: number`
+- `deleteDate?: string`
+- `sessionId?: number`
+- `userId?: number`
+- `title?: string`
+- 비고: 실제 라우트는 path의 `:id` 세션 범위로 고정되므로 `sessionId` query를 따로 줄 필요는 없다.
+
+### `POST /api/sessions/:id/logs`
+
+- 설명: 특정 세션의 로그 생성
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body:
+- `title: string` 필수
+- `content?: string | null`
+- `fileUrl?: string | null`
+- `sessionId?: number`
+- 비고:
+- DTO에는 `sessionId` 가 있지만 실제 저장은 path의 `:id` 값을 사용한다.
+- 세션 참여자 본인 또는 캠페인 마스터만 생성 가능
+
+### `GET /api/sessions/:id/logs/:logId`
+
+- 설명: 특정 세션 로그 단건 조회
+- 인증: 불필요
+- Path:
+- `id: number` 필수
+- `logId: number` 필수
+
+### `PUT /api/sessions/:id/logs/:logId`
+
+- 설명: 특정 세션 로그 수정
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- `logId: number` 필수
+- Body:
+- `title?: string`
+- `content?: string | null`
+- `fileUrl?: string | null`
+- `useYn?: 'Y' | 'N'`
+- `deleteYn?: 'Y' | 'N'`
+- 비고: 작성자 본인만 수정 가능
+
+### `DELETE /api/sessions/:id/logs/:logId`
+
+- 설명: 특정 세션 로그 삭제 처리
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- `logId: number` 필수
+- Body: 없음
+- 비고: 작성자 본인만 삭제 가능
+
+## Currency Transactions
+
+### `GET /api/currency-transactions`
+
+- 설명: 화폐 거래 목록 조회
+- 인증: 불필요
+- Query:
+- `id`, `idList`, `page`, `size`, `sort`, `useYn`, `deleteYn`
+- `creatorId?: number`
+- `createDate?: string`
+- `updaterId?: number`
+- `updateDate?: string`
+- `deleterId?: number`
+- `deleteDate?: string`
+- `userId?: number`
+- `characterId?: number`
+- `transactionType?: 'REWARD' | 'INCOME' | 'EXPENSE' | 'EXCHANGE' | 'INIT'`
+- `description?: string`
+
+### `POST /api/currency-transactions`
+
+- 설명: 화폐 거래 생성
+- 인증: 필요
+- Body:
+- `characterId: number` 필수
+- `description: string` 필수
+- `transactionType?: 'REWARD' | 'INCOME' | 'EXPENSE' | 'EXCHANGE' | 'INIT'`
+- `deltaPp?: number`
+- `deltaGp?: number`
+- `deltaEp?: number`
+- `deltaSp?: number`
+- `deltaCp?: number`
+- 비고:
+- `transactionType` 기본값은 `INIT`
+- `INIT` 거래는 캐릭터당 1건만 허용
+- 캐릭터 소유자 본인 또는 관리자만 생성 가능
+
+### `GET /api/currency-transactions/:id`
+
+- 설명: 화폐 거래 단건 조회
+- 인증: 불필요
+- Path:
+- `id: number` 필수
+
+### `PUT /api/currency-transactions/:id`
+
+- 설명: 화폐 거래 수정
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body:
+- `transactionType?: 'REWARD' | 'INCOME' | 'EXPENSE' | 'EXCHANGE' | 'INIT'`
+- `description?: string`
+- `deltaPp?: number`
+- `deltaGp?: number`
+- `deltaEp?: number`
+- `deltaSp?: number`
+- `deltaCp?: number`
+- `useYn?: 'Y' | 'N'`
+- `deleteYn?: 'Y' | 'N'`
+- 비고:
+- 관리자만 수정 가능
+- body 객체는 필요하지만 특정 필드를 필수로 강제하지는 않는다.
+- 다른 거래를 `INIT` 로 바꾸는 경우, 같은 캐릭터의 기존 `INIT` 거래와 충돌하면 실패한다.
+
+### `DELETE /api/currency-transactions/:id`
+
+- 설명: 화폐 거래 삭제 처리
+- 인증: 필요
+- Path:
+- `id: number` 필수
+- Body: 없음
+- 비고: 관리자만 삭제 가능
+
+## Log Histories
+
+### `GET /api/log-histories`
+
+- 설명: 시스템 로그 이력 목록 조회
+- 인증: 필요
+- 권한: 관리자만 가능
+- Query:
+- `id`, `idList`, `page`, `size`, `sort`, `useYn`, `deleteYn`
+- `creatorId?: number`
+- `createDate?: string`
+- `updaterId?: number`
+- `updateDate?: string`
+- `deleterId?: number`
+- `deleteDate?: string`
+- `userId?: number`
+- `tableName?: string`
+- `targetId?: number`
+- `actionType?: 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE'`
+- `description?: string`
+
+### `POST /api/log-histories`
+
+- 설명: 시스템 로그 이력 생성
+- 인증: 필요
+- 권한: 관리자만 가능
+- Body:
+- `userId: number` 필수
+- `tableName: string` 필수
+- `targetId: number` 필수
+- `actionType: 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE'` 필수
+- `oldData?: any`
+- `newData?: any`
+- `description?: string | null`
+- 비고:
+- `oldData`, `newData` 는 `jsonb` 컬럼에 저장된다.
+
+### `GET /api/log-histories/:id`
+
+- 설명: 시스템 로그 이력 단건 조회
+- 인증: 필요
+- 권한: 관리자만 가능
+- Path:
+- `id: number` 필수
+
+### `PUT /api/log-histories/:id`
+
+- 설명: 시스템 로그 이력 수정
+- 인증: 필요
+- 권한: 관리자만 가능
+- Path:
+- `id: number` 필수
+- Body:
+- `tableName?: string`
+- `targetId?: number`
+- `actionType?: 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE'`
+- `oldData?: any`
+- `newData?: any`
+- `description?: string | null`
+- `useYn?: 'Y' | 'N'`
+- `deleteYn?: 'Y' | 'N'`
+- 비고:
+- `oldData`, `newData` 는 `jsonb` 컬럼에 저장된다.
+- `description`, `oldData`, `newData` 는 `null` 로 갱신할 수 있다.
+
+### `DELETE /api/log-histories/:id`
+
+- 설명: 시스템 로그 이력 삭제 처리
+- 인증: 필요
+- 권한: 관리자만 가능
+- Path:
+- `id: number` 필수
+- Body: 없음
+
+## 문서에서 제외한 것
+
+- `docs` API는 현재 `src/server/api` 에 구현되어 있지 않아 제외했다.
+- `src/server/api/api.template.ts` 는 템플릿 파일이라 제외했다.

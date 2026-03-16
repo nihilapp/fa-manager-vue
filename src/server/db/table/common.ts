@@ -23,6 +23,14 @@ export const characterStatusEnum = pgEnum('character_status', [
   'DECEASED',
 ]);
 
+export const transactionTypeEnum = pgEnum('transaction_type', [
+  'REWARD', // 보상
+  'INCOME', // 수익
+  'EXPENSE', // 소비
+  'EXCHANGE', // 환전
+  'INIT', // 초기자금
+]);
+
 export const commonColumns = {
   id: bigint('id', { mode: 'number', })
     .primaryKey()

@@ -1,8 +1,15 @@
 export default defineEventHandler(async (event) => {
+  // ========== ========== ========== ==========
+  // 기본 정보
+  // ========== ========== ========== ==========
   const characterId = Number(getRouterParam(event, 'id'));
   const className = getRouterParam(event, 'className');
-  const discordId = event.req.headers.get('X-Discord-ID');
 
+  // ========== ========== ========== ==========
+  // 서비스 로직
+  // ========== ========== ========== ==========
+
+  // 1. 권한 확인 (X-Discord-ID 헤더 체크 및 유저 검증 포함)
   const { hasPermission, error, } = await authHelper(event);
   if (error) return error;
 
@@ -29,5 +36,8 @@ export default defineEventHandler(async (event) => {
       eq(characterClassesTable.className, className!)
     ));
 
+  // ========== ========== ========== ==========
+  // 응답
+  // ========== ========== ========== ==========
   return BaseResponse.data(null, RESPONSE_CODE.OK, RESPONSE_MESSAGE.DELETE_CHARACTER_CLASS_SUCCESS);
 });

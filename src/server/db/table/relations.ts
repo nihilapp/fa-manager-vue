@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm';
 
 import { campaignMembersTable, campaignsTable } from './campaigns.table';
 import { characterClassesTable, charactersTable } from './characters.table';
-import { consumeHistoriesTable } from './consume-histories.table';
+import { currencyTransactionsTable } from './currency-transactions.table';
 import { docsTable } from './docs.table';
 import { logHistoriesTable } from './logHistories.table';
 import { sessionLogsTable, sessionPlayersTable, sessionsTable } from './sessions.table';
@@ -17,7 +17,7 @@ export const usersRelations = relations(usersTable, ({ many, }) => ({
   sessionLogs: many(sessionLogsTable),
   docs: many(docsTable),
   logHistories: many(logHistoriesTable),
-  consumeHistories: many(consumeHistoriesTable),
+  currencyTransactions: many(currencyTransactionsTable),
 }));
 
 // 2. Campaign Relations
@@ -57,7 +57,7 @@ export const charactersRelations = relations(charactersTable, ({ one, many, }) =
   campaign: one(campaignsTable, { fields: [ charactersTable.campaignId, ], references: [ campaignsTable.id, ], }),
   classes: many(characterClassesTable),
   sessions: many(sessionPlayersTable),
-  consumeHistories: many(consumeHistoriesTable),
+  currencyTransactions: many(currencyTransactionsTable),
 }));
 
 export const characterClassesRelations = relations(characterClassesTable, ({ one, }) => ({
@@ -74,8 +74,8 @@ export const logHistoriesRelations = relations(logHistoriesTable, ({ one, }) => 
   user: one(usersTable, { fields: [ logHistoriesTable.userId, ], references: [ usersTable.id, ], }),
 }));
 
-// 7. ConsumeHistory Relations
-export const consumeHistoriesRelations = relations(consumeHistoriesTable, ({ one, }) => ({
-  user: one(usersTable, { fields: [ consumeHistoriesTable.userId, ], references: [ usersTable.id, ], }),
-  character: one(charactersTable, { fields: [ consumeHistoriesTable.characterId, ], references: [ charactersTable.id, ], }),
+// 7. CurrencyTransaction Relations
+export const currencyTransactionsRelations = relations(currencyTransactionsTable, ({ one, }) => ({
+  user: one(usersTable, { fields: [ currencyTransactionsTable.userId, ], references: [ usersTable.id, ], }),
+  character: one(charactersTable, { fields: [ currencyTransactionsTable.characterId, ], references: [ charactersTable.id, ], }),
 }));

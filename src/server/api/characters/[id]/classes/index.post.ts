@@ -1,12 +1,24 @@
 export default defineEventHandler(async (event) => {
+  // ========== ========== ========== ==========
+  // 기본 정보
+  // ========== ========== ========== ==========
   const characterId = Number(getRouterParam(event, 'id'));
-  const discordId = event.req.headers.get('X-Discord-ID');
-  const body = await readBody<CharacterClassInDto>(event);
+  const body = await readBody<CharacterClassCreateDto>(event);
 
-  const { user, hasPermission, error, } = await authHelper(event);
+  // ========== ========== ========== ==========
+  // 서비스 로직
+  // ========== ========== ========== ==========
+
+  // 1. 필수값 확인
+  if (!body || !body.className) {
+    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
+  }
+
+  // 2. 권한 확인 (X-Discord-ID 헤더 체크 및 유저 검증 포함)
+  const { hasPermission, error, } = await authHelper(event);
   if (error) return error;
 
-  // 2. 캐릭터 소유권 확인
+  // 3. 캐릭터 소유권 확인
   const character = await db.query.charactersTable.findFirst({
     where: (table, { eq, and, }) => and(
       eq(table.id, characterId),
@@ -22,12 +34,15 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CHARACTER_FORBIDDEN);
   }
 
-  // 3. 클래스 추가
+  // 4. 클래스 추가
   const [ characterClass, ] = await db.insert(characterClassesTable).values({
     characterId,
-    className: body.className!,
+    className: body.className,
     level: body.level || 1,
   }).returning();
 
+  // ========== ========== ========== ==========
+  // 응답
+  // ========== ========== ========== ==========
   return BaseResponse.data(characterClass, RESPONSE_CODE.CREATED, RESPONSE_MESSAGE.CREATE_CHARACTER_CLASS_SUCCESS);
 });
