@@ -21,14 +21,9 @@ export default defineEventHandler(async (event) => {
   const { user, error, } = await authHelper(event);
   if (error) return error;
 
-  if (!body) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, '요청 바디가 필요합니다.');
-  }
-
   // 2. 캐릭터 생성 (userId 자동 할당)
   const [ character, ] = await db.insert(charactersTable).values({
     ...body,
-    name: body.name,
     userId: user!.id, // 헤더로 확인된 유저의 ID 사용
     creatorId: user!.id,
   }).returning();
