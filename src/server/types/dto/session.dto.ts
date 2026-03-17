@@ -4,6 +4,7 @@ import type {
   UserOutDto,
 } from '../dto.types';
 import type {
+  CommonInDto,
   CommonOutDto,
   CommonQueryDto,
   SessionRole,
@@ -30,7 +31,7 @@ export interface SessionCreateDto {
   playDate?: Date | string | null;
 }
 
-export interface SessionUpdateDto {
+export interface SessionUpdateDto extends CommonInDto {
   no?: number;
   name?: string;
   description?: string | null;
@@ -39,8 +40,6 @@ export interface SessionUpdateDto {
   rewardGold?: number | null;
   status?: Status | null;
   playDate?: Date | string | null;
-  useYn?: 'Y' | 'N';
-  deleteYn?: 'Y' | 'N';
 }
 
 export interface SessionOutDto extends CommonOutDto {

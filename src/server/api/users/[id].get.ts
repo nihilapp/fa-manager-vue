@@ -9,10 +9,7 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
 
   const user = await db.query.usersTable.findFirst({
-    where: (
-      usersTable,
-      { eq, }) => eq(usersTable.id, Number(id)
-    ),
+    where: (usersTable, { eq, }) => eq(usersTable.id, Number(id)),
     with: {
       campaigns: true,
       campaignMembers: true,

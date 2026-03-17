@@ -7,7 +7,6 @@ export const usersTable = pgTable('users', {
 
   discordId: varchar('discord_id', { length: 100, }).unique().notNull(),
   name: varchar('name', { length: 50, }).notNull(),
-  email: varchar('email', { length: 100, }).unique().notNull(),
   role: userRoleEnum('role').default('ROLE_USER').notNull(),
 
   ...commonColumns.meta,

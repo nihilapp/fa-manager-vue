@@ -50,7 +50,6 @@
 - `id`, `idList`, `page`, `size`, `sort`, `useYn`, `deleteYn`
 - `discordId?: string`
 - `name?: string`
-- `email?: string`
 - `role?: 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN'`
 
 ### `POST /api/users`
@@ -60,7 +59,6 @@
 - Body:
 - `discordId: string` 필수
 - `name: string` 필수
-- `email: string` 필수
 - `role?: 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN'`
 - `creatorId?: number`
 
@@ -75,6 +73,7 @@
 
 - 설명: 유저 수정
 - 인증: 필요
+- 권한: 본인 또는 관리자
 - Path:
 - `id: number` 필수
 - Body:
@@ -89,9 +88,32 @@
 
 - 설명: 유저 삭제 처리
 - 인증: 필요
+- 권한: 본인 또는 관리자
 - Path:
 - `id: number` 필수
 - Body: 없음
+
+### `PUT /api/users/me`
+
+- 설명: 로그인한 본인 유저 정보 수정
+- 인증: 필요
+- Body:
+- `name?: string`
+- `role?: 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN'`
+- `useYn?: 'Y' | 'N'`
+- `deleteYn?: 'Y' | 'N'`
+- `updaterId?: number`
+- 비고:
+- path의 `id` 없이 인증된 사용자 본인 레코드를 직접 수정한다.
+- body 객체 자체는 필요하지만, 특정 필드를 필수로 강제하지는 않는다.
+
+### `DELETE /api/users/me`
+
+- 설명: 로그인한 본인 유저 탈퇴 처리
+- 인증: 필요
+- Body: 없음
+- 비고:
+- 인증된 사용자 본인 레코드만 삭제 처리한다.
 
 ## Campaigns
 
@@ -105,13 +127,25 @@
 - `name?: string`
 - `status?: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD'`
 
+### `GET /api/campaigns/mine`
+
+- 설명: 로그인한 사용자가 생성한 캠페인 목록 조회
+- 인증: 필요
+- Query:
+- `id`, `idList`, `page`, `size`, `sort`, `useYn`, `deleteYn`
+- `name?: string`
+- `status?: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD'`
+- 비고:
+- 내부적으로 `userId` 는 인증 사용자 ID로 고정된다.
+- 응답에는 `user` 관계가 포함된다.
+
 ### `POST /api/campaigns`
 
 - 설명: 캠페인 생성
 - 인증: 필요
 - Body:
 - `name: string` 필수
-- `startDate: string | Date` 필수
+- `startDate?: string | Date | null`
 - `description?: string | null`
 - `status?: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD'`
 - `endDate?: string | Date | null`
@@ -134,7 +168,7 @@
 - `name?: string`
 - `description?: string | null`
 - `status?: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD'`
-- `startDate?: string | Date`
+- `startDate?: string | Date | null`
 - `endDate?: string | Date | null`
 - `useYn?: 'Y' | 'N'`
 - `deleteYn?: 'Y' | 'N'`
@@ -228,6 +262,36 @@
 - `disadvantage?: string`
 - `resistance?: string`
 - `immunity?: string`
+
+### `GET /api/characters/mine`
+
+- 설명: 로그인한 사용자의 캐릭터 목록 조회
+- 인증: 필요
+- Query:
+- `id`, `idList`, `page`, `size`, `sort`, `useYn`, `deleteYn`
+- `campaignId?: number`
+- `name?: string`
+- `status?: 'ACTIVE' | 'RESTING' | 'RETIRED' | 'DECEASED'`
+- `race?: string`
+- `currentLevel?: number`
+- `str?: number`
+- `dex?: number`
+- `con?: number`
+- `int?: number`
+- `wis?: number`
+- `cha?: number`
+- `ac?: number`
+- `hp?: number`
+- `speed?: string`
+- `vision?: string`
+- `skills?: string`
+- `advantage?: string`
+- `disadvantage?: string`
+- `resistance?: string`
+- `immunity?: string`
+- 비고:
+- 내부적으로 `userId` 는 인증 사용자 ID로 고정된다.
+- 응답에서 `currentLevel`, `currentExp`, `currentCurrency*` 는 계산값이다.
 
 ### `POST /api/characters`
 
@@ -409,6 +473,20 @@
 - `no?: number`
 - `name?: string`
 - `status?: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD' | null`
+
+### `GET /api/sessions/mine`
+
+- 설명: 로그인한 사용자가 소유한 캠페인들의 세션 목록 조회
+- 인증: 필요
+- Query:
+- `id`, `idList`, `page`, `size`, `sort`, `useYn`, `deleteYn`
+- `campaignId?: number`
+- `no?: number`
+- `name?: string`
+- `status?: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD' | null`
+- 비고:
+- 내가 참여 중인 세션 목록이 아니라, 내가 생성한 캠페인에 속한 세션 목록이다.
+- 응답에는 `campaign`, `players.user`, `players.character` 관계가 포함된다.
 
 ### `POST /api/sessions`
 

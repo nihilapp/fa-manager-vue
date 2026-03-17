@@ -46,11 +46,6 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const nextDeleteYn = body.deleteYn ?? transaction.deleteYn;
-  const nextUseYn = nextDeleteYn === 'Y'
-    ? 'N'
-    : (body.useYn ?? transaction.useYn);
-
   const [ updatedTransaction, ] = await db.update(currencyTransactionsTable)
     .set({
       transactionType: nextTransactionType,
@@ -60,16 +55,7 @@ export default defineEventHandler(async (event) => {
       deltaEp: body.deltaEp ?? transaction.deltaEp,
       deltaSp: body.deltaSp ?? transaction.deltaSp,
       deltaCp: body.deltaCp ?? transaction.deltaCp,
-      useYn: nextUseYn,
-      deleteYn: nextDeleteYn,
-      updaterId: user!.id,
-      updateDate: new Date(),
-      deleterId: nextDeleteYn === 'Y'
-        ? user!.id
-        : null,
-      deleteDate: nextDeleteYn === 'Y'
-        ? new Date()
-        : null,
+      ...resolveCommonMetaUpdate(body, transaction, user!.id),
     })
     .where(eq(currencyTransactionsTable.id, id))
     .returning();

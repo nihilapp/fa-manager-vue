@@ -1,0 +1,43 @@
+@transactionId = 1
+@characterId = 1
+
+### 화폐 거래 목록 순수 조회
+GET {{baseURL}}/currency-transactions
+
+### 화폐 거래 목록 조회 - 페이징
+GET {{baseURL}}/currency-transactions?page=0&size=10&sort=id:desc
+
+### 화폐 거래 목록 조회 - 캐릭터 필터
+GET {{baseURL}}/currency-transactions?characterId={{characterId}}
+
+### 화폐 거래 상세 조회
+GET {{baseURL}}/currency-transactions/{{transactionId}}
+
+### 화폐 거래 생성
+POST {{baseURL}}/currency-transactions
+Content-Type: application/json
+X-Discord-ID: {{discordId}}
+
+{
+  "characterId": {{characterId}},
+  "transactionType": "INCOME",
+  "description": "퀘스트 보상",
+  "deltaGp": 25,
+  "deltaSp": 5
+}
+
+### 화폐 거래 수정
+PUT {{baseURL}}/currency-transactions/{{transactionId}}
+Content-Type: application/json
+X-Discord-ID: {{discordId}}
+
+{
+  "transactionType": "REWARD",
+  "description": "수정된 보상 내역",
+  "deltaGp": 30,
+  "deltaSp": 0
+}
+
+### 화폐 거래 삭제
+DELETE {{baseURL}}/currency-transactions/{{transactionId}}
+X-Discord-ID: {{discordId}}

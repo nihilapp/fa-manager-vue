@@ -29,7 +29,6 @@ export class RESPONSE_MESSAGE {
   static GET_USER_DETAIL_SUCCESS = '사용자 상세 정보 조회 성공';
   static USER_NOT_FOUND = '해당 사용자를 찾을 수 없습니다.';
   static USERNAME_ALREADY_EXISTS = '이미 사용 중인 사용자 이름입니다.';
-  static EMAIL_ALREADY_EXISTS = '이미 등록된 이메일 주소입니다.';
   static DISCORD_ID_ALREADY_EXISTS = '이미 등록된 디스코드 사용자 ID입니다.';
   static CREATE_USER_SUCCESS = '사용자 계정이 생성되었습니다.';
   static UPDATE_USER_SUCCESS = '사용자 정보가 성공적으로 수정되었습니다.';

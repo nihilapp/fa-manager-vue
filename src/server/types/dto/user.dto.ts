@@ -6,36 +6,30 @@ import type {
   LogHistoryOutDto,
   SessionPlayerOutDto,
 } from '../dto.types';
-import type { CommonOutDto, CommonQueryDto, UserRole } from './common.dto';
+import type { CommonInDto, CommonOutDto, CommonQueryDto, UserRole } from './common.dto';
 import type { SessionLogOutDto } from './session-log.dto';
 
 export interface UserQueryDto extends CommonQueryDto {
   discordId?: string;
   name?: string;
-  email?: string;
   role?: UserRole;
 }
 
 export interface UserCreateDto {
   discordId: string;
   name: string;
-  email: string;
   role?: UserRole;
   creatorId?: number;
 }
 
-export interface UserUpdateDto {
+export interface UserUpdateDto extends CommonInDto {
   name?: string;
   role?: UserRole;
-  useYn?: 'Y' | 'N';
-  deleteYn?: 'Y' | 'N';
-  updaterId?: number;
 }
 
 export interface UserOutDto extends CommonOutDto {
   discordId?: string;
   name?: string;
-  email?: string;
   role?: UserRole;
 
   campaigns?: CampaignOutDto[];

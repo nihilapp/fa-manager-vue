@@ -1,5 +1,6 @@
 import type { UserOutDto } from '../dto.types';
 import type {
+  CommonInDto,
   CommonOutDto,
   CommonQueryDto,
   LogActionType,
@@ -23,15 +24,13 @@ export interface LogHistoryCreateDto {
   description?: string | null;
 }
 
-export interface LogHistoryUpdateDto {
+export interface LogHistoryUpdateDto extends CommonInDto {
   tableName?: string;
   targetId?: number;
   actionType?: LogActionType;
   oldData?: any;
   newData?: any;
   description?: string | null;
-  useYn?: 'Y' | 'N';
-  deleteYn?: 'Y' | 'N';
 }
 
 export interface LogHistoryOutDto extends CommonOutDto {

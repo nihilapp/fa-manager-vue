@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
   const { user, error, } = await authHelper(event);
   if (error) return error;
 
-  if (!body || !body.name || !body.startDate) {
+  if (!body || !body.name) {
     return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
   }
 
@@ -50,7 +50,9 @@ export default defineEventHandler(async (event) => {
       name: body.name!,
       description: body.description,
       status: body.status || 'PREPARING',
-      startDate: new Date(body.startDate!),
+      startDate: body.startDate
+        ? new Date(body.startDate)
+        : null,
       endDate: body.endDate
         ? new Date(body.endDate)
         : null,

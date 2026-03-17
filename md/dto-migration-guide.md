@@ -190,7 +190,7 @@
 - 캠페인 멤버 참여 API 는 `CampaignMemberCreateDto` 를 사용하고 중복 참여는 멱등 처리한다.
 - 캠페인 멤버 이탈도 본인 이탈 기준으로 정리했고, 캠페인 생성자는 이탈할 수 없다.
 - 생성 body 에서 `userId` 는 받지 않고 인증 사용자 `user.id` 를 서버에서 주입한다.
-- `CampaignCreateDto` 필수값은 `name`, `startDate` 로 확정했다.
+- `CampaignCreateDto` 필수값은 `name` 으로 확정했고, `startDate` 는 선택값이다.
 - `campaigns` DTO 를 `campaign.dto.ts` 로 분리하고 `dto.types.ts` 는 배럴로 유지했다.
 
 ### 3.8 sessions / session_players 전환 완료

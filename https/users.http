@@ -1,0 +1,50 @@
+@userId = 1
+
+### 사용자 목록 순수 조회
+GET {{baseURL}}/users
+
+### 사용자 목록 조회 - 페이징
+GET {{baseURL}}/users?page=0&size=20
+
+### 사용자 목록 조회 - discordId 필터
+GET {{baseURL}}/users?discordId={{discordId}}
+
+### 사용자 상세 조회
+GET {{baseURL}}/users/{{userId}}
+
+### 내 사용자 정보 수정
+PUT {{baseURL}}/users/me
+Content-Type: application/json
+X-Discord-ID: {{discordId}}
+
+{
+  "name": "니힐-내정보수정"
+}
+
+### 사용자 생성
+POST {{baseURL}}/users
+Content-Type: application/json
+
+{
+  "discordId": "197054124020334593",
+  "name": "니힐",
+  "role": "ROLE_SUPER_ADMIN"
+}
+
+### 사용자 수정
+PUT {{baseURL}}/users/{{userId}}
+Content-Type: application/json
+X-Discord-ID: {{discordId}}
+
+{
+  "name": "니힐-수정",
+  "role": "ROLE_ADMIN"
+}
+
+### 사용자 삭제
+DELETE {{baseURL}}/users/{{userId}}
+X-Discord-ID: {{discordId}}
+
+### 내 사용자 삭제
+DELETE {{baseURL}}/users/me
+X-Discord-ID: {{discordId}}

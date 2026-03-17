@@ -81,4 +81,32 @@ export class ListData<TData> {
       ? this.currentPage! + 1
       : null;
   }
+
+  toJSON(): ListDataType<TData> {
+    return {
+      list: this.list,
+      totalElements: this.totalElements,
+      filteredElements: this.filteredElements,
+      currentPage: this.currentPage,
+      pageSize: this.pageSize,
+      totalPages: this.totalPages,
+      firstPage: this.firstPage,
+      lastPage: this.lastPage,
+      hasPrev: this._isPaged
+        ? this.hasPrev
+        : null,
+      hasNext: this._isPaged
+        ? this.hasNext
+        : null,
+      isFirst: this._isPaged
+        ? this.isFirst
+        : null,
+      isLast: this._isPaged
+        ? this.isLast
+        : null,
+      isEmpty: this.isEmpty,
+      prevPage: this.prevPage,
+      nextPage: this.nextPage,
+    };
+  }
 }

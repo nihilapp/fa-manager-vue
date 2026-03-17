@@ -24,10 +24,6 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.LOG_NOT_FOUND);
   }
 
-  const nextDeleteYn = body.deleteYn ?? logHistory.deleteYn;
-  const nextUseYn = nextDeleteYn === 'Y'
-    ? 'N'
-    : (body.useYn ?? logHistory.useYn);
   const hasTableName = Object.prototype.hasOwnProperty.call(body, 'tableName');
   const hasTargetId = Object.prototype.hasOwnProperty.call(body, 'targetId');
   const hasActionType = Object.prototype.hasOwnProperty.call(body, 'actionType');
@@ -55,16 +51,7 @@ export default defineEventHandler(async (event) => {
       description: hasDescription
         ? body.description
         : logHistory.description,
-      useYn: nextUseYn,
-      deleteYn: nextDeleteYn,
-      updaterId: user!.id,
-      updateDate: new Date(),
-      deleterId: nextDeleteYn === 'Y'
-        ? user!.id
-        : null,
-      deleteDate: nextDeleteYn === 'Y'
-        ? new Date()
-        : null,
+      ...resolveCommonMetaUpdate(body, logHistory, user!.id),
     })
     .where(eq(logHistoriesTable.id, id))
     .returning();

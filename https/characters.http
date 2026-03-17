@@ -1,0 +1,98 @@
+@characterId = 1
+
+### 캐릭터 목록 순수 조회
+GET {{baseURL}}/characters
+
+### 내 캐릭터 목록 순수 조회
+GET {{baseURL}}/characters/mine
+X-Discord-ID: {{discordId}}
+
+### 캐릭터 목록 조회 - 페이징
+GET {{baseURL}}/characters?page=0&size=10&sort=id:desc
+
+### 캐릭터 목록 조회 - 캠페인 필터
+GET {{baseURL}}/characters?campaignId=1
+
+### 내 캐릭터 목록 조회 - 페이징
+GET {{baseURL}}/characters/mine?page=0&size=10&sort=id:desc
+X-Discord-ID: {{discordId}}
+
+### 캐릭터 상세 조회
+GET {{baseURL}}/characters/{{characterId}}
+
+### 캐릭터 생성
+POST {{baseURL}}/characters
+Content-Type: application/json
+X-Discord-ID: {{discordId}}
+
+{
+  "name": "테스트 캐릭터",
+  "race": "Human",
+  "campaignId": 1,
+  "status": "ACTIVE",
+  "startLevel": 1,
+  "startExp": 0,
+  "str": 10,
+  "dex": 14,
+  "con": 12,
+  "int": 10,
+  "wis": 8,
+  "cha": 13,
+  "ac": 15,
+  "hp": 12,
+  "speed": "30ft",
+  "vision": "Normal",
+  "skills": "Perception, Stealth",
+  "startCurrencyGp": 15,
+  "mainHand": "Longsword",
+  "armor": "Leather Armor"
+}
+
+### 캐릭터 수정
+PUT {{baseURL}}/characters/{{characterId}}
+Content-Type: application/json
+X-Discord-ID: {{discordId}}
+
+{
+  "name": "테스트 캐릭터 수정",
+  "status": "RESTING",
+  "hp": 18,
+  "skills": "Perception, Stealth, Insight",
+  "mainHand": "Rapier"
+}
+
+### 캐릭터 상태 변경
+PUT {{baseURL}}/characters/{{characterId}}/status
+Content-Type: application/json
+X-Discord-ID: {{discordId}}
+
+{
+  "status": "RETIRED"
+}
+
+### 캐릭터 클래스 추가
+POST {{baseURL}}/characters/{{characterId}}/classes
+Content-Type: application/json
+X-Discord-ID: {{discordId}}
+
+{
+  "className": "Fighter",
+  "level": 1
+}
+
+### 캐릭터 클래스 수정
+PUT {{baseURL}}/characters/{{characterId}}/classes/Fighter
+Content-Type: application/json
+X-Discord-ID: {{discordId}}
+
+{
+  "level": 2
+}
+
+### 캐릭터 클래스 삭제
+DELETE {{baseURL}}/characters/{{characterId}}/classes/Fighter
+X-Discord-ID: {{discordId}}
+
+### 캐릭터 삭제
+DELETE {{baseURL}}/characters/{{characterId}}
+X-Discord-ID: {{discordId}}

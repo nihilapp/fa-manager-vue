@@ -1,5 +1,6 @@
 import type { CharacterOutDto, UserOutDto } from '../dto.types';
 import type {
+  CommonInDto,
   CommonOutDto,
   CommonQueryDto,
   TransactionType,
@@ -23,7 +24,7 @@ export interface CurrencyTransactionCreateDto {
   deltaCp?: number;
 }
 
-export interface CurrencyTransactionUpdateDto {
+export interface CurrencyTransactionUpdateDto extends CommonInDto {
   transactionType?: TransactionType;
   description?: string;
   deltaPp?: number;
@@ -31,8 +32,6 @@ export interface CurrencyTransactionUpdateDto {
   deltaEp?: number;
   deltaSp?: number;
   deltaCp?: number;
-  useYn?: 'Y' | 'N';
-  deleteYn?: 'Y' | 'N';
 }
 
 export interface CurrencyTransactionOutDto extends CommonOutDto {

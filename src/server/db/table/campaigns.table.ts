@@ -10,7 +10,7 @@ export const campaignsTable = pgTable('campaigns', {
   name: varchar('name', { length: 50, }).unique().notNull(),
   description: varchar('description', { length: 1000, }),
   status: statusEnum('status').default('PREPARING').notNull(),
-  startDate: timestamp('start_date', { withTimezone: true, precision: 6, }).notNull(),
+  startDate: timestamp('start_date', { withTimezone: true, precision: 6, }),
   endDate: timestamp('end_date', { withTimezone: true, precision: 6, }),
 
   ...commonColumns.meta,

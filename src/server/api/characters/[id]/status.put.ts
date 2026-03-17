@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   // 기본 정보
   // ========== ========== ========== ==========
   const id = Number(getRouterParam(event, 'id'));
-  const body = await readBody<{ status: CharacterStatus }>(event);
+  const body = await readBody<CommonInDto & { status: CharacterStatus }>(event);
 
   // ========== ========== ========== ==========
   // 서비스 로직
@@ -39,8 +39,7 @@ export default defineEventHandler(async (event) => {
   const [ updatedCharacter, ] = await db.update(charactersTable)
     .set({
       status: body.status,
-      updaterId: user!.id,
-      updateDate: new Date(),
+      ...resolveCommonMetaUpdate(body, character, user!.id),
     })
     .where(eq(charactersTable.id, id))
     .returning();

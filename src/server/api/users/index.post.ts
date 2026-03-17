@@ -12,19 +12,8 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
   }
 
-  if (!body || !body.name || !body.email) {
+  if (!body || !body.name) {
     return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
-  }
-
-  const existEmail = await db
-    .select({ value: count(), })
-    .from(usersTable)
-    .where(
-      eq(usersTable.email, body.email!)
-    );
-
-  if (existEmail[0]!.value > 0) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.EMAIL_ALREADY_EXISTS);
   }
 
   const existDiscordId = await db
@@ -52,9 +41,11 @@ export default defineEventHandler(async (event) => {
   const newUser = await db.insert(usersTable).values({
     discordId: body.discordId,
     name: body.name,
-    email: body.email,
     role: body.role || 'ROLE_USER',
     creatorId: body.creatorId || null,
+    createDate: new Date(),
+    updaterId: body.creatorId || null,
+    updateDate: new Date(),
   }).returning();
 
   // ========== ========== ========== ==========

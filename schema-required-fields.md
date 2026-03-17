@@ -60,7 +60,6 @@
 |------|------|------|
 | userId | bigint | 생성자 ID (외래키) |
 | name | varchar(50) | 캠페인 이름 (unique) |
-| startDate | timestamp with timezone | 시작일 |
 
 ### 자동/기본값
 
@@ -73,6 +72,7 @@
 | 필드 | 타입 | 설명 |
 |------|------|------|
 | description | varchar(1000) | 캠페인 설명 |
+| startDate | timestamp with timezone | 시작일 |
 | endDate | timestamp with timezone | 종료일 |
 
 ---

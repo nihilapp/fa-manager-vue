@@ -11,8 +11,14 @@ import * as relations from '@server/db/table/relations';
 import * as sessions from '@server/db/table/sessions.table';
 import * as users from '@server/db/table/users.table';
 
+const connectionString = process.env.DB_URL || process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error('Database connection string is missing. Set DB_URL or DATABASE_URL.');
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString,
 });
 
 const schema = {

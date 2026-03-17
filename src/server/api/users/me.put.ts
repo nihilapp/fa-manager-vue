@@ -1,36 +1,21 @@
 export default defineEventHandler(async (event) => {
-  // ========== ========== ========== ==========
-  // 기본 정보
-  // ========== ========== ========== ==========
-  const id = getRouterParam(event, 'id');
   const body = await readBody<UserUpdateDto>(event);
 
-  // ========== ========== ========== ==========
-  // 서비스 로직
-  // ========== ========== ========== ==========
-
-  const { user, hasPermission, error, } = await authHelper(event);
+  const { user, error, } = await authHelper(event);
   if (error) return error;
 
   if (!body) {
     return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
   }
 
-  // 1. 사용자 존재 확인
   const findUser = await db.query.usersTable.findFirst({
-    where: (table, { eq, }) => eq(table.id, Number(id)),
+    where: (table, { eq, }) => eq(table.id, user!.id),
   });
 
   if (!findUser) {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND);
   }
 
-  // 2. 권한 확인 (본인이거나 관리자)
-  if (!hasPermission(findUser.id)) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
-  }
-
-  // 3. 이름 변경 시 중복 체크
   if (body.name && body.name !== findUser.name) {
     const existName = await db
       .select({ value: count(), })
@@ -38,7 +23,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(usersTable.name, body.name),
-          ne(usersTable.id, Number(id))
+          ne(usersTable.id, user!.id)
         )
       );
 
@@ -47,17 +32,13 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // 3. 업데이트 실행 (email, discordId 제외)
   const updateUser = await db.update(usersTable).set({
     name: body.name || findUser.name,
     role: body.role || findUser.role,
     ...resolveCommonMetaUpdate(body, findUser, user!.id),
   }).where(
-    eq(usersTable.id, Number(id))
+    eq(usersTable.id, user!.id)
   ).returning();
 
-  // ========== ========== ========== ==========
-  // 응답
-  // ========== ========== ========== ==========
   return BaseResponse.data(updateUser[0], RESPONSE_CODE.OK, RESPONSE_MESSAGE.UPDATE_USER_SUCCESS);
 });

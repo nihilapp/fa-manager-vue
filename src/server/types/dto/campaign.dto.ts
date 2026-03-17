@@ -4,6 +4,7 @@ import type {
   UserOutDto,
 } from '../dto.types';
 import type {
+  CommonInDto,
   CommonOutDto,
   CommonQueryDto,
   Status,
@@ -19,15 +20,15 @@ export interface CampaignCreateDto {
   name: string;
   description?: string | null;
   status?: Status;
-  startDate: Date | string;
+  startDate?: Date | string | null;
   endDate?: Date | string | null;
 }
 
-export interface CampaignUpdateDto {
+export interface CampaignUpdateDto extends CommonInDto {
   name?: string;
   description?: string | null;
   status?: Status;
-  startDate?: Date | string;
+  startDate?: Date | string | null;
   endDate?: Date | string | null;
   useYn?: 'Y' | 'N';
   deleteYn?: 'Y' | 'N';
@@ -38,7 +39,7 @@ export interface CampaignOutDto extends CommonOutDto {
   name?: string;
   description?: string | null;
   status?: Status;
-  startDate?: Date | string;
+  startDate?: Date | string | null;
   endDate?: Date | string | null;
 
   user?: UserOutDto;

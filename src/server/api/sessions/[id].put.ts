@@ -58,14 +58,7 @@ export default defineEventHandler(async (event) => {
           ? new Date(body.playDate)
           : null)
         : session.playDate,
-      useYn: body.useYn !== undefined
-        ? body.useYn
-        : session.useYn,
-      deleteYn: body.deleteYn !== undefined
-        ? body.deleteYn
-        : session.deleteYn,
-      updaterId: user!.id,
-      updateDate: new Date(),
+      ...resolveCommonMetaUpdate(body, session, user!.id),
     })
     .where(eq(sessionsTable.id, id))
     .returning();

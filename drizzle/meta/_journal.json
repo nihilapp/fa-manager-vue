@@ -22,6 +22,20 @@
       "when": 1773675732500,
       "tag": "0002_even_amphibian",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1773748973820,
+      "tag": "0003_redundant_random",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1773769190804,
+      "tag": "0004_magenta_domino",
+      "breakpoints": true
     }
   ]
 }

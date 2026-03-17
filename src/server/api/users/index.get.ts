@@ -15,7 +15,6 @@ export default defineEventHandler(async (event) => {
     id: 'eq',
     idList: 'in',
     name: 'like',
-    email: 'like',
     role: 'eq',
     useYn: 'eq',
     deleteYn: 'eq',

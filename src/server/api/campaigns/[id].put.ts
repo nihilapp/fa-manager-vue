@@ -63,25 +63,27 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  const hasStartDate = Object.prototype.hasOwnProperty.call(body, 'startDate');
+  const hasEndDate = Object.prototype.hasOwnProperty.call(body, 'endDate');
+
   // 4. 업데이트 실행
   const result = await db.update(campaignsTable).set({
     name: body.name || findCampaign.name,
     description: body.description !== undefined
       ? body.description
       : findCampaign.description,
-    startDate: body.startDate
-      ? new Date(body.startDate)
+    startDate: hasStartDate
+      ? (body.startDate
+        ? new Date(body.startDate)
+        : null)
       : findCampaign.startDate,
-    endDate: body.endDate !== undefined
+    endDate: hasEndDate
       ? (body.endDate
         ? new Date(body.endDate)
         : null)
       : findCampaign.endDate,
     status: body.status || findCampaign.status,
-    useYn: body.useYn || findCampaign.useYn,
-    deleteYn: body.deleteYn || findCampaign.deleteYn,
-    updaterId: user.id,
-    updateDate: new Date(),
+    ...resolveCommonMetaUpdate(body, findCampaign, user.id),
   }).where(
     eq(campaignsTable.id, Number(id))
   ).returning();

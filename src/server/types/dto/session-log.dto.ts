@@ -3,6 +3,7 @@ import type {
   UserOutDto,
 } from '../dto.types';
 import type {
+  CommonInDto,
   CommonOutDto,
   CommonQueryDto,
 } from './common.dto';
@@ -20,12 +21,10 @@ export interface SessionLogCreateDto {
   fileUrl?: string | null;
 }
 
-export interface SessionLogUpdateDto {
+export interface SessionLogUpdateDto extends CommonInDto {
   title?: string;
   content?: string | null;
   fileUrl?: string | null;
-  useYn?: 'Y' | 'N';
-  deleteYn?: 'Y' | 'N';
 }
 
 export interface SessionLogOutDto extends CommonOutDto {

@@ -91,11 +91,7 @@ export default defineEventHandler(async (event) => {
       reqCon18: body.reqCon18,
       reqCon20: body.reqCon20,
 
-      useYn: body.useYn,
-      deleteYn: body.deleteYn,
-
-      updaterId: user!.id,
-      updateDate: new Date(),
+      ...resolveCommonMetaUpdate(body, character, user!.id),
     })
     .where(eq(charactersTable.id, id))
     .returning();

@@ -5,6 +5,7 @@ import type {
 } from '../dto.types';
 import type {
   CharacterStatus,
+  CommonInDto,
   CommonOutDto,
   CommonQueryDto,
 } from './common.dto';
@@ -88,7 +89,7 @@ export interface CharacterCreateDto {
   reqCon20?: string;
 }
 
-export interface CharacterUpdateDto {
+export interface CharacterUpdateDto extends CommonInDto {
   name?: string;
   campaignId?: number | null;
   status?: CharacterStatus;

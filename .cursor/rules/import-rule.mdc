@@ -1,6 +1,0 @@
----
-alwaysApply: true
----
-
-- **CRITICAL** 파일을 생성, 수정시에 더 이상 사용하지 않게 된 임포트는 지워서 정리하도록 합니다.
-- **CRITICAL** 다른 곳에서 export 된 것을 굳이 다시 re-export를 하지 않습니다.

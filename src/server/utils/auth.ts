@@ -1,10 +1,8 @@
-import type { H3Event } from 'h3';
-
 /**
  * 요청자의 정보를 확인하고 관리자 권한 또는 소유권을 검증하는 헬퍼
  */
 export const authHelper = async (event: H3Event) => {
-  const discordId = event.req.headers.get('X-Discord-ID');
+  const discordId = getDiscordId(event);
 
   if (!discordId) {
     return {
