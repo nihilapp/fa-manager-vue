@@ -26,18 +26,24 @@ export const authHelper = async (event: H3Event) => {
   const isAdmin = user.role === 'ROLE_ADMIN' || user.role === 'ROLE_SUPER_ADMIN';
 
   /**
-   * 권한 체크 내부 함수
-   * @param resourceUserId 리소스 소유자의 ID (null일 수 있음)
+   * 권한 체크 내부 함수 (본인 또는 관리자 여부)
+   * @param resourceUserId 리소스 소유자 또는 조작 대상 사용자의 ID
    */
   const hasPermission = (resourceUserId?: number | null) => {
-    if (isAdmin) return true; // 어드민은 패스
-    return resourceUserId === user.id; // 일반 유저는 본인 확인
+    if (isAdmin) return true; // 어드민은 무조건 통과
+    return resourceUserId === user.id; // 일반 유저는 본인(ID 일치)만 가능
   };
+
+  /**
+   * 관리자 권한 여부를 명시적으로 확인
+   */
+  const checkAdmin = () => isAdmin;
 
   return {
     user: user as UserOutDto & { id: number },
     isAdmin,
     hasPermission,
+    checkAdmin,
     error: null,
   };
 };

@@ -59,7 +59,7 @@
 - Body:
 - `discordId: string` 필수
 - `name: string` 필수
-- `role?: 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN'`
+- `role?: 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN'` (무시됨, 항상 `ROLE_USER`로 생성)
 - `creatorId?: number`
 
 ### `GET /api/users/:id`
@@ -78,11 +78,11 @@
 - `id: number` 필수
 - Body:
 - `name?: string`
-- `role?: 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN'`
+- `role?: 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN'` (관리자만 수정 가능)
 - `useYn?: 'Y' | 'N'`
 - `deleteYn?: 'Y' | 'N'`
 - `updaterId?: number`
-- 비고: body 객체 자체는 필요하지만, 특정 필드를 필수로 강제하지는 않는다.
+- 비고: 일반 사용자가 `role`을 보내면 기존 값이 유지된다.
 
 ### `DELETE /api/users/:id`
 
@@ -150,6 +150,7 @@
 - `status?: 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD'`
 - `endDate?: string | Date | null`
 - 비고: `userId` 는 body로 받지 않고 인증 사용자로 고정된다.
+- 비고: `startDate` 는 선택값이라 생략 가능하며, 전달하지 않으면 `null` 로 저장된다.
 
 ### `GET /api/campaigns/:id`
 
@@ -172,6 +173,7 @@
 - `endDate?: string | Date | null`
 - `useYn?: 'Y' | 'N'`
 - `deleteYn?: 'Y' | 'N'`
+- 비고: `startDate` 는 선택값이며, 필드를 생략하면 기존 값을 유지하고 `null` 을 보내면 시작일을 제거한다.
 
 ### `DELETE /api/campaigns/:id`
 
@@ -194,26 +196,31 @@
 
 - 설명: 캠페인 참여
 - 인증: 필요
+- 권한: 본인 또는 관리자
 - Path:
 - `id: number` 필수
 - `userId: number` 필수
 - Body:
 - 없음
 - 비고:
-- 실질적으로는 `userId` 와 인증 사용자 ID가 같아야 한다.
+- 일반 사용자는 `userId`와 인증 사용자 ID가 같아야 한다.
+- 관리자는 타인을 캠페인에 가입시킬 수 있다.
 - 중복 참여는 멱등 처리된다.
 
 ### `DELETE /api/campaigns/:id/members/:userId`
 
 - 설명: 캠페인 이탈
 - 인증: 필요
+- 권한: 본인 또는 관리자
 - Path:
 - `id: number` 필수
 - `userId: number` 필수
 - Body: 없음
 - 비고:
-- 실질적으로는 `userId` 와 인증 사용자 ID가 같아야 한다.
-- 캠페인 생성자는 이탈할 수 없다.
+- 일반 사용자는 `userId`와 인증 사용자 ID가 같아야 한다.
+- 관리자는 타인을 캠페인에서 강퇴할 수 있다.
+- 캠페인 생성자(소유자)는 이탈할 수 없다.
+
 
 ### `POST /api/campaigns/:campaignId/characters/:characterId`
 
@@ -297,10 +304,12 @@
 
 - 설명: 캐릭터 생성
 - 인증: 필요
+- 권한: 본인 또는 관리자
 - Body:
 - `name: string` 필수
 - `race: string` 필수
-- `campaignId?: number`
+- `userId?: number` (관리자 전용, 미지정 시 본인 ID)
+- `campaignId?: number` (관리자 전용, 일반 사용자는 무시됨)
 - `status?: 'ACTIVE' | 'RESTING' | 'RETIRED' | 'DECEASED'`
 - `startLevel?: number`
 - `startExp?: number`
@@ -350,6 +359,9 @@
 - `reqCon16?: string`
 - `reqCon18?: string`
 - `reqCon20?: string`
+- 비고:
+- 일반 사용자는 `campaignId`를 직접 설정할 수 없으며, 생성 후 캠페인 연결 API를 사용해야 함.
+- 관리자는 타인(`userId`)의 캐릭터를 특정 캠페인(`campaignId`)에 즉시 생성해 줄 수 있음.
 
 ### `GET /api/characters/:id`
 
@@ -362,11 +374,12 @@
 
 - 설명: 캐릭터 수정
 - 인증: 필요
+- 권한: 소유자 또는 관리자
 - Path:
 - `id: number` 필수
 - Body:
 - `name?: string`
-- `campaignId?: number | null`
+- `campaignId?: number | null` (관리자만 수정 가능)
 - `status?: 'ACTIVE' | 'RESTING' | 'RETIRED' | 'DECEASED'`
 - `race?: string`
 - `startLevel?: number`
@@ -414,6 +427,7 @@
 - `reqCon20?: string | null`
 - `useYn?: 'Y' | 'N'`
 - `deleteYn?: 'Y' | 'N'`
+- 비고: 일반 사용자가 `campaignId`를 수정하려고 하면 기존 값이 유지됨.
 
 ### `DELETE /api/characters/:id`
 
@@ -540,24 +554,27 @@
 
 - 설명: 세션 참여
 - 인증: 필요
+- 권한: 캐릭터 소유자, 캠페인 마스터 또는 관리자
 - Path:
 - `id: number` 필수
 - Body:
 - `characterId: number` 필수
 - 비고:
-- 인증 사용자 본인 캐릭터만 허용
-- 캐릭터의 `campaignId` 와 세션의 `campaignId` 가 같아야 함
+- 캐릭터의 `campaignId`와 세션의 `campaignId`가 같아야 함
+- 관리자나 캠페인 마스터는 타인의 캐릭터를 세션에 등록할 수 있음
 - 중복 참여는 멱등 처리
 
 ### `DELETE /api/sessions/:id/players/:userId`
 
 - 설명: 세션 이탈
 - 인증: 필요
+- 권한: 본인, 캠페인 마스터 또는 관리자
 - Path:
 - `id: number` 필수
 - `userId: number` 필수
 - Body: 없음
-- 비고: 실질적으로는 `userId` 와 인증 사용자 ID가 같아야 한다.
+- 비고:
+- 관리자나 캠페인 마스터는 타인을 세션에서 제외할 수 있음
 
 ## Session Logs
 
@@ -682,6 +699,7 @@
 
 - 설명: 화폐 거래 수정
 - 인증: 필요
+- 권한: 소유자 또는 관리자
 - Path:
 - `id: number` 필수
 - Body:
@@ -695,7 +713,7 @@
 - `useYn?: 'Y' | 'N'`
 - `deleteYn?: 'Y' | 'N'`
 - 비고:
-- 관리자만 수정 가능
+- 본인(거래의 userId) 또는 관리자만 수정 가능
 - body 객체는 필요하지만 특정 필드를 필수로 강제하지는 않는다.
 - 다른 거래를 `INIT` 로 바꾸는 경우, 같은 캐릭터의 기존 `INIT` 거래와 충돌하면 실패한다.
 
@@ -703,10 +721,11 @@
 
 - 설명: 화폐 거래 삭제 처리
 - 인증: 필요
+- 권한: 소유자 또는 관리자
 - Path:
 - `id: number` 필수
 - Body: 없음
-- 비고: 관리자만 삭제 가능
+- 비고: 본인(거래의 userId) 또는 관리자만 삭제 가능
 
 ## Log Histories
 

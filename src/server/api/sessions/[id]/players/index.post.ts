@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
   const sessionId = Number(getRouterParam(event, 'id'));
   const body = await readBody<SessionPlayerCreateDto>(event);
 
-  const { user, error, } = await authHelper(event);
+  const { user: requester, hasPermission, error, } = await authHelper(event);
   if (error) return error;
 
   if (!Number.isFinite(sessionId) || !body?.characterId) {
@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  if (!session) {
+  if (!session || !session.campaign) {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.SESSION_NOT_FOUND);
   }
 
@@ -33,7 +33,8 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CHARACTER_NOT_FOUND);
   }
 
-  if (character.userId !== user.id) {
+  // 본인 캐릭터이거나, 관리자이거나, 캠페인 마스터인 경우 허용
+  if (!hasPermission(character.userId) && !hasPermission(session.campaign.userId)) {
     return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CHARACTER_FORBIDDEN);
   }
 
@@ -45,10 +46,10 @@ export default defineEventHandler(async (event) => {
   const [ sessionPlayer, ] = await db.insert(sessionPlayersTable).values({
     sessionId,
     characterId: body.characterId,
-    userId: user.id,
+    userId: character.userId, // 요청자가 아닌 캐릭터 소유자 ID 사용
     role: 'PLAYER',
-    creatorId: user!.id,
-    updaterId: user!.id,
+    creatorId: requester!.id,
+    updaterId: requester!.id,
     createDate: new Date(),
     updateDate: new Date(),
   }).onConflictDoNothing({
@@ -65,7 +66,7 @@ export default defineEventHandler(async (event) => {
   const existingPlayer = await db.query.sessionPlayersTable.findFirst({
     where: (table, { eq, and, }) => and(
       eq(table.sessionId, sessionId),
-      eq(table.userId, user.id)
+      eq(table.userId, character.userId) // 요청자가 아닌 캐릭터 소유자 ID 사용
     ),
   });
 

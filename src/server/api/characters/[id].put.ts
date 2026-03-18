@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
 
   // 1. 권한 확인 (X-Discord-ID 헤더 체크 및 유저 검증 포함)
-  const { user, hasPermission, error, } = await authHelper(event);
+  const { user, isAdmin, hasPermission, error, } = await authHelper(event);
   if (error) return error;
 
   // 2. 필수값 확인
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
   const [ updatedCharacter, ] = await db.update(charactersTable)
     .set({
       name: body.name,
-      campaignId: body.campaignId,
+      campaignId: isAdmin ? body.campaignId : character.campaignId, // 관리자만 캠페인 수정 가능
       status: body.status,
       race: body.race,
       startLevel: body.startLevel,

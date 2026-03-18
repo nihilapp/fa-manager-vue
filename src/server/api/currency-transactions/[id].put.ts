@@ -12,12 +12,8 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
   }
 
-  const { user, isAdmin, error, } = await authHelper(event);
+  const { user, isAdmin, hasPermission, error, } = await authHelper(event);
   if (error) return error;
-
-  if (!isAdmin) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CURRENCY_TRANSACTION_ADMIN_ONLY);
-  }
 
   const transaction = await db.query.currencyTransactionsTable.findFirst({
     where: (table, { eq, and, }) => and(
@@ -28,6 +24,10 @@ export default defineEventHandler(async (event) => {
 
   if (!transaction) {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CURRENCY_TRANSACTION_NOT_FOUND);
+  }
+
+  if (!hasPermission(transaction.userId)) {
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CURRENCY_TRANSACTION_FORBIDDEN);
   }
 
   const nextTransactionType = body.transactionType || transaction.transactionType;

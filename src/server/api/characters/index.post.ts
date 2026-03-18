@@ -14,17 +14,21 @@ export default defineEventHandler(async (event) => {
   }
 
   // 2. 권한 확인 (X-Discord-ID 헤더 체크 및 유저 검증 포함)
-  const { user, error, } = await authHelper(event);
+  const { user, isAdmin, error, } = await authHelper(event);
   if (error) return error;
+
+  // 관리자가 아니면 무조건 본인 ID 사용, campaignId는 null 처리
+  const targetUserId = isAdmin ? (body.userId || user!.id) : user!.id;
+  const targetCampaignId = isAdmin ? body.campaignId : null;
 
   // 3. 캐릭터 생성 및 시작 자금 INIT 거래 생성
   const character = await db.transaction(async (tx) => {
     const [ createdCharacter, ] = await tx.insert(charactersTable).values({
-      userId: user!.id,
+      userId: targetUserId,
       creatorId: user!.id,
       name: body.name,
       race: body.race,
-      campaignId: body.campaignId,
+      campaignId: targetCampaignId,
       status: body.status || 'ACTIVE',
       startLevel: body.startLevel || 0,
       startExp: body.startExp || 0,

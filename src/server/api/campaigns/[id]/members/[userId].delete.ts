@@ -28,14 +28,14 @@ export default defineEventHandler(async (event) => {
   // 서비스 로직
   // ========== ========== ========== ==========
 
-  const { user, error, } = await authHelper(event);
+  const { user, hasPermission, error, } = await authHelper(event);
   if (error) return error;
 
   if (!Number.isFinite(campaignId) || !Number.isFinite(userId)) {
     return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.BAD_REQUEST);
   }
 
-  if (user.id !== userId) {
+  if (!hasPermission(userId)) {
     return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
   }
 
@@ -48,15 +48,16 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CAMPAIGN_NOT_FOUND);
   }
 
-  if (campaign.userId === user.id) {
+  // 삭제 대상 유저가 캠페인 소유자인지 확인
+  if (campaign.userId === userId) {
     return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CAMPAIGN_OWNER_CANNOT_LEAVE);
   }
 
-  // 멤버 삭제 (논리 삭제가 아닌 물리 삭제 처리 - 멤버 관계 해제)
+  // 멤버 삭제
   await db.delete(campaignMembersTable).where(
     and(
       eq(campaignMembersTable.campaignId, campaignId),
-      eq(campaignMembersTable.userId, user.id)
+      eq(campaignMembersTable.userId, userId) // 대상 유저 ID 사용
     )
   );
 

@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
   const newUser = await db.insert(usersTable).values({
     discordId: body.discordId,
     name: body.name,
-    role: body.role || 'ROLE_USER',
+    role: 'ROLE_USER', // 강제 적용
     creatorId: body.creatorId || null,
     createDate: new Date(),
     updaterId: body.creatorId || null,

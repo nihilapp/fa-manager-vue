@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   // 서비스 로직
   // ========== ========== ========== ==========
 
-  const { user, hasPermission, error, } = await authHelper(event);
+  const { user, isAdmin, hasPermission, error, } = await authHelper(event);
   if (error) return error;
 
   if (!body) {
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
   // 3. 업데이트 실행 (email, discordId 제외)
   const updateUser = await db.update(usersTable).set({
     name: body.name || findUser.name,
-    role: body.role || findUser.role,
+    role: isAdmin ? (body.role || findUser.role) : findUser.role, // 관리자만 권한 변경 가능
     ...resolveCommonMetaUpdate(body, findUser, user!.id),
   }).where(
     eq(usersTable.id, Number(id))

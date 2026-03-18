@@ -47,6 +47,7 @@
 - `X-Discord-ID` 헤더로 사용자 확인.
 - `db.transaction` 시작.
 - `campaignsTable`에 레코드 생성.
+- `startDate`, `endDate`, `description` 은 선택값으로 처리하며, `startDate` 가 없으면 `null` 저장.
 - 생성된 캠페인 ID와 사용자 ID를 사용하여 `campaignMembersTable`에 `MASTER` 역할로 등록.
 
 2. **소프트 딜리트 (DELETE /api/campaigns/[id])**

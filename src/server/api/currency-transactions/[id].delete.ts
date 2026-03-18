@@ -7,12 +7,8 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
   // 서비스 로직
   // ========== ========== ========== ==========
-  const { user, isAdmin, error, } = await authHelper(event);
+  const { user, isAdmin, hasPermission, error, } = await authHelper(event);
   if (error) return error;
-
-  if (!isAdmin) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CURRENCY_TRANSACTION_ADMIN_ONLY);
-  }
 
   const transaction = await db.query.currencyTransactionsTable.findFirst({
     where: (table, { eq, and, }) => and(
@@ -23,6 +19,10 @@ export default defineEventHandler(async (event) => {
 
   if (!transaction) {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CURRENCY_TRANSACTION_NOT_FOUND);
+  }
+
+  if (!hasPermission(transaction.userId)) {
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CURRENCY_TRANSACTION_FORBIDDEN);
   }
 
   await db.update(currencyTransactionsTable)

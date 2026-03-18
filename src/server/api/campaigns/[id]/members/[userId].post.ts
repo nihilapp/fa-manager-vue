@@ -28,14 +28,14 @@ export default defineEventHandler(async (event) => {
   // 서비스 로직
   // ========== ========== ========== ==========
 
-  const { user: requester, error, } = await authHelper(event);
+  const { user: requester, hasPermission, error, } = await authHelper(event);
   if (error) return error;
 
   if (!Number.isFinite(campaignId) || !Number.isFinite(userId)) {
     return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.BAD_REQUEST);
   }
 
-  if (requester.id !== userId) {
+  if (!hasPermission(userId)) {
     return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
   }
 
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
 
   // 3. 멤버 등록 실행
   const result = await db.insert(campaignMembersTable).values({
-    userId: requester.id,
+    userId: userId, // 요청자 ID가 아닌 대상 유저 ID 사용
     campaignId: campaign.id,
     role: 'PLAYER',
     creatorId: requester!.id,
@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
 
   const existingMember = await db.query.campaignMembersTable.findFirst({
     where: (table, { and, eq, }) => and(
-      eq(table.userId, requester.id),
+      eq(table.userId, userId), // 요청자 ID가 아닌 대상 유저 ID 사용
       eq(table.campaignId, campaign.id)
     ),
   });

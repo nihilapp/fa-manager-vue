@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
   const sessionId = Number(getRouterParam(event, 'id'));
   const targetUserId = Number(getRouterParam(event, 'userId'));
 
-  const { user, error, } = await authHelper(event);
+  const { user, hasPermission, error, } = await authHelper(event);
   if (error) return error;
 
   if (!Number.isFinite(sessionId) || !Number.isFinite(targetUserId)) {
@@ -20,11 +20,12 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  if (!session) {
+  if (!session || !session.campaign) {
     return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.SESSION_NOT_FOUND);
   }
 
-  if (targetUserId !== user.id) {
+  // 본인 제거이거나, 관리자이거나, 캠페인 마스터인 경우 허용
+  if (!hasPermission(targetUserId) && !hasPermission(session.campaign.userId)) {
     return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.PLAYER_FORBIDDEN);
   }
 
@@ -32,7 +33,7 @@ export default defineEventHandler(async (event) => {
   await db.delete(sessionPlayersTable)
     .where(and(
       eq(sessionPlayersTable.sessionId, sessionId),
-      eq(sessionPlayersTable.userId, user.id)
+      eq(sessionPlayersTable.userId, targetUserId) // 요청자 ID가 아닌 대상 유저 ID 사용
     ));
 
   return BaseResponse.data(null, RESPONSE_CODE.OK, RESPONSE_MESSAGE.PLAYER_DELETED);
