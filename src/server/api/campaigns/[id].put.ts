@@ -83,7 +83,7 @@ export default defineEventHandler(async (event) => {
         : null)
       : findCampaign.endDate,
     status: body.status || findCampaign.status,
-    ...resolveCommonMetaUpdate(body, findCampaign, user.id),
+    ...resolveCommonMetaUpdate(body, findCampaign as unknown as CommonOutDto, user.id),
   }).where(
     eq(campaignsTable.id, Number(id))
   ).returning();

@@ -1,6 +1,3 @@
-import type { ApiResponse, PageDataType } from '~/types/common.types';
-import type { UserOutDto } from '~/types/dto.types';
-
 export const useUserStore = defineStore('userStore', () => {
   // 사용자 목록
   const userInfoList = ref<UserOutDto[]>([]);
@@ -13,25 +10,28 @@ export const useUserStore = defineStore('userStore', () => {
 
   const getUserList = async (
     callback?: (data: UserOutDto[], totalCnt: number) => void,
-    errorCallback?: (error: ApiResponse<PageDataType<UserOutDto>>) => void
+    errorCallback?: (error: BaseResponse<ListData<UserOutDto>>) => void
   ) => {
-    await useGet<PageDataType<UserOutDto>>(
-      '/users',
-      undefined,
-      (res) => {
-        userInfoList.value = res?.data.list ?? [];
-        userInfoListCount.value = res?.data.totalElements ?? 0;
+    // query-key-factory를 사용하여 타입 안전한 쿼리 키 적용
+    const key = queryKeys.users.list().queryKey;
+
+    await useGet<ListData<UserOutDto>>({
+      api: '/users',
+      key,
+      onSuccess: (res) => {
+        userInfoList.value = res.data.list ?? [];
+        userInfoListCount.value = res.data.totalElements ?? 0;
 
         if (callback) {
-          callback(res?.data.list ?? [], res?.data.totalElements ?? 0);
+          callback(res.data.list ?? [], res.data.totalElements ?? 0);
         }
       },
-      (error) => {
+      onError: (error) => {
         if (errorCallback) {
           errorCallback(error);
         }
-      }
-    );
+      },
+    });
   };
 
   return {

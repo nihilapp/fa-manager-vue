@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
       description: hasDescription
         ? body.description
         : logHistory.description,
-      ...resolveCommonMetaUpdate(body, logHistory, user!.id),
+      ...resolveCommonMetaUpdate(body, logHistory as unknown as CommonOutDto, user!.id),
     })
     .where(eq(logHistoriesTable.id, id))
     .returning();

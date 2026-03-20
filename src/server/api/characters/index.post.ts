@@ -10,7 +10,10 @@ export default defineEventHandler(async (event) => {
 
   // 1. 필수값 확인
   if (!body || !body.name || !body.race) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
+    return BaseResponse.error(
+      RESPONSE_CODE.BAD_REQUEST,
+      RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING
+    );
   }
 
   // 2. 권한 확인 (X-Discord-ID 헤더 체크 및 유저 검증 포함)
@@ -18,8 +21,12 @@ export default defineEventHandler(async (event) => {
   if (error) return error;
 
   // 관리자가 아니면 무조건 본인 ID 사용, campaignId는 null 처리
-  const targetUserId = isAdmin ? (body.userId || user!.id) : user!.id;
-  const targetCampaignId = isAdmin ? body.campaignId : null;
+  const targetUserId = isAdmin
+    ? (body.userId || user!.id)
+    : user!.id;
+  const targetCampaignId = isAdmin
+    ? body.campaignId
+    : null;
 
   // 3. 캐릭터 생성 및 시작 자금 INIT 거래 생성
   const character = await db.transaction(async (tx) => {
@@ -92,6 +99,7 @@ export default defineEventHandler(async (event) => {
       deltaGp: body.startCurrencyGp ?? 0,
       deltaPp: body.startCurrencyPp ?? 0,
       creatorId: user!.id,
+      createDate: new Date(),
     });
 
     return createdCharacter;

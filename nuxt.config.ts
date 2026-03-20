@@ -19,6 +19,7 @@ export default defineNuxtConfig({
     layouts: 'app/layouts',
     middleware: 'app/middleware',
     assets: 'app/assets',
+    plugins: 'app/plugins',
   },
 
   alias: {
@@ -47,10 +48,82 @@ export default defineNuxtConfig({
     normalizeComponentNames: true,
   },
 
-  components: false, // 컴포넌트 자동 등록 비활성화
+  components: [
+    {
+      path: '~/app/components',
+      pathPrefix: false,
+    },
+  ],
 
   imports: {
-    autoImport: false, // App 오토임포트 비활성화
+    autoImport: true,
+    dirs: [
+      'app/composables',
+      'app/composables/**',
+      'app/stores',
+    ],
+    imports: [
+      {
+        name: 'appConfig',
+        from: '@app/config/app.config',
+      },
+      {
+        name: 'RESPONSE_CODE',
+        from: '@server/constant/response-code',
+      },
+      {
+        name: 'RESPONSE_MESSAGE',
+        from: '@server/constant/response-message',
+      },
+      {
+        name: 'checkAndHandleApiError',
+        from: '@app/utils/api-error-handler',
+      },
+      {
+        name: 'queryKeys',
+        from: '@app/utils/query-keys',
+      },
+      {
+        name: 'cn',
+        from: '@app/utils/cn',
+      },
+      {
+        name: 'apiClient',
+        from: '@app/utils/api-client',
+      },
+    ],
+    presets: [
+      {
+        from: 'lodash-es',
+        imports: [
+          [ 'default', '_', ],
+        ],
+      },
+      {
+        from: 'luxon',
+        imports: [ 'DateTime', ],
+      },
+      {
+        from: 'uuid',
+        imports: [
+          [ 'v4', 'uuidv4', ],
+        ],
+      },
+      {
+        from: '@tanstack/vue-query',
+        imports: [
+          'useQuery',
+          'useMutation',
+          'useQueryClient',
+          'useInfiniteQuery',
+          'useQueries',
+          'useIsFetching',
+          'useIsMutating',
+          'useMutationState',
+          'keepPreviousData',
+        ],
+      },
+    ],
   },
 
   nitro: {

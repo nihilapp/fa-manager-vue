@@ -4,7 +4,7 @@ export type OpenGraphType
     | 'music.song'
     | 'music.album'
     | 'music.playlist'
-    | 'music.radio_station'
+    | 'music.radio_status'
     | 'profile'
     | 'website'
     | 'video.tv_show'

@@ -1,4 +1,4 @@
-export const appConfig = {
+export const appConfig: AppConfig = {
   site: {
     title: '사이트 이름',
     description: '사이트 설명',
@@ -27,6 +27,6 @@ export const appConfig = {
     analyticsId: '',
   },
   api: {
-    route: 'http://localhost:8000',
+    route: 'http://localhost:3000/api',
   },
 } as const;

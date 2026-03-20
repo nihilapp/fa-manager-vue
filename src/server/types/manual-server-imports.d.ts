@@ -117,8 +117,10 @@ declare global {
 
   type RESPONSE_CODE = import('../constant/response-code').RESPONSE_CODE;
   type RESPONSE_MESSAGE = import('../constant/response-message').RESPONSE_MESSAGE;
-  type BaseResponse<T = null> = import('../utils/base-response').BaseResponse<T>;
-  type ListData<T = null> = import('../utils/list-data').ListData<T>;
+  type BaseResponse<T = null> = import('./response.types').BaseResponseType<T> & {
+    responseTime?: number;
+  };
+  type ListData<T = null> = import('./response.types').ListDataType<T>;
 }
 
 export {};

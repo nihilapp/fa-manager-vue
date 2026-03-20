@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
   const [ updatedCharacter, ] = await db.update(charactersTable)
     .set({
       status: body.status,
-      ...resolveCommonMetaUpdate(body, character, user!.id),
+      ...resolveCommonMetaUpdate(body, character as unknown as CommonOutDto, user!.id),
     })
     .where(eq(charactersTable.id, id))
     .returning();

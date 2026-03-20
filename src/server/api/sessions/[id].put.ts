@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
           ? new Date(body.playDate)
           : null)
         : session.playDate,
-      ...resolveCommonMetaUpdate(body, session, user!.id),
+      ...resolveCommonMetaUpdate(body, session as unknown as CommonOutDto, user!.id),
     })
     .where(eq(sessionsTable.id, id))
     .returning();

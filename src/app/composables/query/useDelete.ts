@@ -1,67 +1,62 @@
-import { appConfig } from '~/config/app.config';
-import type { ApiResponse } from '~/types/common.types';
-import { checkAndHandleApiError } from '~/utils/api-error-handler';
+import type { UseMutationReturnType } from '@tanstack/vue-query';
 
-export function useDelete<TData = unknown>(url: string, callback?: (data: ApiResponse<TData>) => void, errorCallback?: (error: ApiResponse<TData>) => void) {
-  const token = useCookie('token');
+export type UseDeleteMutationResult<TData, TBody> = UseMutationReturnType<
+  BaseResponse<TData> | undefined,
+  unknown,
+  TBody | undefined,
+  unknown
+>;
 
-  const { data: response, status, error, execute, ...other } = useAsyncData<ApiResponse<TData>>(
-    `delete-${url}`,
-    async () => {
-      const authToken = token.value;
-      const headers: HeadersInit = {};
+export type UseDeleteReturn<TData, TBody> = UseDeleteMutationResult<TData, TBody> & {
+  response: UseDeleteMutationResult<TData, TBody>['data'];
+  execute: UseDeleteMutationResult<TData, TBody>['mutateAsync'];
+};
 
-      if (authToken) {
-        headers.Authorization = `Bearer ${authToken}`;
+export interface UseDeleteOptions<TData, TBody = ApiRequestBody> {
+  api: string;
+  enabled?: ApiRequestEnabled;
+  key?: ApiRequestKey;
+  fetcher?: (body?: TBody) => Promise<BaseResponse<TData>>;
+  onSuccess?: (data: BaseResponse<TData>) => void;
+  onError?: (error: BaseResponse<TData>) => void;
+}
+
+export function useDelete<TData = unknown, TBody = ApiRequestBody>({
+  api,
+  enabled,
+  key,
+  fetcher,
+  onSuccess,
+  onError,
+}: UseDeleteOptions<TData, TBody>): UseDeleteReturn<TData, TBody> {
+  const isEnabled = computed(() => toValue(enabled) ?? true);
+  const mutation: UseDeleteMutationResult<TData, TBody> = useMutation({
+    mutationKey: key ? (Array.isArray(key) ? key : [ key, api, ]) : [ 'delete', api, ],
+    mutationFn: async (body?: TBody) => {
+      if (!isEnabled.value) {
+        return undefined;
       }
 
-      return await $fetch<ApiResponse<TData>>(url, {
-        method: 'DELETE',
-        baseURL: appConfig.api.route,
-        headers,
+      return fetcher
+        ? fetcher(body)
+        : (await apiClient.delete<BaseResponse<TData>>(api, {
+          data: body,
+        })).data;
+    },
+    onSuccess: (data) => {
+      handleApiResponse(data, {
+        onSuccess,
+        onError,
       });
     },
-    {
-      immediate: false,
-    }
-  );
-
-  const del = async () => {
-    try {
-      await execute();
-
-      // 모든 응답이 HTTP 200이므로, ResponseType.error 필드를 확인하여 에러 처리
-      if (response.value) {
-        const hasError = checkAndHandleApiError(response.value, errorCallback);
-
-        if (!hasError && callback) {
-          // 에러가 없을 때만 성공 콜백 호출
-          callback(response.value);
-        }
-      }
-
-      return response.value;
-    }
-    catch (err: any) {
-      // 네트워크 에러 등 실제 HTTP 에러 처리
-      if (errorCallback) {
-        if (err?.response?._data) {
-          checkAndHandleApiError(err.response._data, errorCallback);
-        }
-        else if (err && typeof err === 'object' && 'error' in err) {
-          // ResponseType 형태의 에러인 경우
-          checkAndHandleApiError(err as ApiResponse<TData>, errorCallback);
-        }
-      }
-      throw err;
-    }
-  };
+    onError: (error) => {
+      handleApiRequestError(error, onError);
+    },
+  });
 
   return {
-    delete: del,
-    response,
-    status,
-    error,
-    ...other,
+    response: mutation.data,
+    execute: mutation.mutateAsync,
+    ...mutation,
   };
 }

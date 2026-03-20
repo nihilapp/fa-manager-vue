@@ -50,8 +50,10 @@ export default defineEventHandler(async (event) => {
   // 3. 업데이트 실행 (email, discordId 제외)
   const updateUser = await db.update(usersTable).set({
     name: body.name || findUser.name,
-    role: isAdmin ? (body.role || findUser.role) : findUser.role, // 관리자만 권한 변경 가능
-    ...resolveCommonMetaUpdate(body, findUser, user!.id),
+    role: isAdmin
+      ? (body.role || findUser.role)
+      : findUser.role, // 관리자만 권한 변경 가능
+    ...resolveCommonMetaUpdate(body, findUser as unknown as CommonOutDto, user!.id),
   }).where(
     eq(usersTable.id, Number(id))
   ).returning();

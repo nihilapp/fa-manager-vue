@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
 
   const result = await db.update(campaignsTable).set({
     status: body.status,
-    ...resolveCommonMetaUpdate(body, findCampaign, user!.id),
+    ...resolveCommonMetaUpdate(body, findCampaign as unknown as CommonOutDto, user!.id),
   }).where(
     eq(campaignsTable.id, Number(id))
   ).returning();

@@ -15,10 +15,12 @@
     }
   },
   "include": [
-    "src/app/types/manual-app-imports.d.ts",
-    "src/server/types/manual-server-imports.d.ts",
     ".nuxt/nuxt.d.ts",
+    ".nuxt/types/components.d.ts",
+    ".nuxt/types/imports.d.ts",
     "nuxt.config.ts",
-    "src/**/*"
+    "src/**/*",
+    "**/*.ts",
+    "**/*.vue"
   ]
 }

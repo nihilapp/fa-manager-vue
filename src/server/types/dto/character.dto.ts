@@ -1,13 +1,14 @@
 import type {
   CampaignOutDto,
   SessionPlayerOutDto,
-  UserOutDto,
+  UserOutDto
 } from '../dto.types';
+
 import type {
   CharacterStatus,
   CommonInDto,
   CommonOutDto,
-  CommonQueryDto,
+  CommonQueryDto
 } from './common.dto';
 
 export interface CharacterQueryDto extends CommonQueryDto {
@@ -37,6 +38,7 @@ export interface CharacterQueryDto extends CommonQueryDto {
 export interface CharacterCreateDto {
   name: string;
   race: string;
+  userId?: number;
   campaignId?: number;
   status?: CharacterStatus;
   startLevel?: number;

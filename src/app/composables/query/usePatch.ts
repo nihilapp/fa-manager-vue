@@ -1,70 +1,60 @@
-import { appConfig } from '~/config/app.config';
-import type { ApiResponse } from '~/types/common.types';
-import { checkAndHandleApiError } from '~/utils/api-error-handler';
+import type { UseMutationReturnType } from '@tanstack/vue-query';
 
-export function usePatch<TData = unknown>(url: string, callback?: (data: ApiResponse<TData>) => void, errorCallback?: (error: ApiResponse<TData>) => void) {
-  const token = useCookie('token');
-  const bodyRef = ref<string | Record<string, any> | ReadableStream | Blob | ArrayBuffer | ArrayBufferView | null | undefined>(undefined);
+export type UsePatchMutationResult<TData, TBody> = UseMutationReturnType<
+  BaseResponse<TData> | undefined,
+  unknown,
+  TBody | undefined,
+  unknown
+>;
 
-  const { data: response, status, error, execute, ...other } = useAsyncData<ApiResponse<TData>>(
-    `patch-${url}`,
-    async () => {
-      const authToken = token.value;
-      const headers: HeadersInit = {};
+export type UsePatchReturn<TData, TBody> = UsePatchMutationResult<TData, TBody> & {
+  response: UsePatchMutationResult<TData, TBody>['data'];
+  execute: UsePatchMutationResult<TData, TBody>['mutateAsync'];
+};
 
-      if (authToken) {
-        headers.Authorization = `Bearer ${authToken}`;
+export interface UsePatchOptions<TData, TBody = ApiRequestBody> {
+  api: string;
+  enabled?: ApiRequestEnabled;
+  key?: ApiRequestKey;
+  fetcher?: (body?: TBody) => Promise<BaseResponse<TData>>;
+  onSuccess?: (data: BaseResponse<TData>) => void;
+  onError?: (error: BaseResponse<TData>) => void;
+}
+
+export function usePatch<TData = unknown, TBody = ApiRequestBody>({
+  api,
+  enabled,
+  key,
+  fetcher,
+  onSuccess,
+  onError,
+}: UsePatchOptions<TData, TBody>): UsePatchReturn<TData, TBody> {
+  const isEnabled = computed(() => toValue(enabled) ?? true);
+  const mutation: UsePatchMutationResult<TData, TBody> = useMutation({
+    mutationKey: key ? (Array.isArray(key) ? key : [ key, api, ]) : [ 'patch', api, ],
+    mutationFn: async (body?: TBody) => {
+      if (!isEnabled.value) {
+        return undefined;
       }
 
-      return await $fetch<ApiResponse<TData>>(url, {
-        method: 'PATCH',
-        baseURL: appConfig.api.route,
-        body: bodyRef.value,
-        headers,
+      return fetcher
+        ? fetcher(body)
+        : (await apiClient.patch<BaseResponse<TData>>(api, body)).data;
+    },
+    onSuccess: (data) => {
+      handleApiResponse(data, {
+        onSuccess,
+        onError,
       });
     },
-    {
-      immediate: false,
-    }
-  );
-
-  const patch = async (body: string | Record<string, any> | ReadableStream | Blob | ArrayBuffer | ArrayBufferView) => {
-    bodyRef.value = body;
-    try {
-      await execute();
-
-      // 모든 응답이 HTTP 200이므로, ResponseType.error 필드를 확인하여 에러 처리
-      if (response.value) {
-        const hasError = checkAndHandleApiError(response.value, errorCallback);
-
-        if (!hasError && callback) {
-          // 에러가 없을 때만 성공 콜백 호출
-          callback(response.value);
-        }
-      }
-
-      return response.value;
-    }
-    catch (err: any) {
-      // 네트워크 에러 등 실제 HTTP 에러 처리
-      if (errorCallback) {
-        if (err?.response?._data) {
-          checkAndHandleApiError(err.response._data, errorCallback);
-        }
-        else if (err && typeof err === 'object' && 'error' in err) {
-          // ResponseType 형태의 에러인 경우
-          checkAndHandleApiError(err as ApiResponse<TData>, errorCallback);
-        }
-      }
-      throw err;
-    }
-  };
+    onError: (error) => {
+      handleApiRequestError(error, onError);
+    },
+  });
 
   return {
-    patch,
-    response,
-    status,
-    error,
-    ...other,
+    response: mutation.data,
+    execute: mutation.mutateAsync,
+    ...mutation,
   };
 }

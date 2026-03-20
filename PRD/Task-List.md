@@ -3,6 +3,11 @@
 ## [Phase 1] 초기화 및 기반 구축
 - [x] 프로젝트 초기화 및 PRD 셋업 (진행 완료)
 - [x] buildPrismaWhere 유틸리티 개선 (AND/OR 지원 및 반환값 추가) (완료)
+- [ ] 프론트엔드 데이터 패칭 레이어 개선 (Vue Query 전환)
+  - [ ] `@tanstack/vue-query` 및 쿼리 키 빌더 설치
+  - [ ] Nuxt 플러그인 및 SSR 하이드레이션 설정
+  - [ ] `useGet`, `usePost` 등 커스텀 컴포저블 리팩토링
+  - [ ] 전역 쿼리 키 팩토리 구축
 - [ ] Drizzle ORM 셋업 및 DB 연결 환경 구축
 - [ ] 데이터베이스 스키마 및 관계 정의
   - Player/User DB, Campaign, CampaignMember, PC, Session, ActionLogs(Exp/Resource)

@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
       deltaEp: body.deltaEp ?? transaction.deltaEp,
       deltaSp: body.deltaSp ?? transaction.deltaSp,
       deltaCp: body.deltaCp ?? transaction.deltaCp,
-      ...resolveCommonMetaUpdate(body, transaction, user!.id),
+      ...resolveCommonMetaUpdate(body, transaction as unknown as CommonOutDto, user!.id),
     })
     .where(eq(currencyTransactionsTable.id, id))
     .returning();

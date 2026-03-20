@@ -27,25 +27,7 @@ X-Discord-ID: {{discordId}}
 
 {
   "name": "테스트 캐릭터",
-  "race": "Human",
-  "campaignId": 1,
-  "status": "ACTIVE",
-  "startLevel": 1,
-  "startExp": 0,
-  "str": 10,
-  "dex": 14,
-  "con": 12,
-  "int": 10,
-  "wis": 8,
-  "cha": 13,
-  "ac": 15,
-  "hp": 12,
-  "speed": "30ft",
-  "vision": "Normal",
-  "skills": "Perception, Stealth",
-  "startCurrencyGp": 15,
-  "mainHand": "Longsword",
-  "armor": "Leather Armor"
+  "race": "인간"
 }
 
 ### 캐릭터 수정

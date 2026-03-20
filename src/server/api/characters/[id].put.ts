@@ -39,7 +39,9 @@ export default defineEventHandler(async (event) => {
   const [ updatedCharacter, ] = await db.update(charactersTable)
     .set({
       name: body.name,
-      campaignId: isAdmin ? body.campaignId : character.campaignId, // 관리자만 캠페인 수정 가능
+      campaignId: isAdmin
+        ? body.campaignId
+        : character.campaignId, // 관리자만 캠페인 수정 가능
       status: body.status,
       race: body.race,
       startLevel: body.startLevel,
@@ -91,7 +93,7 @@ export default defineEventHandler(async (event) => {
       reqCon18: body.reqCon18,
       reqCon20: body.reqCon20,
 
-      ...resolveCommonMetaUpdate(body, character, user!.id),
+      ...resolveCommonMetaUpdate(body, character as unknown as CommonOutDto, user!.id),
     })
     .where(eq(charactersTable.id, id))
     .returning();

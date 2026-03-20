@@ -1,69 +1,87 @@
-import { appConfig } from '~/config/app.config';
-import type { ApiResponse } from '~/types/common.types';
-import { checkAndHandleApiError } from '~/utils/api-error-handler';
+import type { UseQueryReturnType } from '@tanstack/vue-query';
 
-export async function useGet<TData = unknown>(
-  url: string,
-  body?: string | Record<string, any> | ReadableStream | Blob | ArrayBuffer | ArrayBufferView,
-  callback?: (data: ApiResponse<TData> | undefined) => void,
-  errorCallback?: (error: ApiResponse<TData>) => void,
-  options?: {
-    enabled?: boolean | Ref<boolean> | ComputedRef<boolean>;
-  }
-) {
-  const token = useCookie('token');
-  const authToken = token.value;
+type QueryValue = string | number | boolean | null | undefined;
+type QueryParams = Record<string, QueryValue | QueryValue[]>;
 
-  const enabled = options?.enabled ?? true;
-  const enabledValue = unref(enabled);
+export type UseGetQueryResult<TData> = UseQueryReturnType<BaseResponse<TData> | undefined, unknown>;
 
-  const watchOptions = typeof enabled === 'object'
-    ? [ enabled, ]
-    : false;
+export type UseGetReturn<TData> = UseGetQueryResult<TData> & {
+  response: UseGetQueryResult<TData>['data'];
+  execute: UseGetQueryResult<TData>['refetch'];
+};
 
-  const { data: response, ...other } = await useFetch<ApiResponse<TData>>(url, {
-    method: 'GET',
-    baseURL: appConfig.api.route,
-    ...(body && { body, }),
-    immediate: enabledValue,
-    watch: watchOptions,
-    onRequest({ options: requestOptions, }) {
-      if (authToken) {
-        const headers = new Headers(requestOptions.headers);
-        headers.set('Authorization', `Bearer ${authToken}`);
-        requestOptions.headers = headers;
+export interface UseGetOptions<TData> {
+  api: string;
+  enabled?: ApiRequestEnabled;
+  fetcher?: () => Promise<BaseResponse<TData>>;
+  query?: QueryParams | Ref<QueryParams | undefined> | (() => QueryParams | undefined);
+  key?: ApiRequestKey;
+  staleTime?: number;
+  gcTime?: number;
+  onSuccess?: (data: BaseResponse<TData>) => void;
+  onError?: (error: BaseResponse<TData>) => void;
+}
+
+export async function useGet<TData = unknown>({
+  api,
+  enabled,
+  fetcher,
+  query,
+  key,
+  staleTime,
+  gcTime,
+  onSuccess,
+  onError,
+}: UseGetOptions<TData>): Promise<UseGetReturn<TData>> {
+  const queryResult: UseGetQueryResult<TData> = useQuery({
+    queryKey: computed(() => {
+      const queryParams = toValue(query);
+
+      if (key) {
+        return Array.isArray(key) ? key : [ key, queryParams, ];
+      }
+
+      return [ 'get', api, queryParams, ];
+    }),
+    queryFn: async () => {
+      try {
+        const queryParams = toValue(query);
+        const response = fetcher
+          ? await fetcher()
+          : (await apiClient.get<BaseResponse<TData>>(api, {
+            params: queryParams,
+          })).data;
+
+        return handleApiResponse(response, {
+          onSuccess,
+          onError,
+        });
+      }
+      catch (error) {
+        handleApiRequestError(error, onError);
+        throw error;
       }
     },
-    onResponse({ response: res, }) {
-      // 모든 응답이 HTTP 200이므로, ResponseType.error 필드를 확인하여 에러 처리
-      if (res._data) {
-        const hasError = checkAndHandleApiError(res._data, errorCallback);
-
-        if (!hasError && callback) {
-          // 에러가 없을 때만 성공 콜백 호출
-          callback(res._data);
-        }
-      }
-    },
-    onResponseError({ response: errorResponse, }) {
-      // 네트워크 에러 등 실제 HTTP 에러 처리
-      if (errorCallback && errorResponse._data) {
-        checkAndHandleApiError(errorResponse._data, errorCallback);
-      }
-    },
+    enabled: computed(() => toValue(enabled) ?? true),
+    staleTime,
+    gcTime,
   });
 
-  // enabled가 reactive인 경우 watch하여 자동으로 execute
-  if (typeof enabled === 'object' && enabledValue === false) {
-    watch(enabled, (newValue) => {
-      if (newValue && other.status.value === 'idle') {
-        other.execute();
-      }
-    });
+  // await useGet 형식을 지원하기 위해 suspense 호출
+  // SSR 환경이거나 enabled가 true인 경우에만 수행
+  const isEnabled = toValue(enabled) ?? true;
+  if (isEnabled) {
+    try {
+      await queryResult.suspense();
+    }
+    catch (e) {
+      // 에러는 onSuccess 내의 checkAndHandleApiError에서 처리됨
+    }
   }
 
   return {
-    response,
-    ...other,
+    response: queryResult.data,
+    execute: queryResult.refetch,
+    ...queryResult,
   };
 }

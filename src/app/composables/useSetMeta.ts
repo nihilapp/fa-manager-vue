@@ -1,45 +1,55 @@
-import { appConfig } from '~/config/app.config';
-import type { OpenGraphType, SiteMetadata } from '~/types/common.types';
+import { appConfig } from '@app/config/app.config';
+import type { OpenGraphType, SiteMetadata } from '@app/types/common.types';
+
+function resolveUrl(path: string | undefined, fallbackPath: string): string {
+  const targetPath = path?.trim() || fallbackPath;
+  const siteUrl = appConfig.site.url.trim();
+
+  if (!siteUrl) {
+    return targetPath;
+  }
+
+  return new URL(targetPath, siteUrl).toString();
+}
 
 export const useSetMeta = (meta: SiteMetadata) => {
+  const pageTitle = meta.title.trim();
+  const documentTitle = pageTitle
+    ? `${pageTitle} - ${appConfig.site.title}`
+    : appConfig.site.title;
   const siteDescription = meta.description || appConfig.site.description;
-  const siteKeywords = meta.keywords
-    ? `${appConfig.site.keywords}, ${meta.keywords}`
-    : appConfig.site.keywords;
-  const siteUrl = `${appConfig.site.url}${meta.url}`;
-  const siteImageLink = meta.imageLink
-    ? `${appConfig.site.url}${meta.imageLink}`
-    : `${appConfig.site.url}${appConfig.images.cover.link}`;
+  const siteUrl = resolveUrl(meta.url, '/');
+  const siteImageLink = resolveUrl(meta.imageLink, appConfig.images.cover.link);
   const siteImageAlt = meta.imageAlt || appConfig.images.cover.alt;
   const siteType = meta.type || (appConfig.site.type as OpenGraphType);
 
-  // Nuxt.js useHead로 메타데이터 설정
+  useSeoMeta({
+    title: documentTitle,
+    description: siteDescription,
+    author: appConfig.author.name,
+    robots: meta.robots || 'index, follow',
+    ogTitle: documentTitle,
+    ogDescription: siteDescription,
+    ogLocale: 'ko_KR',
+    ogType: siteType,
+    ogSiteName: appConfig.site.title,
+    ogUrl: siteUrl,
+    ogImage: siteImageLink,
+    ogImageAlt: siteImageAlt,
+    twitterCard: 'summary_large_image',
+    twitterTitle: documentTitle,
+    twitterDescription: siteDescription,
+    twitterImage: siteImageLink,
+  });
+
   useHead({
-    title: `${meta.title} - ${appConfig.site.title}`,
     meta: [
-      { name: 'description', content: siteDescription, },
-      { name: 'keywords', content: siteKeywords, },
-      { name: 'author', content: appConfig.author.name, },
-      { name: 'robots', content: meta.robots || 'index, follow', },
       { name: 'generator', content: 'Nuxt.js', },
       { name: 'google-site-verification', content: appConfig.google.verification, },
       { name: 'version', content: appConfig.site.version, },
-
-      // Open Graph
-      { property: 'og:title', content: meta.title, },
-      { property: 'og:description', content: siteDescription, },
-      { property: 'og:locale', content: 'ko_KR', },
-      { property: 'og:type', content: siteType, },
-      { property: 'og:site_name', content: appConfig.site.title, },
-      { property: 'og:url', content: siteUrl, },
-      { property: 'og:image', content: siteImageLink, },
       { property: 'og:image:width', content: '1920', },
       { property: 'og:image:height', content: '1080', },
       { property: 'og:image:alt', content: siteImageAlt, },
-
-      // Twitter
-      { name: 'twitter:card', content: 'summary_large_image', },
-      { name: 'twitter:image', content: siteImageLink, },
       { name: 'twitter:image:width', content: '1920', },
       { name: 'twitter:image:height', content: '1080', },
       { name: 'twitter:image:alt', content: siteImageAlt, },
@@ -52,11 +62,9 @@ export const useSetMeta = (meta: SiteMetadata) => {
     },
   });
 
-  // 설정된 메타데이터 반환 (디버깅용)
   return {
-    title: meta.title,
+    title: documentTitle,
     description: siteDescription,
-    keywords: siteKeywords,
     url: siteUrl,
     imageLink: siteImageLink,
     imageAlt: siteImageAlt,
