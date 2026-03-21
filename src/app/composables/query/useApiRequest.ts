@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+import { checkAndHandleApiError } from '@app/utils/api-error-handler';
+
 type Primitive = string | number | boolean;
 
 export type ApiRequestBody

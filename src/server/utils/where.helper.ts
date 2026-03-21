@@ -1,3 +1,21 @@
+import {
+  and,
+  between,
+  eq,
+  gt,
+  gte,
+  ilike,
+  inArray,
+  isNotNull,
+  isNull,
+  lt,
+  lte,
+  ne,
+  notBetween,
+  notInArray,
+  or,
+} from 'drizzle-orm';
+
 /**
  * Drizzle 지원 연산자 타입 확장
  */

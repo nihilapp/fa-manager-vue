@@ -3,6 +3,12 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "#imports": [
+        ".nuxt/imports"
+      ],
+      "h3": [
+        "node_modules/.pnpm/h3@1.15.7/node_modules/h3"
+      ],
       "@src/*": [
         "src/*"
       ],
@@ -15,9 +21,10 @@
     }
   },
   "include": [
+    ".nuxt/imports.d.ts",
     ".nuxt/nuxt.d.ts",
-    ".nuxt/types/components.d.ts",
     ".nuxt/types/imports.d.ts",
+    ".nuxt/types/nitro-imports.d.ts",
     "nuxt.config.ts",
     "src/**/*",
     "**/*.ts",

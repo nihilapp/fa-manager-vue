@@ -6,10 +6,7 @@
 @import "./variant/child.css";
 @import "./layout/flex.css";
 
-@import "./utility/button.css";
 @import "./utility/layout.css";
-@import "./utility/menu.css";
-@import "./utility/scrollbar.css";
 
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-animate";

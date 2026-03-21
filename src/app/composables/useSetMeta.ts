@@ -1,3 +1,5 @@
+import { useHead, useSeoMeta } from '#imports';
+
 import { appConfig } from '@app/config/app.config';
 import type { OpenGraphType, SiteMetadata } from '@app/types/common.types';
 

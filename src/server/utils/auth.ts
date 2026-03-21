@@ -1,12 +1,24 @@
+import { RESPONSE_CODE } from '@server/constant/response-code';
+import { RESPONSE_MESSAGE } from '@server/constant/response-message';
+import { db } from '@server/utils/drizzle';
+import { getDiscordId } from '@server/utils/request-header';
+
+import { BaseResponse } from './base-response';
+
 /**
  * 요청자의 정보를 확인하고 관리자 권한 또는 소유권을 검증하는 헬퍼
  */
 export const authHelper = async (event: H3Event) => {
   const discordId = getDiscordId(event);
+  const fallbackUser = { id: 0, } as UserOutDto & { id: number };
+  const denyPermission = () => false as const;
 
   if (!discordId) {
     return {
-      user: null,
+      user: fallbackUser,
+      isAdmin: false,
+      hasPermission: denyPermission,
+      checkAdmin: denyPermission,
       error: BaseResponse.error(RESPONSE_CODE.UNAUTHORIZED, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID),
     };
   }
@@ -18,7 +30,10 @@ export const authHelper = async (event: H3Event) => {
 
   if (!user) {
     return {
-      user: null,
+      user: fallbackUser,
+      isAdmin: false,
+      hasPermission: denyPermission,
+      checkAdmin: denyPermission,
       error: BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND),
     };
   }

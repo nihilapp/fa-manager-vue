@@ -1,4 +1,7 @@
 import axios from 'axios';
+import { useCookie } from '#imports';
+
+import { appConfig } from '@app/config/app.config';
 
 export const apiClient = axios.create({
   baseURL: appConfig.api.route,

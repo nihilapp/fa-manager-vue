@@ -89,3 +89,39 @@
   }
 }
 
+@custom-variant scrollbar {
+  &::-webkit-scrollbar {
+    @slot;
+  }
+}
+
+@custom-variant scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
+    @slot;
+  }
+}
+
+@custom-variant scrollbar-track {
+  &::-webkit-scrollbar-track {
+    @slot;
+  }
+}
+
+@custom-variant scrollbar-track-piece {
+  &::-webkit-scrollbar-track-piece {
+    @slot;
+  }
+}
+
+@custom-variant scrollbar-button {
+  &::-webkit-scrollbar-button {
+    @slot;
+  }
+}
+
+@custom-variant scrollbar-corner {
+  &::-webkit-scrollbar-corner {
+    @slot;
+  }
+}
+

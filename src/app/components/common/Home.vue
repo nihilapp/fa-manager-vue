@@ -1,4 +1,9 @@
 <script setup lang='ts'>
+import { ref } from 'vue';
+
+import { useGet } from '@app/composables/query/useGet';
+import { queryKeys } from '@app/utils/query-keys';
+
 // ═══════════════════════════════════════════════════════════════
 // BASE — 기본 정보
 // ═══════════════════════════════════════════════════════════════

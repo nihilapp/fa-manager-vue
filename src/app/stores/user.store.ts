@@ -1,3 +1,9 @@
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+
+import { useGet } from '@app/composables/query/useGet';
+import { queryKeys } from '@app/utils/query-keys';
+
 export const useUserStore = defineStore('userStore', () => {
   // 사용자 목록
   const userInfoList = ref<UserOutDto[]>([]);

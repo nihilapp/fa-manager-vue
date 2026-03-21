@@ -1,3 +1,8 @@
+import { RESPONSE_CODE } from '@server/constant/response-code';
+import { RESPONSE_MESSAGE } from '@server/constant/response-message';
+
+import { ListData } from './list-data';
+
 export class BaseResponse {
   static data<TData>(
     data: TData,

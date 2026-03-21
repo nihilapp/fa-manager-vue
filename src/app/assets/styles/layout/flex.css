@@ -47,12 +47,12 @@
   display: flex;
   flex-direction: row;
   gap: calc(--value([integer]) * 0.25rem);
-  gap: --value(--flex-size- *);
+  gap: --value(--flex-size-*);
 }
 
 @utility flex-col-* {
   display: flex;
   flex-direction: column;
   gap: calc(--value([integer]) * 0.25rem);
-  gap: --value(--flex-size- *);
+  gap: --value(--flex-size-*);
 }
