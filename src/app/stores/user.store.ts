@@ -2,7 +2,10 @@ export const useUserStore = defineStore('userStore', () => {
   const route = useRoute();
 
   // 사용자 목록
-  const userInfoList = ref<UserOutDto[]>([]);
+  const userList = ref<UserOutDto[]>([]);
+
+  // 사용자 목록 페이지 메타
+  const userPageData = ref<ListPageData<UserOutDto> | null>(null);
 
   // 사용자 총계
   const userInfoListCount = ref(0);
@@ -26,11 +29,17 @@ export const useUserStore = defineStore('userStore', () => {
       api: '/users',
       key: queryKeys.users.index({}).queryKey,
       onSuccess: (res) => {
-        userInfoList.value = res.data.list ?? [];
-        userInfoListCount.value = res.data.totalElements ?? 0;
+        const {
+          list,
+          ...pageData
+        } = res.data;
+
+        userList.value = list ?? [];
+        userPageData.value = pageData;
+        userInfoListCount.value = pageData.totalElements ?? 0;
 
         if (callback) {
-          callback(res.data.list ?? [], res.data.totalElements ?? 0);
+          callback(list ?? [], pageData.totalElements ?? 0);
         }
       },
       onError: (error) => {
@@ -59,7 +68,8 @@ export const useUserStore = defineStore('userStore', () => {
   };
 
   return {
-    userInfoList,
+    userList,
+    userPageData,
     userInfoListCount,
     userInfo,
     myInfo,

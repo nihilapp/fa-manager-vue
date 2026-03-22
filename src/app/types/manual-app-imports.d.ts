@@ -37,9 +37,12 @@ declare global {
   const defineNuxtPlugin: NuxtAppImports['defineNuxtPlugin'];
   
   const appConfig: typeof import('@app/config/app.config')['appConfig'];
+  const iconName: typeof import('@app/utils/icon-name')['iconName'];
   
   type AppConfig = import('@app/types/common.types').AppConfig;
   type NavItem = import('@app/types/common.types').NavItem;
+  type DataTableColumn = import('@app/types/common.types').DataTableColumn;
+  type ListPageData<T = null> = import('@app/types/common.types').ListPageData<T>;
   type IconName = import('@app/types/icons').IconName;
   
   type Ref<T = unknown> = import('vue').Ref<T>;

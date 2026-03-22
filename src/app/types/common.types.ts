@@ -84,3 +84,5 @@ export interface DataTableColumn {
   sortable?: boolean;
   filterable?: boolean;
 }
+
+export type ListPageData<TData = null> = Omit<ListDataType<TData>, 'list'>;

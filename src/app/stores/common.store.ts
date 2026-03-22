@@ -1,5 +1,3 @@
-import { iconName } from '@app/utils/icon-name';
-
 export const useCommonStore = defineStore('commonStore', () => {
   const userStore = useUserStore();
   const { isAdmin, } = storeToRefs(userStore);

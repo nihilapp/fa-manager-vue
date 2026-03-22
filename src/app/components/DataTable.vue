@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { DataTableColumn } from '@app/types/common.types';
-import type { ListDataType } from '@server/types/response.types';
+type DataTableRow = Record<string, any> & {
+  id: string | number;
+};
 
 const props = withDefaults(defineProps<{
-  items: Record<string, any>[];
+  items: DataTableRow[];
   columns: DataTableColumn[];
-  pagination?: ListDataType | null;
+  pagination?: ListPageData<DataTableRow> | null;
   showPagination?: boolean;
   pageButtonCount?: number;
 }>(), {
@@ -18,25 +19,6 @@ const emit = defineEmits<{
   pageChange: [page: number];
 }>();
 
-const paginationEnabled = computed(() =>
-  props.showPagination
-  && props.pagination !== null
-  && props.pagination.currentPage !== null
-  && props.pagination.pageSize !== null
-  && props.pagination.totalPages !== null);
-
-const currentPage = computed(() => props.pagination?.currentPage ?? 0);
-const totalPages = computed(() => props.pagination?.totalPages ?? 0);
-const totalElements = computed(() => props.pagination?.totalElements ?? props.items.length);
-const filteredElements = computed(() => props.pagination?.filteredElements ?? props.items.length);
-const hasPrev = computed(() => props.pagination?.hasPrev ?? false);
-const hasNext = computed(() => props.pagination?.hasNext ?? false);
-const firstPage = computed(() => props.pagination?.firstPage ?? 0);
-const lastPage = computed(() => props.pagination?.lastPage ?? Math.max(0, totalPages.value - 1));
-const prevPage = computed(() => props.pagination?.prevPage ?? null);
-const nextPage = computed(() => props.pagination?.nextPage ?? null);
-const pageSize = computed(() => props.pagination?.pageSize ?? null);
-
 const normalizedPageButtonCount = computed(() => {
   const count = Math.floor(props.pageButtonCount);
 
@@ -44,6 +26,78 @@ const normalizedPageButtonCount = computed(() => {
     ? count
     : 10;
 });
+
+const normalizedPagination = computed(() => {
+  if (!props.showPagination || !props.pagination)
+    return null;
+
+  const raw = props.pagination;
+  const currentPage = raw.currentPage;
+  const pageSize = raw.pageSize;
+
+  if (currentPage === null || pageSize === null || pageSize <= 0)
+    return null;
+
+  const filteredElements = Math.max(raw.filteredElements ?? raw.totalElements ?? props.items.length, 0);
+  const totalElements = Math.max(raw.totalElements ?? filteredElements, filteredElements);
+  const totalPages = Math.max(raw.totalPages ?? Math.ceil(filteredElements / pageSize), 0);
+  const firstPage = raw.firstPage ?? 0;
+  const lastPage = raw.lastPage ?? Math.max(firstPage, totalPages - 1);
+  const normalizedCurrentPage = Math.min(Math.max(currentPage, firstPage), lastPage);
+  const prevPage = raw.prevPage ?? (normalizedCurrentPage > firstPage
+    ? normalizedCurrentPage - 1
+    : null);
+  const nextPage = raw.nextPage ?? (normalizedCurrentPage < lastPage
+    ? normalizedCurrentPage + 1
+    : null);
+
+  return {
+    filteredElements,
+    totalElements,
+    currentPage: normalizedCurrentPage,
+    pageSize,
+    totalPages,
+    firstPage,
+    lastPage,
+    hasPrev: raw.hasPrev ?? prevPage !== null,
+    hasNext: raw.hasNext ?? nextPage !== null,
+    prevPage,
+    nextPage,
+  };
+});
+
+const paginationEnabled = computed(() =>
+  normalizedPagination.value !== null && normalizedPagination.value.totalPages > 0);
+
+const filteredElements = computed(() =>
+  normalizedPagination.value?.filteredElements ?? props.items.length);
+
+const currentPage = computed(() =>
+  normalizedPagination.value?.currentPage ?? 0);
+
+const pageSize = computed(() =>
+  normalizedPagination.value?.pageSize ?? null);
+
+const totalPages = computed(() =>
+  normalizedPagination.value?.totalPages ?? 0);
+
+const firstPage = computed(() =>
+  normalizedPagination.value?.firstPage ?? 0);
+
+const lastPage = computed(() =>
+  normalizedPagination.value?.lastPage ?? 0);
+
+const hasPrev = computed(() =>
+  normalizedPagination.value?.hasPrev ?? false);
+
+const hasNext = computed(() =>
+  normalizedPagination.value?.hasNext ?? false);
+
+const prevPage = computed(() =>
+  normalizedPagination.value?.prevPage ?? null);
+
+const nextPage = computed(() =>
+  normalizedPagination.value?.nextPage ?? null);
 
 const startItem = computed(() => {
   if (!paginationEnabled.value || props.items.length === 0 || pageSize.value === null)
@@ -68,7 +122,7 @@ const pageNumbers = computed(() => {
 
   const count = Math.min(
     normalizedPageButtonCount.value,
-    totalPages.value - pageGroupStart.value,
+    totalPages.value - pageGroupStart.value
   );
 
   return Array.from({ length: count, }, (_, index) => pageGroupStart.value + index);

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { DataTableColumn } from '@app/types/common.types';
-
 useSetMeta({
   title: '플레이어 목록',
   url: '/players',
