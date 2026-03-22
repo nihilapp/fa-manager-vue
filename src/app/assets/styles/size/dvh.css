@@ -24,6 +24,6 @@
 
 @utility dvh-* {
   height: --value([integer]) dvh;
-  height: --value(--dvh- *);
+  height: --value(--dvh-*);
   height: calc(--value(integer) * 1dvh);
 }

@@ -1,8 +1,8 @@
 export const appConfig: AppConfig = {
   site: {
-    title: '사이트 이름',
-    description: '사이트 설명',
-    keywords: '사이트 키워드',
+    title: 'FA 캠페인 매니저',
+    description: '환상서고 캠페인 매니저',
+    keywords: '',
     url: import.meta.dev
       ? 'http://localhost:3000'
       : '',
@@ -16,7 +16,7 @@ export const appConfig: AppConfig = {
   images: {
     cover: {
       link: '/opengraph-image.png',
-      alt: '사이트 커버 이미지',
+      alt: '',
     },
     logo: '/logo.png',
     darkLogo: '/logo-dark.png',

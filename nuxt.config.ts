@@ -38,6 +38,15 @@ export default defineNuxtConfig({
   css: [ '@/app/assets/styles/tailwind.css', ],
 
   vite: {
+    optimizeDeps: {
+      include: [
+        '@vue/devtools-api',
+        '@tanstack/vue-query',
+        '@iconify/vue',
+        'clsx',
+        'tailwind-merge',
+      ],
+    },
     plugins: [
       tailwindcss(),
       tsconfigPaths(),
@@ -61,6 +70,8 @@ export default defineNuxtConfig({
       'app/composables',
       'app/composables/**',
       'app/stores',
+      'app/types',
+      'app/types/**',
     ],
     imports: [
       {

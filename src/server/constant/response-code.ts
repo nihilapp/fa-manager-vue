@@ -9,4 +9,5 @@ export class RESPONSE_CODE {
   static CONFLICT = 'CONFLICT'; // 409
   static INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR'; // 500
   static BAD_GATEWAY = 'BAD_GATEWAY'; // 502
+  static TEAM_ONLY = 'TEAM_ONLY';
 }

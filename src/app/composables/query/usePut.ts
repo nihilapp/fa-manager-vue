@@ -31,7 +31,11 @@ export function usePut<TData = unknown, TBody = ApiRequestBody>({
 }: UsePutOptions<TData, TBody>): UsePutReturn<TData, TBody> {
   const isEnabled = computed(() => toValue(enabled) ?? true);
   const mutation: UsePutMutationResult<TData, TBody> = useMutation({
-    mutationKey: key ? (Array.isArray(key) ? key : [ key, api, ]) : [ 'put', api, ],
+    mutationKey: key
+      ? (Array.isArray(key)
+        ? key
+        : [ key, api, ])
+      : [ 'put', api, ],
     mutationFn: async (body?: TBody) => {
       if (!isEnabled.value) {
         return undefined;

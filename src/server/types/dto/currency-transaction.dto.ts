@@ -1,9 +1,10 @@
 import type { CharacterOutDto, UserOutDto } from '../dto.types';
+
 import type {
   CommonInDto,
   CommonOutDto,
   CommonQueryDto,
-  TransactionType,
+  TransactionType
 } from './common.dto';
 
 export interface CurrencyTransactionQueryDto extends CommonQueryDto {

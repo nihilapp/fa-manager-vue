@@ -1,6 +1,10 @@
 <script setup lang='ts'>
+definePageMeta({
+  layout: 'main',
+});
+
 useSetMeta({
-  title: 'Home',
+  title: '홈',
   url: '/',
 });
 </script>

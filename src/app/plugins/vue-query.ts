@@ -3,15 +3,19 @@ import {
   VueQueryPlugin,
   type VueQueryPluginOptions,
   dehydrate,
-  hydrate,
+  hydrate
 } from '@tanstack/vue-query';
 
 export default defineNuxtPlugin((nuxtApp) => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 1000 * 60 * 5, // 5분
-        retry: 1,
+        staleTime: 1000 * 60 * 10, // 10분
+        gcTime: 1000 * 60 * 5,
+        retry: 0,
+        refetchOnReconnect: false,
+        refetchOnWindowFocus: false,
+        refetchIntervalInBackground: false,
       },
     },
   });

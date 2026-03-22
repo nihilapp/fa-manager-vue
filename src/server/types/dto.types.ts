@@ -11,7 +11,7 @@ import type {
   CommonInDto,
   CommonOutDto,
   DocStatus,
-  DocVisibility,
+  DocVisibility
 } from './dto/common.dto';
 import type { UserOutDto } from './dto/user.dto';
 

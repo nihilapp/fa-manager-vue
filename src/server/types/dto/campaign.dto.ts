@@ -1,13 +1,14 @@
 import type {
   CharacterOutDto,
   SessionOutDto,
-  UserOutDto,
+  UserOutDto
 } from '../dto.types';
+
 import type {
   CommonInDto,
   CommonOutDto,
   CommonQueryDto,
-  Status,
+  Status
 } from './common.dto';
 
 export interface CampaignQueryDto extends CommonQueryDto {

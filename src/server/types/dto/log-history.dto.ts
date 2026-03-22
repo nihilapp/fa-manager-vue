@@ -1,9 +1,10 @@
 import type { UserOutDto } from '../dto.types';
+
 import type {
   CommonInDto,
   CommonOutDto,
   CommonQueryDto,
-  LogActionType,
+  LogActionType
 } from './common.dto';
 
 export interface LogHistoryQueryDto extends CommonQueryDto {

@@ -1,10 +1,5 @@
 export default defineEventHandler(async (event) => {
   const id = Number(getRouterParam(event, 'id'));
-  const discordId = getDiscordId(event);
-
-  if (!discordId) {
-    return BaseResponse.error(RESPONSE_CODE.UNAUTHORIZED, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
-  }
 
   const { user, hasPermission, error, } = await authHelper(event);
   if (error) return error;

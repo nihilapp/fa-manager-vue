@@ -1,14 +1,15 @@
 import type {
   CampaignOutDto,
   CharacterOutDto,
-  UserOutDto,
+  UserOutDto
 } from '../dto.types';
+
 import type {
   CommonInDto,
   CommonOutDto,
   CommonQueryDto,
   SessionRole,
-  Status,
+  Status
 } from './common.dto';
 import type { SessionLogOutDto } from './session-log.dto';
 

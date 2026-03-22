@@ -4,8 +4,9 @@ import type {
   CharacterOutDto,
   DocOutDto,
   LogHistoryOutDto,
-  SessionPlayerOutDto,
+  SessionPlayerOutDto
 } from '../dto.types';
+
 import type { CommonInDto, CommonOutDto, CommonQueryDto, UserRole } from './common.dto';
 import type { SessionLogOutDto } from './session-log.dto';
 

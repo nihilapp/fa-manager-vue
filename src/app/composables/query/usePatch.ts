@@ -31,7 +31,11 @@ export function usePatch<TData = unknown, TBody = ApiRequestBody>({
 }: UsePatchOptions<TData, TBody>): UsePatchReturn<TData, TBody> {
   const isEnabled = computed(() => toValue(enabled) ?? true);
   const mutation: UsePatchMutationResult<TData, TBody> = useMutation({
-    mutationKey: key ? (Array.isArray(key) ? key : [ key, api, ]) : [ 'patch', api, ],
+    mutationKey: key
+      ? (Array.isArray(key)
+        ? key
+        : [ key, api, ])
+      : [ 'patch', api, ],
     mutationFn: async (body?: TBody) => {
       if (!isEnabled.value) {
         return undefined;

@@ -14,6 +14,7 @@ export class RESPONSE_MESSAGE {
   static INTERNAL_SERVER_ERROR = '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
   static BAD_GATEWAY = '게이트웨이 응답 오류가 발생했습니다.';
   static REQUIRED_FIELDS_MISSING = '필수 입력 정보가 누락되었습니다.';
+  static TEAM_ONLY = '환상서고 회원만 사용할 수 있습니다.';
 
   // ========== ========== ========== ==========
   // 서버 상태 메시지
@@ -27,6 +28,7 @@ export class RESPONSE_MESSAGE {
 
   static GET_USER_LIST_SUCCESS = '사용자 목록 조회 성공';
   static GET_USER_DETAIL_SUCCESS = '사용자 상세 정보 조회 성공';
+  static GET_MY_INFO_SUCCESS = '내 정보 조회 성공';
   static USER_NOT_FOUND = '해당 사용자를 찾을 수 없습니다.';
   static USERNAME_ALREADY_EXISTS = '이미 사용 중인 사용자 이름입니다.';
   static DISCORD_ID_ALREADY_EXISTS = '이미 등록된 디스코드 사용자 ID입니다.';
@@ -107,7 +109,6 @@ export class RESPONSE_MESSAGE {
   static CURRENCY_TRANSACTION_FORBIDDEN = '재화 변동 이력에 대한 권한이 없습니다.';
   static CURRENCY_TRANSACTION_ADMIN_ONLY = '재화 변동 이력 수정 및 삭제는 관리자만 가능합니다.';
   static CHARACTER_INIT_TRANSACTION_ALREADY_EXISTS = '해당 캐릭터에는 이미 초기 자금 이력이 존재합니다.';
-
 
   // ========== ========== ========== ==========
   // 세션 관련 메시지

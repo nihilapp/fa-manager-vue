@@ -2,23 +2,6 @@ type VueImports = typeof import('vue');
 type PiniaImports = typeof import('pinia');
 type NuxtAppImports = typeof import('nuxt/app');
 type PiniaNuxtImports = typeof import('@pinia/nuxt/dist/runtime/composables');
-type NuxtRouteAnnouncerComponent = typeof import('nuxt/app/components/nuxt-route-announcer')['default'];
-type NuxtLayoutComponent = typeof import('nuxt/app/components/nuxt-layout')['default'];
-type NuxtPageComponent = typeof import('nuxt/dist/pages/runtime/page')['default'];
-type NuxtLinkComponent = typeof import('nuxt/app/components/nuxt-link')['default'];
-type NuxtImgComponent = typeof import('@nuxt/image/dist/runtime/components/NuxtImg.vue')['default'];
-type NuxtPictureComponent = typeof import('@nuxt/image/dist/runtime/components/NuxtPicture.vue')['default'];
-type ClientOnlyComponent = typeof import('nuxt/app/components/client-only')['default'];
-
-interface ManualGlobalComponents {
-  NuxtRouteAnnouncer: NuxtRouteAnnouncerComponent;
-  NuxtLayout: NuxtLayoutComponent;
-  NuxtPage: NuxtPageComponent;
-  NuxtLink: NuxtLinkComponent;
-  NuxtImg: NuxtImgComponent;
-  NuxtPicture: NuxtPictureComponent;
-  ClientOnly: ClientOnlyComponent;
-}
 
 declare global {
   const ref: VueImports['ref'];
@@ -53,8 +36,11 @@ declare global {
   const definePageMeta: NuxtAppImports['definePageMeta'];
   const defineNuxtPlugin: NuxtAppImports['defineNuxtPlugin'];
   
-  const appConfig: typeof import('@app/config/app.config');
+  const appConfig: typeof import('@app/config/app.config')['appConfig'];
+  
   type AppConfig = import('@app/types/common.types').AppConfig;
+  type NavItem = import('@app/types/common.types').NavItem;
+  type IconName = import('@app/types/icons').IconName;
   
   type Ref<T = unknown> = import('vue').Ref<T>;
   type ComputedRef<T = unknown> = import('vue').ComputedRef<T>;
@@ -82,16 +68,6 @@ declare global {
   type AppRouter = ReturnType<NuxtAppImports['useRouter']>;
   type AppNuxt = ReturnType<NuxtAppImports['useNuxtApp']>;
   type AppRuntimeConfig = ReturnType<NuxtAppImports['useRuntimeConfig']>;
-}
-
-declare module '@vue/runtime-core' {
-  export interface GlobalComponents extends ManualGlobalComponents {
-  }
-}
-
-declare module 'vue' {
-  export interface GlobalComponents extends ManualGlobalComponents {
-  }
 }
 
 export {};

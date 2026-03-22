@@ -62,3 +62,11 @@ export interface AppConfig {
     route: string;
   };
 }
+
+export interface NavItem {
+  label: string;
+  link: string;
+  icon?: IconName | '';
+  isPublic?: boolean;
+  colspan?: number;
+}

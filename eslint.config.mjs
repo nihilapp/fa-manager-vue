@@ -3,13 +3,32 @@ import { fileURLToPath, URL } from 'node:url';
 
 import js from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
-import tsParser from '@typescript-eslint/parser';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import { importX } from 'eslint-plugin-import-x';
 import vue from 'eslint-plugin-vue';
 import vueA11y from 'eslint-plugin-vuejs-accessibility';
 import tseslint from 'typescript-eslint';
 import vueParser from 'vue-eslint-parser';
+
+const sharedTsRules = {
+  '@typescript-eslint/no-unsafe-assignment': 'off',
+  '@typescript-eslint/interface-name-prefix': 'off',
+  '@typescript-eslint/explicit-function-return-type': 'off',
+  '@typescript-eslint/explicit-module-boundary-types': 'off',
+  '@typescript-eslint/no-explicit-any': 'off',
+  '@typescript-eslint/no-var-requires': 'off',
+  '@typescript-eslint/ban-ts-comment': 'off',
+  '@typescript-eslint/no-unused-vars': [
+    'warn',
+    { argsIgnorePattern: '^_' },
+  ],
+  '@typescript-eslint/no-empty-object-type': 'off',
+  '@typescript-eslint/no-shadow': 'warn',
+  '@typescript-eslint/no-use-before-define': [
+    'error',
+    { functions: false, classes: true, variables: true },
+  ],
+};
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -45,7 +64,7 @@ export default [
 
   // 공통 규칙 및 예외 처리
   {
-    files: ['**/*.{js,ts}'],
+    files: ['**/*.{js,ts,vue}'],
     ignores: [
       '**/eslint.config.{js,mjs,ts}',
       'eslint.config.{js,mjs,ts}',
@@ -125,7 +144,7 @@ export default [
       '@stylistic/array-bracket-newline': 'off',
       '@stylistic/object-property-newline': 'off',
       '@stylistic/comma-dangle': [
-        'warn',
+        'error',
         {
           arrays: 'always',
           functions: 'never',
@@ -158,24 +177,6 @@ export default [
         },
       ],
 
-      // typescript-eslint 규칙
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/interface-name-prefix': 'off',
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-var-requires': 'off',
-      '@typescript-eslint/ban-ts-comment': 'off',
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_' },
-      ],
-      '@typescript-eslint/no-empty-object-type': 'off',
-      '@typescript-eslint/no-shadow': 'warn',
-      '@typescript-eslint/no-use-before-define': [
-        'error',
-        { functions: false, classes: true, variables: true },
-      ],
     },
   },
 
@@ -184,6 +185,9 @@ export default [
     files: ['**/*.ts'],
     languageOptions: {
       parser: tseslint.parser,
+    },
+    rules: {
+      ...sharedTsRules,
     },
   },
 
@@ -196,13 +200,42 @@ export default [
       'import-x': importX,
       'vuejs-accessibility': vueA11y,
     },
+    settings: {
+      'import-x/resolver-next': [
+        createTypeScriptImportResolver({
+          alwaysTryTypes: true,
+        }),
+      ],
+    },
+    rules: {
+      // ===== Vue 전용 규칙 =====
+      'no-undef': 'off',
+      // ===== import-x =====
+      'import-x/extensions': 'off',
+      'import-x/no-extraneous-dependencies': 'off',
+      'import-x/no-unresolved': 'off', // TS 별칭/가상 모듈 환경이면 off 유지
+      'import-x/no-dynamic-require': 'off',
+      'import-x/prefer-default-export': 'off',
+      'import-x/order': ['warn', {
+        'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+        'newlines-between': 'always',
+        'alphabetize': { order: 'asc', caseInsensitive: true },
+      }],
+      'import-x/no-cycle': 'off',
+      'import-x/no-self-import': 'error',
+      'import-x/no-useless-path-segments': 'warn',
+    },
+  },
+
+  // Vue SFC 전용 설정
+  {
+    files: ['**/*.vue'],
     languageOptions: {
-      parser: vueParser, // ✅ Vue 파일 파싱
+      parser: vueParser,
       parserOptions: {
-        // ✅ TSConfig 루트 지정 + Project Service 사용 (references 지원)
         tsconfigRootDir: fileURLToPath(new URL('.', import.meta.url)),
         project: false,
-        parser: tsParser, // ✅ TypeScript 문법 파싱
+        parser: tseslint.parser,
         extraFileExtensions: ['.vue'],
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -303,39 +336,11 @@ export default [
         clearNuxtState: 'readonly',
       },
     },
-    settings: {
-      'import-x/resolver-next': [
-        createTypeScriptImportResolver({
-          alwaysTryTypes: true,
-        }),
-      ],
-    },
     rules: {
-      // ===== Vue 전용 규칙 =====
-      'no-undef': 'off',
-      // ===== import-x =====
-      'import-x/extensions': 'off',
-      'import-x/no-extraneous-dependencies': 'off',
-      'import-x/no-unresolved': 'off', // TS 별칭/가상 모듈 환경이면 off 유지
-      'import-x/no-dynamic-require': 'off',
-      'import-x/prefer-default-export': 'off',
-      'import-x/order': ['warn', {
-        'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-        'newlines-between': 'always',
-        'alphabetize': { order: 'asc', caseInsensitive: true },
-      }],
-      'import-x/no-cycle': 'off',
-      'import-x/no-self-import': 'error',
-      'import-x/no-useless-path-segments': 'warn',
-
-      // ===== TS(Vue 전용) =====
-      '@typescript-eslint/no-unused-vars': 'warn',
-      '@typescript-eslint/no-shadow': 'warn',
-      '@typescript-eslint/no-use-before-define': ['warn', { functions: false, classes: true, variables: true }],
-
+      ...sharedTsRules,
       // ===== Vue 템플릿 스타일 =====
-      // 모든 HTML 속성에 작은따옴표 사용 강제 (내부에 큰따옴표 있으면 유연하게 처리)
-      'vue/html-quotes': ['error', 'single', { avoidEscape: true }],
+      // 모든 HTML 속성에 큰따옴표 사용 강제 (v-bind 내부 문자열은 작은따옴표로 쓰기 쉽게 유지)
+      'vue/html-quotes': ['error', 'double', { avoidEscape: true }],
 
       // 속성명 케밥케이스 강제 (my-prop)
       'vue/attribute-hyphenation': ['error', 'always'],
@@ -427,6 +432,15 @@ export default [
       }],
       'vuejs-accessibility/no-autofocus': 'warn',
       'vuejs-accessibility/tabindex-no-positive': 'warn',
+      'vue/match-component-file-name': ['warn', {
+        extensions: ['vue'],
+        shouldMatchCase: true,
+      }],
+      'vue/component-definition-name-casing': ['error', 'PascalCase'],
+      'vue/define-macros-order': ['error', {
+        order: ['defineProps', 'defineEmits'],
+      }],
+      'vue/no-template-shadow': 'warn',
     },
   },
 

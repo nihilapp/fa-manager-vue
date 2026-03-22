@@ -38,7 +38,9 @@ export async function useGet<TData = unknown>({
       const queryParams = toValue(query);
 
       if (key) {
-        return Array.isArray(key) ? key : [ key, queryParams, ];
+        return Array.isArray(key)
+          ? key
+          : [ key, queryParams, ];
       }
 
       return [ 'get', api, queryParams, ];

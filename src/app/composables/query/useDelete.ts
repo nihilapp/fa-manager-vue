@@ -31,7 +31,11 @@ export function useDelete<TData = unknown, TBody = ApiRequestBody>({
 }: UseDeleteOptions<TData, TBody>): UseDeleteReturn<TData, TBody> {
   const isEnabled = computed(() => toValue(enabled) ?? true);
   const mutation: UseDeleteMutationResult<TData, TBody> = useMutation({
-    mutationKey: key ? (Array.isArray(key) ? key : [ key, api, ]) : [ 'delete', api, ],
+    mutationKey: key
+      ? (Array.isArray(key)
+        ? key
+        : [ key, api, ])
+      : [ 'delete', api, ],
     mutationFn: async (body?: TBody) => {
       if (!isEnabled.value) {
         return undefined;

@@ -31,7 +31,11 @@ export function usePost<TData = unknown, TBody = ApiRequestBody>({
 }: UsePostOptions<TData, TBody>): UsePostReturn<TData, TBody> {
   const isEnabled = computed(() => toValue(enabled) ?? true);
   const mutation: UsePostMutationResult<TData, TBody> = useMutation({
-    mutationKey: key ? (Array.isArray(key) ? key : [ key, api, ]) : [ 'post', api, ],
+    mutationKey: key
+      ? (Array.isArray(key)
+        ? key
+        : [ key, api, ])
+      : [ 'post', api, ],
     mutationFn: async (body?: TBody) => {
       if (!isEnabled.value) {
         return undefined;

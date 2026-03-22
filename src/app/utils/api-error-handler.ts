@@ -6,7 +6,7 @@ function resolveMessage(message: BaseResponse['message'] | string): string {
 
 function resolveRedirectPath(code: BaseResponse['code']): string | undefined {
   if (code === RESPONSE_CODE.UNAUTHORIZED) {
-    return '/auth/signin';
+    return '/block';
   }
 
   return undefined;
