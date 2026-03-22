@@ -348,8 +348,15 @@ export default [
       // 컴포넌트명 PascalCase 강제
       'vue/component-name-in-template-casing': ['error', 'PascalCase'],
 
-      // HTML 태그 닫는 괄호 위치 - 완전히 비활성화
-      'vue/html-closing-bracket-newline': 'off',
+      // 멀티라인 태그의 닫는 괄호는 별도 줄에서 태그 시작 위치에 맞춤
+      'vue/html-closing-bracket-newline': ['error', {
+        singleline: 'never',
+        multiline: 'always',
+        selfClosingTag: {
+          singleline: 'never',
+          multiline: 'always',
+        },
+      }],
 
       // HTML 태그 닫는 괄호 공백
       'vue/html-closing-bracket-spacing': ['error', {
@@ -359,7 +366,11 @@ export default [
       }],
 
       // HTML 들여쓰기
-      'vue/html-indent': ['error', 2],
+      'vue/html-indent': ['error', 2, {
+        attribute: 1,
+        closeBracket: 0,
+        alignAttributesVertically: true,
+      }],
 
       // 자체 닫는 태그 규칙
       'vue/html-self-closing': ['error', {
@@ -377,6 +388,12 @@ export default [
       'vue/max-attributes-per-line': ['error', {
         singleline: { max: 100 },
         multiline: { max: 1 },
+      }],
+
+      // 멀티라인 속성은 첫 번째 속성부터 다음 줄에서 시작
+      'vue/first-attribute-linebreak': ['error', {
+        singleline: 'beside',
+        multiline: 'below',
       }],
 
       // 멀티라인 요소 내용 개행

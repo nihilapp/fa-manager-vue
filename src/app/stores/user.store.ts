@@ -22,12 +22,9 @@ export const useUserStore = defineStore('userStore', () => {
     callback?: (data: UserOutDto[], totalCnt: number) => void,
     errorCallback?: (error: BaseResponse<ListData<UserOutDto>>) => void
   ) => {
-    // query-key-factory를 사용하여 타입 안전한 쿼리 키 적용
-    const key = queryKeys.users.index({}).queryKey;
-
     await useGet<ListData<UserOutDto>>({
       api: '/users',
-      key,
+      key: queryKeys.users.index({}).queryKey,
       onSuccess: (res) => {
         userInfoList.value = res.data.list ?? [];
         userInfoListCount.value = res.data.totalElements ?? 0;
@@ -45,11 +42,9 @@ export const useUserStore = defineStore('userStore', () => {
   };
 
   const getMyInfo = async () => {
-    const key = queryKeys.users.me({}).queryKey;
-
     await useGet<UserOutDto>({
       api: '/users/me',
-      key,
+      key: queryKeys.users.me({}).queryKey,
       onSuccess: (res) => {
         myInfo.value = res.data ?? null;
       },

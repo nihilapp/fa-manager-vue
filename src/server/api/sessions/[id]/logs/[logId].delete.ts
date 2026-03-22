@@ -29,9 +29,9 @@ export default defineEventHandler(async (event) => {
     .set({
       useYn: 'N',
       deleteYn: 'Y',
-      updaterId: user.id,
+      updaterId: user!.id,
       updateDate: new Date(),
-      deleterId: user.id,
+      deleterId: user!.id,
       deleteDate: new Date(),
     })
     .where(eq(sessionLogsTable.id, logId));

@@ -1,9 +1,11 @@
 <script setup lang="ts">
-
+const route = useRoute();
 </script>
 
 <template>
-  <div>content</div>
+  <div>
+    {{ route.params.id }}
+  </div>
 </template>
 
 <style scoped>

@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
       fileUrl: body.fileUrl !== undefined
         ? body.fileUrl
         : sessionLog.fileUrl,
-      ...resolveCommonMetaUpdate(body, sessionLog as unknown as CommonOutDto, user.id),
+      ...resolveCommonMetaUpdate(body, sessionLog as unknown as CommonOutDto, user!.id),
     })
     .where(eq(sessionLogsTable.id, logId))
     .returning();

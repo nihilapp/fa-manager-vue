@@ -1,25 +1,27 @@
 <script setup lang="ts">
-const navItems = [
-  { label: '대시보드', link: '/dashboard', icon: '', isPublic: false, },
-  { label: '플레이어', link: '/players', icon: '', isPublic: true, },
-  { label: '캐릭터', link: '/characters', icon: '', isPublic: true, },
-  { label: '캠페인', link: '/campaigns', icon: '', isPublic: true, },
-  { label: '세션', link: '/sessions', icon: '', isPublic: true, },
-];
+const commonStore = useCommonStore();
+const { navItems, } = storeToRefs(commonStore);
+
+const route = useRoute();
 </script>
 
 <template>
-  <header class="border-b border-stone-200 bg-white">
-    <div class="flex items-center justify-between gap-4 px-4 py-3">
-      <h1 class="text-lg font-semibold text-stone-900">
-        FA 매니저
-      </h1>
-    </div>
-    <nav class="px-4 pb-3">
-      <ul class="flex flex-wrap gap-3 text-sm text-stone-700">
+  <header class="bg-stone-800 flex flex-row items-center justify-between">
+    <AppLogo />
+
+    <nav class="mr-5">
+      <ul class="flex flex-row gap-2">
         <li v-for="item in navItems" :key="item.label">
-          <NuxtLink :to="item.link" :key="item.link" class="hover:text-stone-950 hover:underline">
-            {{ item.label }}
+          <NuxtLink
+            v-if="item.isPublic"
+            :to="item.link"
+            :class="cn([
+              'flex flex-row gap-2 items-center text-gray-100 min-h-10 p-2 px-3 border border-stone-700 rounded-2 hover:bg-stone-700 hover:border-stone-700 hover:text-white transition-colors duration-200 ease-in-out',
+              route.path.startsWith(item.link) && 'bg-white border-white text-stone-800 hover:bg-white hover:border-white hover:text-stone-800',
+            ])"
+          >
+            <GetIcon :icon-name="item.icon as IconName" />
+            <span>{{ item.label }}</span>
           </NuxtLink>
         </li>
       </ul>

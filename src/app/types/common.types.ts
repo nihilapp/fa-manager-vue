@@ -66,7 +66,21 @@ export interface AppConfig {
 export interface NavItem {
   label: string;
   link: string;
-  icon?: IconName | '';
+  icon: IconName | '';
   isPublic?: boolean;
   colspan?: number;
+}
+
+export interface DataTableColumn {
+  key: string;
+  label: string;
+  width?: string | number;
+  headerStyle?: string;
+  cellStyle?: string;
+  icon?: IconName;
+  iconStyle?: string;
+  slotName?: string;
+  align?: 'justify-start' | 'justify-center' | 'justify-end';
+  sortable?: boolean;
+  filterable?: boolean;
 }

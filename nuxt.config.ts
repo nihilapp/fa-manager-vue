@@ -45,6 +45,9 @@ export default defineNuxtConfig({
         '@iconify/vue',
         'clsx',
         'tailwind-merge',
+        'luxon',
+        '@lukemorales/query-key-factory',
+        'axios',
       ],
     },
     plugins: [

@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
   const sessionPlayer = await db.query.sessionPlayersTable.findFirst({
     where: (table, { eq, and, }) => and(
       eq(table.sessionId, sessionId),
-      eq(table.userId, user.id),
+      eq(table.userId, user!.id),
       eq(table.deleteYn, 'N')
     ),
   });
@@ -36,8 +36,8 @@ export default defineEventHandler(async (event) => {
   }
 
   const targetUserId = isAdmin
-    ? (body.userId || user.id)
-    : user.id;
+    ? (body.userId || user!.id)
+    : user!.id;
 
   const [ sessionLog, ] = await db.insert(sessionLogsTable).values({
     sessionId,
@@ -45,8 +45,8 @@ export default defineEventHandler(async (event) => {
     title: body.title,
     content: body.content,
     fileUrl: body.fileUrl,
-    creatorId: user.id,
-    updaterId: user.id,
+    creatorId: user!.id,
+    updaterId: user!.id,
     createDate: new Date(),
     updateDate: new Date(),
   }).returning();
