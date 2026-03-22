@@ -1,4 +1,3 @@
-import { appConfig } from '@app/config/app.config';
 import type { OpenGraphType, SiteMetadata } from '@app/types/common.types';
 
 function resolveUrl(path: string | undefined, fallbackPath: string): string {
