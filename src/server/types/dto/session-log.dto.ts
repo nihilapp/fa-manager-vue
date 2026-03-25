@@ -19,12 +19,12 @@ export interface SessionLogUpdateDto extends CommonInDto {
 }
 
 export interface SessionLogOutDto extends CommonOutDto {
-  sessionId?: number;
-  userId?: number;
-  title?: string;
-  content?: string | null;
-  fileUrl?: string | null;
+  sessionId: number;
+  userId: number;
+  title: string;
+  content: string | null;
+  fileUrl: string | null;
 
-  session?: SessionOutDto;
-  user?: UserOutDto;
+  session: SessionOutDto | null;
+  user: UserOutDto | null;
 }

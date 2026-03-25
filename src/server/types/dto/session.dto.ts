@@ -1,18 +1,3 @@
-import type {
-  CampaignOutDto,
-  CharacterOutDto,
-  UserOutDto
-} from '../dto.types';
-
-import type {
-  CommonInDto,
-  CommonOutDto,
-  CommonQueryDto,
-  SessionRole,
-  Status
-} from './common.dto';
-import type { SessionLogOutDto } from './session-log.dto';
-
 export interface SessionQueryDto extends CommonQueryDto {
   campaignId?: number;
   no?: number;
@@ -44,19 +29,19 @@ export interface SessionUpdateDto extends CommonInDto {
 }
 
 export interface SessionOutDto extends CommonOutDto {
-  campaignId?: number;
-  no?: number;
-  name?: string;
-  description?: string | null;
-  maxPlayer?: number | null;
-  rewardExp?: number | null;
-  rewardGold?: number | null;
-  status?: Status | null;
-  playDate?: Date | string | null;
+  campaignId: number;
+  no: number;
+  name: string;
+  description: string | null;
+  maxPlayer: number | null;
+  rewardExp: number | null;
+  rewardGold: number | null;
+  status: Status | null;
+  playDate: Date | string | null;
 
-  campaign?: CampaignOutDto;
-  players?: SessionPlayerOutDto[];
-  logs?: SessionLogOutDto[];
+  campaign: CampaignOutDto | null;
+  players: SessionPlayerOutDto[];
+  logs: SessionLogOutDto[];
 }
 
 export interface SessionPlayerCreateDto {
@@ -64,12 +49,12 @@ export interface SessionPlayerCreateDto {
 }
 
 export interface SessionPlayerOutDto extends CommonOutDto {
-  sessionId?: number;
-  userId?: number;
-  characterId?: number;
-  role?: SessionRole;
+  sessionId: number;
+  userId: number;
+  characterId: number;
+  role: SessionRole;
 
-  session?: SessionOutDto;
-  user?: UserOutDto;
-  character?: CharacterOutDto;
+  session: SessionOutDto | null;
+  user: UserOutDto | null;
+  character: CharacterOutDto | null;
 }

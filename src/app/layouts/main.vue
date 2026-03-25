@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="flex flex-col dvw-100 dvh-100">
+  <div class="flex flex-col dvw-100 dvh-100 font-500 text-slate-700">
     <header class="bg-stone-800 text-white">
       <AppLogo />
     </header>

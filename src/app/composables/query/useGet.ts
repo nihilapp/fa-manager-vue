@@ -1,25 +1,28 @@
-import type { UseQueryReturnType } from '@tanstack/vue-query';
-
 type QueryValue = string | number | boolean | null | undefined;
 type QueryParams = Record<string, QueryValue | QueryValue[]>;
 
-export type UseGetQueryResult<TData> = UseQueryReturnType<BaseResponse<TData> | undefined, unknown>;
-
-export type UseGetReturn<TData> = UseGetQueryResult<TData> & {
-  response: UseGetQueryResult<TData>['data'];
-  execute: UseGetQueryResult<TData>['refetch'];
+export interface UseGetReturn<TData> {
+  data: Ref<BaseApiResponse<TData> | undefined>;
+  response: Ref<BaseApiResponse<TData> | undefined>;
+  error: Ref<ApiErrorResponse | undefined>;
+  pending: Ref<boolean>;
+  status: Ref<ApiRequestStatus>;
+  execute: () => Promise<BaseApiResponse<TData> | undefined>;
+  refresh: () => Promise<BaseApiResponse<TData> | undefined>;
+  refetch: () => Promise<BaseApiResponse<TData> | undefined>;
+  clear: () => void;
 };
 
 export interface UseGetOptions<TData> {
   api: string;
   enabled?: ApiRequestEnabled;
-  fetcher?: () => Promise<BaseResponse<TData>>;
+  fetcher?: () => Promise<BaseApiResponse<TData>>;
   query?: QueryParams | Ref<QueryParams | undefined> | (() => QueryParams | undefined);
   key?: ApiRequestKey;
   staleTime?: number;
   gcTime?: number;
   onSuccess?: (data: BaseResponse<TData>) => void;
-  onError?: (error: BaseResponse<TData>) => void;
+  onError?: (error: ApiErrorResponse) => void;
 }
 
 export async function useGet<TData = unknown>({
@@ -33,57 +36,95 @@ export async function useGet<TData = unknown>({
   onSuccess,
   onError,
 }: UseGetOptions<TData>): Promise<UseGetReturn<TData>> {
-  const queryResult: UseGetQueryResult<TData> = useQuery({
-    queryKey: computed(() => {
-      const queryParams = toValue(query);
+  void enabled;
+  void staleTime;
+  void gcTime;
 
-      if (key) {
-        return Array.isArray(key)
-          ? key
-          : [ key, queryParams, ];
-      }
+  const response = ref<BaseApiResponse<TData>>();
+  const error = ref<ApiErrorResponse>();
+  const pending = ref(false);
+  const status = ref<ApiRequestStatus>('idle');
+  const cacheKey = computed(() => key
+    ? (Array.isArray(key)
+      ? JSON.stringify(key)
+      : String(key))
+    : JSON.stringify([ 'get', api, toValue(query), ]));
 
-      return [ 'get', api, queryParams, ];
+  const request = useFetch<BaseApiResponse<TData>>(api, {
+    ...createApiFetchOptions({
+      method: 'GET',
+      query: computed(() => toValue(query)),
     }),
-    queryFn: async () => {
-      try {
-        const queryParams = toValue(query);
-        const response = fetcher
-          ? await fetcher()
-          : (await apiClient.get<BaseResponse<TData>>(api, {
-            params: queryParams,
-          })).data;
-
-        return handleApiResponse(response, {
-          onSuccess,
-          onError,
-        });
-      }
-      catch (error) {
-        handleApiRequestError(error, onError);
-        throw error;
-      }
-    },
-    enabled: computed(() => toValue(enabled) ?? true),
-    staleTime,
-    gcTime,
+    key: cacheKey,
+    immediate: false,
+    watch: false,
+    dedupe: 'cancel',
+    deep: false,
+    getCachedData: () => undefined,
+    $fetch: async (requestInfo, options) =>
+      fetcher
+        ? await fetcher()
+        : await $fetch<BaseApiResponse<TData>>(requestInfo, options),
   });
 
-  // await useGet 형식을 지원하기 위해 suspense 호출
-  // SSR 환경이거나 enabled가 true인 경우에만 수행
-  const isEnabled = toValue(enabled) ?? true;
-  if (isEnabled) {
+  const execute = async () => {
+    pending.value = true;
+    status.value = 'pending';
+    error.value = undefined;
+
     try {
-      await queryResult.suspense();
+      await request.execute();
+
+      if (request.error.value) {
+        error.value = handleApiRequestError(request.error.value, onError);
+        status.value = 'error';
+        return undefined;
+      }
+
+      response.value = handleApiResponse(request.data.value, {
+        onSuccess,
+        onError,
+      });
+      status.value = response.value?.error
+        ? 'error'
+        : 'success';
     }
-    catch (e) {
-      // 에러는 onSuccess 내의 checkAndHandleApiError에서 처리됨
+    catch (requestError) {
+      error.value = handleApiRequestError(requestError, onError);
+      status.value = 'error';
+      return undefined;
     }
-  }
+    finally {
+      pending.value = false;
+    }
+
+    return response.value;
+  };
+
+  const clear = () => {
+    request.clear();
+    clearNuxtData(cacheKey.value);
+    response.value = undefined;
+    error.value = undefined;
+    pending.value = false;
+    status.value = 'idle';
+  };
+
+  const refetch = async () => {
+    clear();
+
+    return await execute();
+  };
 
   return {
-    response: queryResult.data,
-    execute: queryResult.refetch,
-    ...queryResult,
+    data: response,
+    response,
+    error,
+    pending,
+    status,
+    execute,
+    refresh: refetch,
+    refetch,
+    clear,
   };
 }

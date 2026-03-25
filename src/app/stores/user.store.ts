@@ -1,18 +1,8 @@
 export const useUserStore = defineStore('userStore', () => {
-  const route = useRoute();
-
-  // 사용자 목록
   const userList = ref<UserOutDto[]>([]);
-
-  // 사용자 목록 페이지 메타
   const userPageData = ref<ListPageData<UserOutDto> | null>(null);
-
-  // 사용자 총계
-  const userInfoListCount = ref(0);
-
-  // 단일 사용자 정보
+  const userListCount = ref(0);
   const userInfo = ref<UserOutDto | null>(null);
-
   const myInfo = ref<UserOutDto | null>(null);
 
   const isAdmin = computed(() => {
@@ -21,61 +11,45 @@ export const useUserStore = defineStore('userStore', () => {
     return isDev || [ 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN', ].includes(myInfo.value?.role ?? '');
   });
 
-  const getUserList = async (
-    callback?: (data: UserOutDto[], totalCnt: number) => void,
-    errorCallback?: (error: BaseResponse<ListData<UserOutDto>>) => void
+  const setUserList = (
+    list: UserOutDto[],
+    pageData: ListPageData<UserOutDto>
   ) => {
-    await useGet<ListData<UserOutDto>>({
-      api: '/users',
-      key: queryKeys.users.index({}).queryKey,
-      onSuccess: (res) => {
-        const {
-          list,
-          ...pageData
-        } = res.data;
-
-        userList.value = list ?? [];
-        userPageData.value = pageData;
-        userInfoListCount.value = pageData.totalElements ?? 0;
-
-        if (callback) {
-          callback(list ?? [], pageData.totalElements ?? 0);
-        }
-      },
-      onError: (error) => {
-        if (errorCallback) {
-          errorCallback(error);
-        }
-      },
-    });
+    userList.value = list;
+    userPageData.value = pageData;
+    userListCount.value = pageData.totalElements;
   };
 
-  const getMyInfo = async () => {
-    await useGet<UserOutDto>({
-      api: '/users/me',
-      key: queryKeys.users.me({}).queryKey,
-      onSuccess: (res) => {
-        myInfo.value = res.data ?? null;
-      },
-      onError: () => {
-        myInfo.value = null;
+  const clearUserList = () => {
+    userList.value = [];
+    userPageData.value = null;
+    userListCount.value = 0;
+  };
 
-        if (import.meta.client && route.path !== '/block') {
-          navigateTo('/block');
-        }
-      },
-    });
+  const setUserInfo = (user: UserOutDto | null) => {
+    userInfo.value = user;
+  };
+
+  const setMyInfo = (user: UserOutDto | null) => {
+    myInfo.value = user;
+  };
+
+  const clearMyInfo = () => {
+    myInfo.value = null;
   };
 
   return {
     userList,
     userPageData,
-    userInfoListCount,
+    userListCount,
     userInfo,
     myInfo,
     isAdmin,
 
-    getUserList,
-    getMyInfo,
+    setUserList,
+    clearUserList,
+    setUserInfo,
+    setMyInfo,
+    clearMyInfo,
   };
 });

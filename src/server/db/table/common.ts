@@ -1,4 +1,4 @@
-import { bigint, char, pgEnum, timestamp } from 'drizzle-orm/pg-core';
+import { bigint, char, pgEnum, timestamp, } from 'drizzle-orm/pg-core';
 
 export const statusEnum = pgEnum('status', [ 'PREPARING', 'IN_PROGRESS', 'COMPLETED', 'CANCELED', 'ON_HOLD', ]);
 
@@ -10,6 +10,12 @@ export const userRoleEnum = pgEnum('user_role', [
   'ROLE_USER',
   'ROLE_ADMIN',
   'ROLE_SUPER_ADMIN',
+]);
+
+export const userStatusEnum = pgEnum('user_status', [
+  'ACTIVE',
+  'INACTIVE',
+  'REST',
 ]);
 
 export const docVisibilityEnum = pgEnum('doc_visibility', [ 'PUBLIC', 'PRIVATE', ]);

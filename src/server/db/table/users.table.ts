@@ -1,6 +1,6 @@
 import { index, pgTable, varchar } from 'drizzle-orm/pg-core';
 
-import { commonColumns, userRoleEnum } from './common';
+import { commonColumns, userRoleEnum, userStatusEnum } from './common';
 
 export const usersTable = pgTable('users', {
   id: commonColumns.id,
@@ -8,6 +8,7 @@ export const usersTable = pgTable('users', {
   discordId: varchar('discord_id', { length: 100, }).unique().notNull(),
   name: varchar('name', { length: 50, }).notNull(),
   role: userRoleEnum('role').default('ROLE_USER').notNull(),
+  status: userStatusEnum('status').default('ACTIVE').notNull(),
 
   ...commonColumns.meta,
 }, (table) => [

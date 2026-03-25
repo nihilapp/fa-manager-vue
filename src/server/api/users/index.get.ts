@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
     idList: 'in',
     name: 'like',
     role: 'eq',
+    status: 'eq',
     useYn: 'eq',
     deleteYn: 'eq',
     discordId: 'eq',

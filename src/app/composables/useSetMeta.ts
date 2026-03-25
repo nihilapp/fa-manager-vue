@@ -1,5 +1,3 @@
-import type { OpenGraphType, SiteMetadata } from '@app/types/common.types';
-
 function resolveUrl(path: string | undefined, fallbackPath: string): string {
   const targetPath = path?.trim() || fallbackPath;
   const siteUrl = appConfig.site.url.trim();

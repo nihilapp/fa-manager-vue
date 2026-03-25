@@ -77,5 +77,8 @@ export const logHistoriesRelations = relations(logHistoriesTable, ({ one, }) => 
 // 7. CurrencyTransaction Relations
 export const currencyTransactionsRelations = relations(currencyTransactionsTable, ({ one, }) => ({
   user: one(usersTable, { fields: [ currencyTransactionsTable.userId, ], references: [ usersTable.id, ], }),
-  character: one(charactersTable, { fields: [ currencyTransactionsTable.characterId, ], references: [ charactersTable.id, ], }),
+  character: one(charactersTable, {
+    fields: [ currencyTransactionsTable.characterId, ],
+    references: [ charactersTable.id, ],
+  }),
 }));

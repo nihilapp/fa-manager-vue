@@ -12,4 +12,16 @@ import type { PhIconName } from './ph.types';
 import type { RiIconName } from './ri.types';
 import type { TablerIconName } from './tabler.types';
 
-export type IconName = BxIconName | CarbonIconName | Fa6RegularIconName | Fa6SolidIconName | GameIconsIconName | HeroiconsIconName | LucideIconName | MdiIconName | PhIconName | RiIconName | TablerIconName;
+export type IconName
+  = BxIconName
+    | CarbonIconName
+    | Fa6RegularIconName
+    | Fa6SolidIconName
+    | GameIconsIconName
+    | HeroiconsIconName
+    | LucideIconName
+    | MdiIconName
+    | PhIconName
+    | RiIconName
+    | TablerIconName
+    | '';

@@ -1,4 +1,5 @@
 export type UserRole = 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN';
+export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'REST';
 export type CampaignRole = 'PLAYER' | 'MASTER' | 'SUB_MASTER';
 export type SessionRole = 'PLAYER' | 'MASTER';
 export type Status = 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD';
@@ -43,13 +44,13 @@ export interface CommonQueryDto {
 }
 
 export interface CommonOutDto {
-  id?: number;
-  useYn?: 'Y' | 'N';
-  deleteYn?: 'Y' | 'N';
-  creatorId?: number | null;
-  createDate?: Date | string | null;
-  updaterId?: number | null;
-  updateDate?: Date | string | null;
-  deleterId?: number | null;
-  deleteDate?: Date | string | null;
+  id: number;
+  useYn: 'Y' | 'N';
+  deleteYn: 'Y' | 'N';
+  creatorId: number | null;
+  createDate: Date | string | null;
+  updaterId: number | null;
+  updateDate: Date | string | null;
+  deleterId: number | null;
+  deleteDate: Date | string | null;
 }

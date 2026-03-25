@@ -1,16 +1,3 @@
-import type {
-  CampaignOutDto,
-  SessionPlayerOutDto,
-  UserOutDto
-} from '../dto.types';
-
-import type {
-  CharacterStatus,
-  CommonInDto,
-  CommonOutDto,
-  CommonQueryDto
-} from './common.dto';
-
 export interface CharacterQueryDto extends CommonQueryDto {
   userId?: number;
   campaignId?: number;
@@ -144,65 +131,65 @@ export interface CharacterUpdateDto extends CommonInDto {
 }
 
 export interface CharacterOutDto extends CommonOutDto {
-  userId?: number;
-  campaignId?: number | null;
-  name?: string;
-  status?: CharacterStatus;
-  race?: string;
-  startLevel?: number;
-  startExp?: number;
-  currentLevel?: number;
-  currentExp?: number;
-  currentCurrencyGp?: number;
-  currentCurrencyCp?: number | null;
-  currentCurrencySp?: number | null;
-  currentCurrencyEp?: number | null;
-  currentCurrencyPp?: number | null;
-  str?: number | null;
-  dex?: number | null;
-  con?: number | null;
-  int?: number | null;
-  wis?: number | null;
-  cha?: number | null;
-  ac?: number | null;
-  hp?: number | null;
-  speed?: string | null;
-  vision?: string | null;
-  skills?: string | null;
-  advantage?: string | null;
-  disadvantage?: string | null;
-  resistance?: string | null;
-  immunity?: string | null;
-  mainHand?: string | null;
-  offHand?: string | null;
-  armor?: string | null;
-  head?: string | null;
-  gauntlet?: string | null;
-  boots?: string | null;
-  belt?: string | null;
-  cloak?: string | null;
-  accessory1?: string | null;
-  accessory2?: string | null;
-  accessory3?: string | null;
-  accessory4?: string | null;
-  reqStrDex8?: string | null;
-  reqStrDex10?: string | null;
-  reqStrDex12?: string | null;
-  reqStrDex14?: string | null;
-  reqStr16?: string | null;
-  reqStr18?: string | null;
-  reqStr20?: string | null;
-  reqCon8?: string | null;
-  reqCon10?: string | null;
-  reqCon12?: string | null;
-  reqCon14?: string | null;
-  reqCon16?: string | null;
-  reqCon18?: string | null;
-  reqCon20?: string | null;
-  user?: UserOutDto;
-  campaign?: CampaignOutDto;
-  classes?: CharacterClassOutDto[];
-  sessions?: SessionPlayerOutDto[];
+  userId: number;
+  campaignId: number | null;
+  name: string;
+  status: CharacterStatus;
+  race: string;
+  startLevel: number;
+  startExp: number;
+  currentLevel: number;
+  currentExp: number;
+  currentCurrencyGp: number;
+  currentCurrencyCp: number | null;
+  currentCurrencySp: number | null;
+  currentCurrencyEp: number | null;
+  currentCurrencyPp: number | null;
+  str: number | null;
+  dex: number | null;
+  con: number | null;
+  int: number | null;
+  wis: number | null;
+  cha: number | null;
+  ac: number | null;
+  hp: number | null;
+  speed: string | null;
+  vision: string | null;
+  skills: string | null;
+  advantage: string | null;
+  disadvantage: string | null;
+  resistance: string | null;
+  immunity: string | null;
+  mainHand: string | null;
+  offHand: string | null;
+  armor: string | null;
+  head: string | null;
+  gauntlet: string | null;
+  boots: string | null;
+  belt: string | null;
+  cloak: string | null;
+  accessory1: string | null;
+  accessory2: string | null;
+  accessory3: string | null;
+  accessory4: string | null;
+  reqStrDex8: string | null;
+  reqStrDex10: string | null;
+  reqStrDex12: string | null;
+  reqStrDex14: string | null;
+  reqStr16: string | null;
+  reqStr18: string | null;
+  reqStr20: string | null;
+  reqCon8: string | null;
+  reqCon10: string | null;
+  reqCon12: string | null;
+  reqCon14: string | null;
+  reqCon16: string | null;
+  reqCon18: string | null;
+  reqCon20: string | null;
+  user: UserOutDto | null;
+  campaign: CampaignOutDto | null;
+  classes: CharacterClassOutDto[];
+  sessions: SessionPlayerOutDto[];
 }
 
 export interface CharacterClassQueryDto {
@@ -221,9 +208,9 @@ export interface CharacterClassUpdateDto {
 }
 
 export interface CharacterClassOutDto {
-  characterId?: number;
-  className?: string;
-  level?: number;
+  characterId: number;
+  className: string;
+  level: number;
 
-  character?: CharacterOutDto;
+  character: CharacterOutDto | null;
 }

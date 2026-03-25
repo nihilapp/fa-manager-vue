@@ -1,24 +1,21 @@
-import type { UseMutationReturnType } from '@tanstack/vue-query';
-
-export type UsePostMutationResult<TData, TBody> = UseMutationReturnType<
-  BaseResponse<TData> | undefined,
-  unknown,
-  TBody | undefined,
-  unknown
->;
-
-export type UsePostReturn<TData, TBody> = UsePostMutationResult<TData, TBody> & {
-  response: UsePostMutationResult<TData, TBody>['data'];
-  execute: UsePostMutationResult<TData, TBody>['mutateAsync'];
+export interface UsePostReturn<TData, TBody> {
+  data: Ref<BaseApiResponse<TData> | undefined>;
+  response: Ref<BaseApiResponse<TData> | undefined>;
+  error: Ref<ApiErrorResponse | undefined>;
+  pending: Ref<boolean>;
+  status: Ref<ApiRequestStatus>;
+  execute: (body?: TBody) => Promise<BaseApiResponse<TData> | undefined>;
+  mutateAsync: (body?: TBody) => Promise<BaseApiResponse<TData> | undefined>;
+  clear: () => void;
 };
 
 export interface UsePostOptions<TData, TBody = ApiRequestBody> {
   api: string;
   enabled?: ApiRequestEnabled;
   key?: ApiRequestKey;
-  fetcher?: (body?: TBody) => Promise<BaseResponse<TData>>;
+  fetcher?: (body?: TBody) => Promise<BaseApiResponse<TData>>;
   onSuccess?: (data: BaseResponse<TData>) => void;
-  onError?: (error: BaseResponse<TData>) => void;
+  onError?: (error: ApiErrorResponse) => void;
 }
 
 export function usePost<TData = unknown, TBody = ApiRequestBody>({
@@ -29,36 +26,66 @@ export function usePost<TData = unknown, TBody = ApiRequestBody>({
   onSuccess,
   onError,
 }: UsePostOptions<TData, TBody>): UsePostReturn<TData, TBody> {
-  const isEnabled = computed(() => toValue(enabled) ?? true);
-  const mutation: UsePostMutationResult<TData, TBody> = useMutation({
-    mutationKey: key
-      ? (Array.isArray(key)
-        ? key
-        : [ key, api, ])
-      : [ 'post', api, ],
-    mutationFn: async (body?: TBody) => {
-      if (!isEnabled.value) {
-        return undefined;
-      }
+  void key;
 
-      return fetcher
-        ? fetcher(body)
-        : (await apiClient.post<BaseResponse<TData>>(api, body)).data;
-    },
-    onSuccess: (data) => {
-      handleApiResponse(data, {
+  const isEnabled = computed(() => toValue(enabled) ?? true);
+  const response = ref<BaseApiResponse<TData>>();
+  const error = ref<ApiErrorResponse>();
+  const pending = ref(false);
+  const status = ref<ApiRequestStatus>('idle');
+
+  const execute = async (body?: TBody) => {
+    if (!isEnabled.value) {
+      return response.value;
+    }
+
+    pending.value = true;
+    status.value = 'pending';
+    error.value = undefined;
+
+    try {
+      const result = fetcher
+        ? await fetcher(body)
+        : await $fetch<BaseApiResponse<TData>>(api, createApiFetchOptions({
+          method: 'POST',
+          body,
+        }));
+
+      response.value = handleApiResponse(result, {
         onSuccess,
         onError,
       });
-    },
-    onError: (error) => {
-      handleApiRequestError(error, onError);
-    },
-  });
+      status.value = response.value?.error
+        ? 'error'
+        : 'success';
+    }
+    catch (requestError) {
+      error.value = handleApiRequestError(requestError, onError);
+      status.value = 'error';
+      return undefined;
+    }
+    finally {
+      pending.value = false;
+    }
+
+    return response.value;
+  };
+
+  const clear = () => {
+    response.value = undefined;
+    error.value = undefined;
+    pending.value = false;
+    status.value = 'idle';
+  };
 
   return {
-    response: mutation.data,
-    execute: mutation.mutateAsync,
-    ...mutation,
+    data: response,
+    response,
+    error,
+    pending,
+    status,
+    execute,
+    mutateAsync: execute,
+    clear,
   };
 }

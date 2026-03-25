@@ -53,6 +53,9 @@ export default defineEventHandler(async (event) => {
     role: isAdmin
       ? (body.role || findUser.role)
       : findUser.role, // 관리자만 권한 변경 가능
+    status: isAdmin
+      ? (body.status || findUser.status)
+      : findUser.status,
     ...resolveCommonMetaUpdate(body, findUser as unknown as CommonOutDto, user!.id),
   }).where(
     eq(usersTable.id, Number(id))

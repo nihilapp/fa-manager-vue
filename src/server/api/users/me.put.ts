@@ -34,7 +34,8 @@ export default defineEventHandler(async (event) => {
 
   const updateUser = await db.update(usersTable).set({
     name: body.name || findUser.name,
-    role: body.role || findUser.role,
+    role: findUser.role,
+    status: findUser.status,
     ...resolveCommonMetaUpdate(body, findUser as unknown as CommonOutDto, user!.id),
   }).where(
     eq(usersTable.id, user!.id)

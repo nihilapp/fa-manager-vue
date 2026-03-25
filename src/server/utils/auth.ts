@@ -1,7 +1,59 @@
 type AuthResolvedUser = UserOutDto & { id: number };
+type DiscordIdentitySource = 'header' | 'cookie' | 'development';
 
 const isAdminRole = (role?: UserOutDto['role']) => role === 'ROLE_ADMIN' || role === 'ROLE_SUPER_ADMIN';
 const isDevelopmentEnvironment = process.env.NODE_ENV === 'development';
+const DISCORD_ID_COOKIE_KEY = 'discord_id';
+const DISCORD_ID_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
+
+function getDiscordIdCookieOptions() {
+  return {
+    httpOnly: true,
+    sameSite: 'lax' as const,
+    secure: !isDevelopmentEnvironment,
+    path: '/',
+    maxAge: DISCORD_ID_COOKIE_MAX_AGE,
+  };
+}
+
+function resolveDiscordIdentity(event: H3Event): { discordId?: string; source?: DiscordIdentitySource; } {
+  const headerDiscordId = getDiscordId(event);
+
+  if (headerDiscordId) {
+    return {
+      discordId: headerDiscordId,
+      source: 'header',
+    };
+  }
+
+  const cookieDiscordId = getCookie(event, DISCORD_ID_COOKIE_KEY);
+
+  if (cookieDiscordId) {
+    return {
+      discordId: cookieDiscordId,
+      source: 'cookie',
+    };
+  }
+
+  if (isDevelopmentEnvironment && process.env.ADMIN_DISCORD_ID) {
+    return {
+      discordId: process.env.ADMIN_DISCORD_ID,
+      source: 'development',
+    };
+  }
+
+  return {};
+}
+
+function persistDiscordIdCookie(event: H3Event, discordId: string) {
+  setCookie(event, DISCORD_ID_COOKIE_KEY, discordId, getDiscordIdCookieOptions());
+}
+
+function clearDiscordIdCookie(event: H3Event) {
+  deleteCookie(event, DISCORD_ID_COOKIE_KEY, {
+    path: '/',
+  });
+}
 
 const createAuthContext = (
   user: AuthResolvedUser | null,
@@ -64,14 +116,10 @@ const createAuthContext = (
  * 요청자의 정보를 확인하고 관리자 권한 또는 소유권을 검증하는 헬퍼
  */
 export const authHelper = async (event: H3Event) => {
-  if (isDevelopmentEnvironment) {
-    const discordId = getDiscordId(event);
+  const { discordId, source, } = resolveDiscordIdentity(event);
 
-    const isDevDiscordId = discordId
-      ? discordId
-      : process.env.ADMIN_DISCORD_ID;
-
-    if (!isDevDiscordId) {
+  if (!discordId) {
+    if (isDevelopmentEnvironment) {
       return createAuthContext(
         null,
         BaseResponse.error(RESPONSE_CODE.UNAUTHORIZED, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID),
@@ -79,30 +127,6 @@ export const authHelper = async (event: H3Event) => {
       );
     }
 
-    const requestedUser = await db.query.usersTable.findFirst({
-      where: (table, { eq, }) => {
-        return eq(table.discordId, isDevDiscordId);
-      },
-    });
-
-    if (!requestedUser) {
-      return createAuthContext(
-        null,
-        BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND),
-        true
-      );
-    }
-
-    return createAuthContext(
-      requestedUser as AuthResolvedUser,
-      null,
-      true
-    );
-  }
-
-  const discordId = getDiscordId(event);
-
-  if (!discordId) {
     return createAuthContext(
       null,
       BaseResponse.error(RESPONSE_CODE.UNAUTHORIZED, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID)
@@ -114,11 +138,20 @@ export const authHelper = async (event: H3Event) => {
   });
 
   if (!user) {
+    if (source === 'cookie') {
+      clearDiscordIdCookie(event);
+    }
+
     return createAuthContext(
       null,
-      BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND)
+      BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND),
+      source === 'development'
     );
   }
 
-  return createAuthContext(user as AuthResolvedUser, null);
+  if (source === 'header' || source === 'cookie') {
+    persistDiscordIdCookie(event, discordId);
+  }
+
+  return createAuthContext(user as AuthResolvedUser, null, source === 'development');
 };

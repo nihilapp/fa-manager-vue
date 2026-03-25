@@ -29,13 +29,13 @@ export interface DocInDto extends CommonInDto {
 }
 
 export interface DocOutDto extends CommonOutDto {
-  userId?: number;
-  title?: string;
-  description?: string | null;
-  category?: string;
-  status?: DocStatus;
-  visibility?: DocVisibility;
-  content?: string | null;
+  userId: number;
+  title: string;
+  description: string | null;
+  category: string;
+  status: DocStatus;
+  visibility: DocVisibility;
+  content: string | null;
 
-  user?: UserOutDto;
+  user: UserOutDto | null;
 }

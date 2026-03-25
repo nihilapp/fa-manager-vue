@@ -25,14 +25,15 @@ function shouldLogApiError(code: BaseResponse['code']): boolean {
  * @returns 에러가 있으면 true, 없으면 false
  */
 export function checkAndHandleApiError<TData = unknown>(
-  response: BaseResponse<TData> | undefined,
-  errorCallback?: (error: BaseResponse<TData>) => void
+  response: BaseApiResponse<TData> | undefined,
+  errorCallback?: (error: ApiErrorResponse) => void
 ): boolean {
   if (!response) {
     return false;
   }
 
   if (response.error) {
+    const errorResponse = response as ApiErrorResponse;
     const redirectPath = resolveRedirectPath(response.code);
 
     // 리다이렉트 필요 시 처리
@@ -65,7 +66,7 @@ export function checkAndHandleApiError<TData = unknown>(
 
     // 에러 콜백 호출
     if (errorCallback) {
-      errorCallback(response);
+      errorCallback(errorResponse);
     }
 
     return true;

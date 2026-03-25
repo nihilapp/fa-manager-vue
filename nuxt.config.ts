@@ -40,14 +40,12 @@ export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
       include: [
-        '@vue/devtools-api',
-        '@tanstack/vue-query',
         '@iconify/vue',
         'clsx',
         'tailwind-merge',
         'luxon',
         '@lukemorales/query-key-factory',
-        'axios',
+        'lodash-es',
       ],
     },
     plugins: [
@@ -72,6 +70,8 @@ export default defineNuxtConfig({
     dirs: [
       'app/composables',
       'app/composables/**',
+      'app/utils',
+      'app/utils/**',
       'app/stores',
       'app/types',
       'app/types/**',
@@ -89,28 +89,12 @@ export default defineNuxtConfig({
         name: 'RESPONSE_MESSAGE',
         from: '@server/constant/response-message',
       },
-      {
-        name: 'checkAndHandleApiError',
-        from: '@app/utils/api-error-handler',
-      },
-      {
-        name: 'queryKeys',
-        from: '@app/utils/query-keys',
-      },
-      {
-        name: 'cn',
-        from: '@app/utils/cn',
-      },
-      {
-        name: 'apiClient',
-        from: '@app/utils/api-client',
-      },
     ],
     presets: [
       {
         from: 'lodash-es',
         imports: [
-          [ 'default', '_', ],
+          [ 'default', '_', ] as [string, string],
         ],
       },
       {
@@ -120,22 +104,12 @@ export default defineNuxtConfig({
       {
         from: 'uuid',
         imports: [
-          [ 'v4', 'uuidv4', ],
+          [ 'v4', 'uuidv4', ] as [string, string],
         ],
       },
       {
-        from: '@tanstack/vue-query',
-        imports: [
-          'useQuery',
-          'useMutation',
-          'useQueryClient',
-          'useInfiniteQuery',
-          'useQueries',
-          'useIsFetching',
-          'useIsMutating',
-          'useMutationState',
-          'keepPreviousData',
-        ],
+        from: '@iconify/vue',
+        imports: [ 'Icon', ],
       },
     ],
   },
@@ -218,6 +192,10 @@ export default defineNuxtConfig({
           from: '@server/db/table/common',
         },
         {
+          name: 'userStatusEnum',
+          from: '@server/db/table/common',
+        },
+        {
           name: 'docVisibilityEnum',
           from: '@server/db/table/common',
         },
@@ -280,7 +258,7 @@ export default defineNuxtConfig({
         {
           from: 'lodash-es',
           imports: [
-            [ 'default', '_', ],
+            [ 'default', '_', ] as [string, string],
           ],
         },
         {
@@ -290,7 +268,7 @@ export default defineNuxtConfig({
         {
           from: 'uuid',
           imports: [
-            [ 'v4', 'uuidv4', ],
+            [ 'v4', 'uuidv4', ] as [string, string],
           ],
         },
       ],

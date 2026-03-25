@@ -10,7 +10,7 @@ const year = computed(() => {
 </script>
 
 <template>
-  <footer class="p-2 flex flex-col items-center justify-center bg-stone-800 text-white">
+  <footer class="p-2 flex flex-col items-center justify-center bg-stone-800 text-white font-500">
     <small>
       <a
         href="https://cafe.naver.com/fantasyarchive"

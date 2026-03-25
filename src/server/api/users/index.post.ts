@@ -42,6 +42,7 @@ export default defineEventHandler(async (event) => {
     discordId: body.discordId,
     name: body.name,
     role: 'ROLE_USER', // 강제 적용
+    status: body.status || 'ACTIVE',
     creatorId: body.creatorId || null,
     createDate: new Date(),
     updaterId: body.creatorId || null,

@@ -1,21 +1,4 @@
-import type {
-  Column,
-  InferInsertModel,
-  InferSelectModel,
-  SQL,
-} from 'drizzle-orm';
-import type {
-  PgBigInt53,
-  PgChar,
-  PgColumn,
-  PgEnum,
-  PgInteger,
-  PgJsonb,
-  PgTable,
-  PgText,
-  PgTimestamp,
-  PgVarchar,
-} from 'drizzle-orm/pg-core';
+import type {InferInsertModel, InferSelectModel,} from 'drizzle-orm';
 
 type NitroImports = typeof import('#imports');
 
@@ -23,7 +6,7 @@ declare global {
   type H3Event = Parameters<NitroImports['getQuery']>[0];
   type EventHandler = Parameters<NitroImports['defineEventHandler']>[0];
   type EventHandlerRequest = unknown;
-
+  
   type SQL<T = unknown> = import('drizzle-orm').SQL<T>;
   type Column<TData = any, THasDefault extends boolean = any, TNotNull extends boolean = any> = import('drizzle-orm').Column<TData, THasDefault, TNotNull>;
   type PgTable = import('drizzle-orm/pg-core').PgTable;
@@ -36,7 +19,7 @@ declare global {
   type PgTimestamp = import('drizzle-orm/pg-core').PgTimestamp;
   type PgJsonb = import('drizzle-orm/pg-core').PgJsonb;
   type PgEnum<TValues extends readonly string[]> = import('drizzle-orm/pg-core').PgEnum<TValues>;
-
+  
   type TypeUser = InferSelectModel<typeof import('../db/table/users.table')['usersTable']>;
   type TypeNewUser = InferInsertModel<typeof import('../db/table/users.table')['usersTable']>;
   type TypeCampaign = InferSelectModel<typeof import('../db/table/campaigns.table')['campaignsTable']>;
@@ -59,8 +42,9 @@ declare global {
   type TypeNewDoc = InferInsertModel<typeof import('../db/table/docs.table')['docsTable']>;
   type TypeLogHistory = InferSelectModel<typeof import('../db/table/logHistories.table')['logHistoriesTable']>;
   type TypeNewLogHistory = InferInsertModel<typeof import('../db/table/logHistories.table')['logHistoriesTable']>;
-
+  
   type UserRole = import('./dto.types').UserRole;
+  type UserStatus = import('./dto.types').UserStatus;
   type CampaignRole = import('./dto.types').CampaignRole;
   type SessionRole = import('./dto.types').SessionRole;
   type Status = import('./dto.types').Status;
@@ -69,7 +53,7 @@ declare global {
   type CharacterStatus = import('./dto.types').CharacterStatus;
   type TransactionType = import('./dto.types').TransactionType;
   type LogActionType = import('./dto.types').LogActionType;
-
+  
   type CommonInDto = import('./dto.types').CommonInDto;
   type CommonQueryDto = import('./dto.types').CommonQueryDto;
   type CommonOutDto = import('./dto.types').CommonOutDto;
@@ -111,10 +95,10 @@ declare global {
   type CurrencyTransactionCreateDto = import('./dto.types').CurrencyTransactionCreateDto;
   type CurrencyTransactionUpdateDto = import('./dto.types').CurrencyTransactionUpdateDto;
   type CurrencyTransactionOutDto = import('./dto.types').CurrencyTransactionOutDto;
-
+  
   type BaseResponseType<T = null> = import('./response.types').BaseResponseType<T>;
   type ListDataType<T = null> = import('./response.types').ListDataType<T>;
-
+  
   type RESPONSE_CODE = import('../constant/response-code').RESPONSE_CODE;
   type RESPONSE_MESSAGE = import('../constant/response-message').RESPONSE_MESSAGE;
   type BaseResponse<T = null> = import('./response.types').BaseResponseType<T> & {

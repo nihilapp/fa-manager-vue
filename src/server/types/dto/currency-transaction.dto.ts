@@ -1,12 +1,3 @@
-import type { CharacterOutDto, UserOutDto } from '../dto.types';
-
-import type {
-  CommonInDto,
-  CommonOutDto,
-  CommonQueryDto,
-  TransactionType
-} from './common.dto';
-
 export interface CurrencyTransactionQueryDto extends CommonQueryDto {
   userId?: number;
   characterId?: number;
@@ -45,6 +36,6 @@ export interface CurrencyTransactionOutDto extends CommonOutDto {
   deltaEp: number;
   deltaSp: number;
   deltaCp: number;
-  user?: UserOutDto;
-  character?: CharacterOutDto;
+  user: UserOutDto | null;
+  character: CharacterOutDto | null;
 }

@@ -1,14 +1,4 @@
-import { createMutationKeys, createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory';
-import type {
-  CampaignQueryDto,
-  CharacterClassQueryDto,
-  CharacterQueryDto,
-  CurrencyTransactionQueryDto,
-  LogHistoryQueryDto,
-  SessionLogQueryDto,
-  SessionQueryDto,
-  UserQueryDto,
-} from '../../server/types/dto.types';
+import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory';
 
 const withParams = <TParams extends object>(params: TParams) => ({
   queryKey: [ params, ] as const,
@@ -57,59 +47,10 @@ const sessions = createQueryKeys('sessions', {
   mine: (params: SessionQueryDto = {}) => withParams(params),
   detail: (params: { id: string | number }) => withParams(params),
   logsIndex: (params: SessionLogQueryDto = {}) => withParams(params),
-  logsDetail: (params: SessionLogQueryDto & { id?: string | number, logId?: string | number } = {}) => withParams(params),
-});
-
-const usersMutations = createMutationKeys('users', {
-  create: null,
-  updateMe: null,
-  deleteMe: null,
-  update: null,
-  delete: null,
-});
-
-const campaignsMutations = createMutationKeys('campaigns', {
-  create: null,
-  update: null,
-  delete: null,
-  updateStatus: null,
-  addCharacter: null,
-  removeCharacter: null,
-  addMember: null,
-  removeMember: null,
-});
-
-const charactersMutations = createMutationKeys('characters', {
-  create: null,
-  update: null,
-  delete: null,
-  updateStatus: null,
-  addClass: null,
-  updateClass: null,
-  deleteClass: null,
-});
-
-const currencyTransactionsMutations = createMutationKeys('currency-transactions', {
-  create: null,
-  update: null,
-  delete: null,
-});
-
-const logHistoriesMutations = createMutationKeys('log-histories', {
-  create: null,
-  update: null,
-  delete: null,
-});
-
-const sessionsMutations = createMutationKeys('sessions', {
-  create: null,
-  update: null,
-  delete: null,
-  createLog: null,
-  updateLog: null,
-  deleteLog: null,
-  addPlayer: null,
-  removePlayer: null,
+  logsDetail: (params: SessionLogQueryDto & {
+    id?: string | number;
+    logId?: string | number;
+  } = {}) => withParams(params),
 });
 
 export const queryKeys = mergeQueryKeys(
@@ -121,13 +62,4 @@ export const queryKeys = mergeQueryKeys(
   icons,
   logHistories,
   sessions
-);
-
-export const mutationKeys = mergeQueryKeys(
-  usersMutations,
-  campaignsMutations,
-  charactersMutations,
-  currencyTransactionsMutations,
-  logHistoriesMutations,
-  sessionsMutations
 );
