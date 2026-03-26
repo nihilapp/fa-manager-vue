@@ -1,12 +1,35 @@
+type UseGetUserListCallback = (data: UserOutDto[], totalCnt: number) => void;
+type UseGetUserListErrorCallback = (error: BaseResponse<null>) => void;
+
 export async function useGetUserList(
-  callback?: (data: UserOutDto[], totalCnt: number) => void,
-  errorCallback?: (error: BaseResponse<null>) => void
+  query?: UserQueryDto,
+  callback?: UseGetUserListCallback,
+  errorCallback?: UseGetUserListErrorCallback
+): Promise<UseGetReturn<ListData<UserOutDto>>>;
+export async function useGetUserList(
+  callback?: UseGetUserListCallback,
+  errorCallback?: UseGetUserListErrorCallback
+): Promise<UseGetReturn<ListData<UserOutDto>>>;
+export async function useGetUserList(
+  queryOrCallback?: UserQueryDto | UseGetUserListCallback,
+  callbackOrErrorCallback?: UseGetUserListCallback | UseGetUserListErrorCallback,
+  errorCallback?: UseGetUserListErrorCallback
 ) {
   const userStore = useUserStore();
+  const query = typeof queryOrCallback === 'function'
+    ? {}
+    : (queryOrCallback ?? {});
+  const callback = typeof queryOrCallback === 'function'
+    ? queryOrCallback
+    : callbackOrErrorCallback as UseGetUserListCallback | undefined;
+  const resolvedErrorCallback = typeof queryOrCallback === 'function'
+    ? callbackOrErrorCallback as UseGetUserListErrorCallback | undefined
+    : errorCallback;
 
   return await useGet<ListData<UserOutDto>>({
     api: '/users',
-    key: queryKeys.users.index({}).queryKey,
+    query,
+    key: queryKeys.users.index(query).queryKey,
     onSuccess: (res) => {
       const {
         list,
@@ -20,8 +43,8 @@ export async function useGetUserList(
       }
     },
     onError: (error) => {
-      if (errorCallback) {
-        errorCallback(error);
+      if (resolvedErrorCallback) {
+        resolvedErrorCallback(error);
       }
     },
   });

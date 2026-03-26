@@ -46,6 +46,7 @@ export default defineNuxtConfig({
         'luxon',
         '@lukemorales/query-key-factory',
         'lodash-es',
+        'class-variance-authority',
       ],
     },
     plugins: [
@@ -106,6 +107,10 @@ export default defineNuxtConfig({
         imports: [
           [ 'v4', 'uuidv4', ] as [string, string],
         ],
+      },
+      {
+        from: 'class-variance-authority',
+        imports: [ 'cva', ],
       },
       {
         from: '@iconify/vue',

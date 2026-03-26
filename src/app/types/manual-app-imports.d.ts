@@ -2,6 +2,7 @@ type VueImports = typeof import('vue');
 type PiniaImports = typeof import('pinia');
 type NuxtAppImports = typeof import('nuxt/app');
 type PiniaNuxtImports = typeof import('@pinia/nuxt/dist/runtime/composables');
+type CVAImports = typeof import('class-variance-authority');
 
 declare global {
   const ref: VueImports['ref'];
@@ -38,12 +39,15 @@ declare global {
   
   const appConfig: typeof import('@app/config/app.config')['appConfig'];
   const iconName: typeof import('@app/utils/icon-name')['iconName'];
+  const ColumnBuilder: typeof import('@app/utils/column-builder')['ColumnBuilder'];
+  const cva: CVAImports['cva'];
   
   type AppConfig = import('@app/types/common.types').AppConfig;
   type NavItem = import('@app/types/common.types').NavItem;
   type DataTableColumn = import('@app/types/common.types').DataTableColumn;
   type ListPageData<T = null> = import('@app/types/common.types').ListPageData<T>;
   type IconName = import('@app/types/icons').IconName;
+  type ColumnBuilder = typeof import('@app/utils/column-builder').ColumnBuilder;
   
   type Ref<T = unknown> = import('vue').Ref<T>;
   type ComputedRef<T = unknown> = import('vue').ComputedRef<T>;
