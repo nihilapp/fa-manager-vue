@@ -9,16 +9,16 @@ export interface UsePostReturn<TData, TBody> {
   clear: () => void;
 };
 
-export interface UsePostOptions<TData, TBody = ApiRequestBody> {
+export interface UsePostOptions<TData, TBody extends ApiRequestBody = ApiRequestBody> {
   api: string;
   enabled?: ApiRequestEnabled;
   key?: ApiRequestKey;
   fetcher?: (body?: TBody) => Promise<BaseApiResponse<TData>>;
-  onSuccess?: (data: BaseResponse<TData>) => void;
+  onSuccess?: (data: BaseApiResponse<TData>) => void;
   onError?: (error: ApiErrorResponse) => void;
 }
 
-export function usePost<TData = unknown, TBody = ApiRequestBody>({
+export function usePost<TData = unknown, TBody extends ApiRequestBody = ApiRequestBody>({
   api,
   enabled,
   key,

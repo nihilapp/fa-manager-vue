@@ -21,7 +21,7 @@ export interface UseGetOptions<TData> {
   key?: ApiRequestKey;
   staleTime?: number;
   gcTime?: number;
-  onSuccess?: (data: BaseResponse<TData>) => void;
+  onSuccess?: (data: BaseApiResponse<TData>) => void;
   onError?: (error: ApiErrorResponse) => void;
 }
 
@@ -61,10 +61,6 @@ export async function useGet<TData = unknown>({
     dedupe: 'cancel',
     deep: false,
     getCachedData: () => undefined,
-    $fetch: async (requestInfo, options) =>
-      fetcher
-        ? await fetcher()
-        : await $fetch<BaseApiResponse<TData>>(requestInfo, options),
   });
 
   const execute = async () => {
@@ -73,6 +69,17 @@ export async function useGet<TData = unknown>({
     error.value = undefined;
 
     try {
+      if (fetcher) {
+        response.value = handleApiResponse(await fetcher(), {
+          onSuccess,
+          onError,
+        });
+        status.value = response.value?.error
+          ? 'error'
+          : 'success';
+        return response.value;
+      }
+
       await request.execute();
 
       if (request.error.value) {
@@ -81,7 +88,7 @@ export async function useGet<TData = unknown>({
         return undefined;
       }
 
-      response.value = handleApiResponse(request.data.value, {
+      response.value = handleApiResponse(request.data.value as BaseApiResponse<TData> | undefined, {
         onSuccess,
         onError,
       });

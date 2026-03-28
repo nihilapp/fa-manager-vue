@@ -81,7 +81,13 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
 
   // 단건이면
-  return BaseResponse.data(result as CampaignOutDto, RESPONSE_CODE.CREATED, RESPONSE_MESSAGE.CREATE_CAMPAIGN_SUCCESS);
+  return BaseResponse.data({
+    ...result[0]!,
+    user: null,
+    members: [],
+    sessions: [],
+    characters: [],
+  } as unknown as CampaignOutDto, RESPONSE_CODE.CREATED, RESPONSE_MESSAGE.CREATE_CAMPAIGN_SUCCESS);
 
   // 다건이면
   // return BaseResponse.page();

@@ -62,6 +62,10 @@ export default defineEventHandler(async (event) => {
   // 3. 결과 객체 구성 (CharacterOutDto 타입에 맞춤)
   const result: CharacterOutDto = {
     ...character,
+    classes: classes.map((item) => ({
+      ...item,
+      character: null,
+    })),
     currentLevel,
     currentExp,
     currentCurrencyCp: currentCurrency.cp,
@@ -69,7 +73,7 @@ export default defineEventHandler(async (event) => {
     currentCurrencyEp: currentCurrency.ep,
     currentCurrencyGp: currentCurrency.gp,
     currentCurrencyPp: currentCurrency.pp,
-  } as CharacterOutDto;
+  } as unknown as CharacterOutDto;
 
   // ========== ========== ========== ==========
   // 응답

@@ -14,6 +14,11 @@ export type ApiRequestBody
     | undefined;
 
 export type ApiRequestEnabled = boolean | Ref<boolean> | (() => boolean);
+export type ApiRequestQuery
+  = Record<string, unknown>
+    | Ref<Record<string, unknown> | undefined>
+    | ComputedRef<Record<string, unknown> | undefined>
+    | undefined;
 
 export type ApiRequestKey = string | unknown[] | readonly unknown[];
 export type ApiRequestStatus = 'idle' | 'pending' | 'success' | 'error';
@@ -21,7 +26,7 @@ export type ApiErrorResponse = BaseResponse<null>;
 export type BaseApiResponse<TData> = BaseResponse<TData> | ApiErrorResponse;
 
 export interface ApiRequestHandlers<TData> {
-  onSuccess?: (data: BaseResponse<TData>) => void;
+  onSuccess?: (data: BaseApiResponse<TData>) => void;
   onError?: (error: ApiErrorResponse) => void;
 }
 
@@ -33,9 +38,9 @@ export function createApiRequestHeaders() {
     : undefined;
 }
 
-export function createApiFetchOptions<TBody = ApiRequestBody>(options: {
+export function createApiFetchOptions<TBody extends ApiRequestBody = ApiRequestBody>(options: {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  query?: unknown;
+  query?: ApiRequestQuery;
   body?: TBody;
 }) {
   const {

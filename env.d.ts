@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+declare module '*.css' {}
+
 type ImportGlobOptions<Eager extends boolean, AsType extends string> = {
   /**
    * @deprecated `query`를 사용

@@ -9,16 +9,16 @@ export interface UseDeleteReturn<TData, TBody> {
   clear: () => void;
 };
 
-export interface UseDeleteOptions<TData, TBody = ApiRequestBody> {
+export interface UseDeleteOptions<TData, TBody extends ApiRequestBody = ApiRequestBody> {
   api: string;
   enabled?: ApiRequestEnabled;
   key?: ApiRequestKey;
   fetcher?: (body?: TBody) => Promise<BaseApiResponse<TData>>;
-  onSuccess?: (data: BaseResponse<TData>) => void;
+  onSuccess?: (data: BaseApiResponse<TData>) => void;
   onError?: (error: ApiErrorResponse) => void;
 }
 
-export function useDelete<TData = unknown, TBody = ApiRequestBody>({
+export function useDelete<TData = unknown, TBody extends ApiRequestBody = ApiRequestBody>({
   api,
   enabled,
   key,

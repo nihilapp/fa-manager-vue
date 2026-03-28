@@ -9,16 +9,16 @@ export interface UsePutReturn<TData, TBody> {
   clear: () => void;
 };
 
-export interface UsePutOptions<TData, TBody = ApiRequestBody> {
+export interface UsePutOptions<TData, TBody extends ApiRequestBody = ApiRequestBody> {
   api: string;
   enabled?: ApiRequestEnabled;
   key?: ApiRequestKey;
   fetcher?: (body?: TBody) => Promise<BaseApiResponse<TData>>;
-  onSuccess?: (data: BaseResponse<TData>) => void;
+  onSuccess?: (data: BaseApiResponse<TData>) => void;
   onError?: (error: ApiErrorResponse) => void;
 }
 
-export function usePut<TData = unknown, TBody = ApiRequestBody>({
+export function usePut<TData = unknown, TBody extends ApiRequestBody = ApiRequestBody>({
   api,
   enabled,
   key,
