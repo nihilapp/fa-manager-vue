@@ -133,8 +133,8 @@ export default defineNuxtConfig({
           from: '@server/constant/response-message',
         },
         {
-          name: 'usersTable',
-          from: '@server/db/table/users.table',
+          name: 'playersTable',
+          from: '@server/db/table/players.table',
         },
         {
           name: 'campaignsTable',
@@ -193,11 +193,11 @@ export default defineNuxtConfig({
           from: '@server/db/table/common',
         },
         {
-          name: 'userRoleEnum',
+          name: 'playerRoleEnum',
           from: '@server/db/table/common',
         },
         {
-          name: 'userStatusEnum',
+          name: 'playerStatusEnum',
           from: '@server/db/table/common',
         },
         {

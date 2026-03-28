@@ -1,12 +1,12 @@
 import { bigint, jsonb, pgTable, varchar } from 'drizzle-orm/pg-core';
 
 import { commonColumns } from './common';
-import { usersTable } from './users.table';
+import { playersTable } from './players.table';
 
 export const logHistoriesTable = pgTable('log_histories', {
   id: commonColumns.id,
 
-  userId: bigint('user_id', { mode: 'number', }).references(() => usersTable.id).notNull(),
+  userId: bigint('user_id', { mode: 'number', }).references(() => playersTable.id).notNull(),
   tableName: varchar('table_name', { length: 50, }).notNull(),
   targetId: bigint('target_id', { mode: 'number', }).notNull(),
   actionType: varchar('action_type', { length: 20, }).notNull(),

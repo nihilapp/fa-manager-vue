@@ -1,1 +1,0 @@
-ALTER TABLE "campaigns" ALTER COLUMN "start_date" DROP NOT NULL;

@@ -2,12 +2,12 @@ import { bigint, integer, pgTable, varchar } from 'drizzle-orm/pg-core';
 
 import { charactersTable } from './characters.table';
 import { commonColumns, transactionTypeEnum } from './common';
-import { usersTable } from './users.table';
+import { playersTable } from './players.table';
 
 export const currencyTransactionsTable = pgTable('currency_transactions', {
   id: commonColumns.id,
 
-  userId: bigint('user_id', { mode: 'number', }).references(() => usersTable.id).notNull(),
+  userId: bigint('user_id', { mode: 'number', }).references(() => playersTable.id).notNull(),
   characterId: bigint('character_id', { mode: 'number', }).references(() => charactersTable.id).notNull(),
   transactionType: transactionTypeEnum('transaction_type').default('INIT').notNull(),
   description: varchar('description', { length: 2000, }).notNull(),

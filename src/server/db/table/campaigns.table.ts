@@ -1,12 +1,12 @@
 import { bigint, index, pgTable, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
 
 import { campaignRoleEnum, commonColumns, statusEnum } from './common';
-import { usersTable } from './users.table';
+import { playersTable } from './players.table';
 
 export const campaignsTable = pgTable('campaigns', {
   id: commonColumns.id,
 
-  userId: bigint('user_id', { mode: 'number', }).references(() => usersTable.id).notNull(),
+  userId: bigint('user_id', { mode: 'number', }).references(() => playersTable.id).notNull(),
   name: varchar('name', { length: 50, }).unique().notNull(),
   description: varchar('description', { length: 1000, }),
   status: statusEnum('status').default('PREPARING').notNull(),
@@ -20,7 +20,7 @@ export const campaignsTable = pgTable('campaigns', {
 
 export const campaignMembersTable = pgTable('campaign_members', {
   id: commonColumns.id,
-  userId: bigint('user_id', { mode: 'number', }).references(() => usersTable.id).notNull(),
+  userId: bigint('user_id', { mode: 'number', }).references(() => playersTable.id).notNull(),
   campaignId: bigint('campaign_id', { mode: 'number', }).references(() => campaignsTable.id).notNull(),
   role: campaignRoleEnum('role').default('PLAYER').notNull(),
   ...commonColumns.meta,

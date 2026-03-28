@@ -9,8 +9,8 @@ const props = defineProps<{
     lastPage: number;
     hasPrev: boolean;
     hasNext: boolean;
-    prevPage: number | null;
-    nextPage: number | null;
+    prevPage: number;
+    nextPage: number;
   };
   itemsLength: number;
   pageButtonCount: number;
@@ -61,14 +61,14 @@ function goToFirstPage() {
 }
 
 function goToPrevPage() {
-  if (!props.pagination.hasPrev || props.pagination.prevPage === null)
+  if (!props.pagination.hasPrev)
     return;
 
   emitPageChange(props.pagination.prevPage);
 }
 
 function goToNextPage() {
-  if (!props.pagination.hasNext || props.pagination.nextPage === null)
+  if (!props.pagination.hasNext)
     return;
 
   emitPageChange(props.pagination.nextPage);

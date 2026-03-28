@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (character.campaignId !== session.campaignId) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.PLAYER_FORBIDDEN);
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.SESSION_CHARACTER_NOT_IN_CAMPAIGN);
   }
 
   // 4. 플레이어 등록

@@ -1,5 +1,5 @@
 {
-  "id": "6463e03d-de15-4039-8200-f996bd97aa40",
+  "id": "7c4be6f6-fe2f-4ef1-bce6-34ce769d4cee",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -122,10 +122,10 @@
         }
       },
       "foreignKeys": {
-        "campaign_members_user_id_users_id_fk": {
-          "name": "campaign_members_user_id_users_id_fk",
+        "campaign_members_user_id_players_id_fk": {
+          "name": "campaign_members_user_id_players_id_fk",
           "tableFrom": "campaign_members",
-          "tableTo": "users",
+          "tableTo": "players",
           "columnsFrom": [
             "user_id"
           ],
@@ -206,7 +206,7 @@
           "name": "start_date",
           "type": "timestamp (6) with time zone",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "end_date": {
           "name": "end_date",
@@ -285,10 +285,10 @@
         }
       },
       "foreignKeys": {
-        "campaigns_user_id_users_id_fk": {
-          "name": "campaigns_user_id_users_id_fk",
+        "campaigns_user_id_players_id_fk": {
+          "name": "campaigns_user_id_players_id_fk",
           "tableFrom": "campaigns",
-          "tableTo": "users",
+          "tableTo": "players",
           "columnsFrom": [
             "user_id"
           ],
@@ -520,36 +520,6 @@
         "immunity": {
           "name": "immunity",
           "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "start_currency_cp": {
-          "name": "start_currency_cp",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "start_currency_sp": {
-          "name": "start_currency_sp",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "start_currency_ep": {
-          "name": "start_currency_ep",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "start_currency_gp": {
-          "name": "start_currency_gp",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "start_currency_pp": {
-          "name": "start_currency_pp",
-          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -810,10 +780,10 @@
         }
       },
       "foreignKeys": {
-        "characters_user_id_users_id_fk": {
-          "name": "characters_user_id_users_id_fk",
+        "characters_user_id_players_id_fk": {
+          "name": "characters_user_id_players_id_fk",
           "tableFrom": "characters",
-          "tableTo": "users",
+          "tableTo": "players",
           "columnsFrom": [
             "user_id"
           ],
@@ -829,6 +799,176 @@
           "tableTo": "campaigns",
           "columnsFrom": [
             "campaign_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.currency_transactions": {
+      "name": "currency_transactions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "currency_transactions_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "character_id": {
+          "name": "character_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transaction_type": {
+          "name": "transaction_type",
+          "type": "transaction_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'INIT'"
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(2000)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "delta_pp": {
+          "name": "delta_pp",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "delta_gp": {
+          "name": "delta_gp",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "delta_ep": {
+          "name": "delta_ep",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "delta_sp": {
+          "name": "delta_sp",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "delta_cp": {
+          "name": "delta_cp",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "use_yn": {
+          "name": "use_yn",
+          "type": "char(1)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Y'"
+        },
+        "delete_yn": {
+          "name": "delete_yn",
+          "type": "char(1)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'N'"
+        },
+        "creator_id": {
+          "name": "creator_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "create_date": {
+          "name": "create_date",
+          "type": "timestamp (6) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updater_id": {
+          "name": "updater_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "update_date": {
+          "name": "update_date",
+          "type": "timestamp (6) with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "deleter_id": {
+          "name": "deleter_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "delete_date": {
+          "name": "delete_date",
+          "type": "timestamp (6) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "currency_transactions_user_id_players_id_fk": {
+          "name": "currency_transactions_user_id_players_id_fk",
+          "tableFrom": "currency_transactions",
+          "tableTo": "players",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "currency_transactions_character_id_characters_id_fk": {
+          "name": "currency_transactions_character_id_characters_id_fk",
+          "tableFrom": "currency_transactions",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "character_id"
           ],
           "columnsTo": [
             "id"
@@ -996,10 +1136,10 @@
         }
       },
       "foreignKeys": {
-        "docs_user_id_users_id_fk": {
-          "name": "docs_user_id_users_id_fk",
+        "docs_user_id_players_id_fk": {
+          "name": "docs_user_id_players_id_fk",
           "tableFrom": "docs",
-          "tableTo": "users",
+          "tableTo": "players",
           "columnsFrom": [
             "user_id"
           ],
@@ -1041,7 +1181,7 @@
           "name": "user_id",
           "type": "bigint",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "table_name": {
           "name": "table_name",
@@ -1134,10 +1274,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "log_histories_user_id_users_id_fk": {
-          "name": "log_histories_user_id_users_id_fk",
+        "log_histories_user_id_players_id_fk": {
+          "name": "log_histories_user_id_players_id_fk",
           "tableFrom": "log_histories",
-          "tableTo": "users",
+          "tableTo": "players",
           "columnsFrom": [
             "user_id"
           ],
@@ -1150,6 +1290,140 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.players": {
+      "name": "players",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "players_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "discord_id": {
+          "name": "discord_id",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "player_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ROLE_USER'"
+        },
+        "status": {
+          "name": "status",
+          "type": "player_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ACTIVE'"
+        },
+        "use_yn": {
+          "name": "use_yn",
+          "type": "char(1)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Y'"
+        },
+        "delete_yn": {
+          "name": "delete_yn",
+          "type": "char(1)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'N'"
+        },
+        "creator_id": {
+          "name": "creator_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "create_date": {
+          "name": "create_date",
+          "type": "timestamp (6) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updater_id": {
+          "name": "updater_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "update_date": {
+          "name": "update_date",
+          "type": "timestamp (6) with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "deleter_id": {
+          "name": "deleter_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "delete_date": {
+          "name": "delete_date",
+          "type": "timestamp (6) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_players_name": {
+          "name": "idx_players_name",
+          "columns": [
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "players_discord_id_unique": {
+          "name": "players_discord_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "discord_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -1273,10 +1547,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "session_logs_user_id_users_id_fk": {
-          "name": "session_logs_user_id_users_id_fk",
+        "session_logs_user_id_players_id_fk": {
+          "name": "session_logs_user_id_players_id_fk",
           "tableFrom": "session_logs",
-          "tableTo": "users",
+          "tableTo": "players",
           "columnsFrom": [
             "user_id"
           ],
@@ -1393,7 +1667,29 @@
           "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_session_players_session_user": {
+          "name": "idx_session_players_session_user",
+          "columns": [
+            {
+              "expression": "session_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "session_players_session_id_sessions_id_fk": {
           "name": "session_players_session_id_sessions_id_fk",
@@ -1408,10 +1704,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "session_players_user_id_users_id_fk": {
-          "name": "session_players_user_id_users_id_fk",
+        "session_players_user_id_players_id_fk": {
+          "name": "session_players_user_id_players_id_fk",
           "tableFrom": "session_players",
-          "tableTo": "users",
+          "tableTo": "players",
           "columnsFrom": [
             "user_id"
           ],
@@ -1623,148 +1919,95 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
-    },
-    "public.users": {
-      "name": "users",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "bigint",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "users_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "9223372036854775807",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "discord_id": {
-          "name": "discord_id",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "role": {
-          "name": "role",
-          "type": "user_role",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'ROLE_USER'"
-        },
-        "use_yn": {
-          "name": "use_yn",
-          "type": "char(1)",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'Y'"
-        },
-        "delete_yn": {
-          "name": "delete_yn",
-          "type": "char(1)",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'N'"
-        },
-        "creator_id": {
-          "name": "creator_id",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "create_date": {
-          "name": "create_date",
-          "type": "timestamp (6) with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updater_id": {
-          "name": "updater_id",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "update_date": {
-          "name": "update_date",
-          "type": "timestamp (6) with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "deleter_id": {
-          "name": "deleter_id",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "delete_date": {
-          "name": "delete_date",
-          "type": "timestamp (6) with time zone",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "idx_users_name": {
-          "name": "idx_users_name",
-          "columns": [
-            {
-              "expression": "name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "users_discord_id_unique": {
-          "name": "users_discord_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "discord_id"
-          ]
-        },
-        "users_email_unique": {
-          "name": "users_email_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.campaign_role": {
+      "name": "campaign_role",
+      "schema": "public",
+      "values": [
+        "PLAYER",
+        "MASTER",
+        "SUB_MASTER"
+      ]
+    },
+    "public.character_status": {
+      "name": "character_status",
+      "schema": "public",
+      "values": [
+        "ACTIVE",
+        "RESTING",
+        "RETIRED",
+        "DECEASED"
+      ]
+    },
+    "public.doc_status": {
+      "name": "doc_status",
+      "schema": "public",
+      "values": [
+        "DRAFT",
+        "PUBLISHED",
+        "ARCHIVED",
+        "DELETED"
+      ]
+    },
+    "public.doc_visibility": {
+      "name": "doc_visibility",
+      "schema": "public",
+      "values": [
+        "PUBLIC",
+        "PRIVATE"
+      ]
+    },
+    "public.player_role": {
+      "name": "player_role",
+      "schema": "public",
+      "values": [
+        "ROLE_USER",
+        "ROLE_ADMIN",
+        "ROLE_SUPER_ADMIN"
+      ]
+    },
+    "public.player_status": {
+      "name": "player_status",
+      "schema": "public",
+      "values": [
+        "ACTIVE",
+        "INACTIVE",
+        "REST"
+      ]
+    },
+    "public.session_role": {
+      "name": "session_role",
+      "schema": "public",
+      "values": [
+        "PLAYER",
+        "MASTER"
+      ]
+    },
+    "public.status": {
+      "name": "status",
+      "schema": "public",
+      "values": [
+        "PREPARING",
+        "IN_PROGRESS",
+        "COMPLETED",
+        "CANCELED",
+        "ON_HOLD"
+      ]
+    },
+    "public.transaction_type": {
+      "name": "transaction_type",
+      "schema": "public",
+      "values": [
+        "REWARD",
+        "INCOME",
+        "EXPENSE",
+        "EXCHANGE",
+        "INIT"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

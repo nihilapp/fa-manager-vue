@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
 
   // 3. 권한 확인 (캠페인 마스터이거나 관리자)
   if (!hasPermission(findCampaign.userId)) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CAMPAIGN_FORBIDDEN);
   }
 
   // 4. 이름 변경 시 중복 체크

@@ -11,22 +11,24 @@ export interface ListDataType<TData = null> {
   filteredElements: number; // 필터링된 데이터 개수 (실제 페이징 기준이 되는 개수)
 
   // 페이징 관련 필드
-  currentPage: number | null; // 현재 페이지 (0부터 시작)
-  pageSize: number | null; // 페이지 당 데이터 개수
-  totalPages: number | null; // 전체 페이지 수 (filteredElements 기준)
+  currentPage: number; // 현재 페이지 (0부터 시작, 비페이징이면 0)
+  pageSize: number; // 페이지 당 데이터 개수 (비페이징이면 0)
+  totalPages: number; // 전체 페이지 수 (filteredElements 기준, 비페이징이면 0)
 
   // 페이지 경계 필드
-  firstPage: number | null; // 첫 번째 페이지 번호 (항상 0)
-  lastPage: number | null; // 마지막 페이지 번호
+  firstPage: number; // 첫 번째 페이지 번호 (항상 0)
+  lastPage: number; // 마지막 페이지 번호 (비페이징이면 0)
 
   // 상태 판단 필드
-  hasPrev: boolean | null; // 이전 페이지 존재 여부
-  hasNext: boolean | null; // 다음 페이지 존재 여부
-  isFirst: boolean | null; // 첫 번째 페이지 여부
-  isLast: boolean | null; // 마지막 페이지 여부
-  isEmpty: boolean | null; // 현재 리스트가 비어있는지 여부
+  hasPrev: boolean; // 이전 페이지 존재 여부
+  hasNext: boolean; // 다음 페이지 존재 여부
+  isFirst: boolean; // 첫 번째 페이지 여부
+  isLast: boolean; // 마지막 페이지 여부
+  isEmpty: boolean; // 현재 리스트가 비어있는지 여부
 
   // 이동 관련 필드
-  prevPage: number | null; // 이전 페이지 번호
-  nextPage: number | null; // 다음 페이지 번호
+  prevPage: number; // 이전 페이지 번호 (없으면 0)
+  nextPage: number; // 다음 페이지 번호 (없으면 0)
 }
+
+export type ListPageData<TData = null> = Omit<ListDataType<TData>, 'list'>;

@@ -2,11 +2,11 @@
 const commonStore = useCommonStore();
 const { navItems, } = storeToRefs(commonStore);
 
-const userStore = useUserStore();
-const { myInfo, } = storeToRefs(userStore);
+const playerStore = usePlayerStore();
+const { myPlayerInfo, } = storeToRefs(playerStore);
 
 const route = useRoute();
-const displayUserName = computed(() => myInfo.value?.name ?? '');
+const displayPlayerName = computed(() => myPlayerInfo.value?.name ?? '');
 </script>
 
 <template>
@@ -38,7 +38,7 @@ const displayUserName = computed(() => myInfo.value?.name ?? '');
       >
         <GetIcon icon-name="fa6-regular:circle-user" class="w-6 h-6" />
         <ClientOnly fallback-tag="span" fallback="">
-          <span>{{ displayUserName }}</span>
+          <span>{{ displayPlayerName }}</span>
         </ClientOnly>
       </NuxtLink>
     </div>

@@ -30,10 +30,10 @@ export default defineEventHandler(async (event) => {
       0,
       isPaged
         ? page
-        : null,
+        : 0,
       isPaged
         ? size
-        : null
+        : 0
     );
 
     return BaseResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LIST_SUCCESS);
@@ -94,10 +94,10 @@ export default defineEventHandler(async (event) => {
     filteredElements,
     isPaged
       ? page
-      : null,
+      : 0,
     isPaged
       ? size
-      : null
+      : 0
   );
 
   return BaseResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LIST_SUCCESS);

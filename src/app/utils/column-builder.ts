@@ -1,12 +1,12 @@
-export class ColumnBuilder {
-  private column: DataTableColumn;
+export class ColumnBuilder<T = any> {
+  private column: DataTableColumn<T>;
 
-  constructor(key: string, label: string) {
+  constructor(key: keyof T | (string & {}), label: string) {
     this.column = { key, label, };
   }
 
-  static column(key: string, label: string) {
-    return new ColumnBuilder(key, label);
+  static column<T = any>(key: keyof T | (string & {}), label: string) {
+    return new ColumnBuilder<T>(key, label);
   }
 
   center() {

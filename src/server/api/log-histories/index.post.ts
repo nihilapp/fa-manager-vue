@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.LOG_ADMIN_ONLY);
   }
 
-  const targetUser = await db.query.usersTable.findFirst({
+  const targetUser = await db.query.playersTable.findFirst({
     where: (table, { eq, and, }) => and(
       eq(table.id, body.userId),
       eq(table.deleteYn, 'N')
@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   });
 
   if (!targetUser) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND);
+    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND);
   }
 
   const [ logHistory, ] = await db.insert(logHistoriesTable).values({

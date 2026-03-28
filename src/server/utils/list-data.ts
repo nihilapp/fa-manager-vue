@@ -2,8 +2,8 @@ export class ListData<TData> {
   readonly list: TData[];
   readonly totalElements: number;
   readonly filteredElements: number;
-  readonly currentPage: number | null;
-  readonly pageSize: number | null;
+  readonly currentPage: number;
+  readonly pageSize: number;
 
   private readonly _isPaged: boolean;
 
@@ -11,14 +11,14 @@ export class ListData<TData> {
     list: TData[],
     totalElements: number,
     filteredElements: number,
-    currentPage: number | null = null,
-    pageSize: number | null = null
+    currentPage = 0,
+    pageSize = 0
   ) {
     this.list = list;
     this.totalElements = totalElements;
     this.filteredElements = filteredElements;
 
-    this._isPaged = pageSize !== null && currentPage !== null;
+    this._isPaged = pageSize > 0;
     this.currentPage = currentPage;
     this.pageSize = pageSize;
   }
@@ -26,35 +26,28 @@ export class ListData<TData> {
   /**
    * 첫 번째 페이지 번호를 반환합니다. (0-based)
    */
-  get firstPage(): number | null {
-    return this._isPaged
-      ? 0
-      : null;
+  get firstPage(): number {
+    return 0;
   }
 
   /**
    * 마스터의 지침에 따라 filteredElements를 기준으로 전체 페이지 수를 계산합니다.
    */
-  get totalPages(): number | null {
-    if (!this._isPaged || this.pageSize === 0) return null;
-    return Math.ceil(this.filteredElements / this.pageSize!);
+  get totalPages(): number {
+    if (!this._isPaged || this.pageSize === 0) return 0;
+    return Math.ceil(this.filteredElements / this.pageSize);
   }
 
-  get lastPage(): number | null {
-    const total = this.totalPages;
-    // 데이터가 없더라도 페이징이 활성화되어 있다면 최소 0페이지는 존재합니다.
-    return total !== null
-      ? Math.max(0, total - 1)
-      : null;
+  get lastPage(): number {
+    return Math.max(0, this.totalPages - 1);
   }
 
   get hasPrev(): boolean {
-    return this._isPaged && this.currentPage! > 0;
+    return this._isPaged && this.currentPage > 0;
   }
 
   get hasNext(): boolean {
-    const last = this.lastPage;
-    return last !== null && this.currentPage! < last;
+    return this._isPaged && this.currentPage < this.lastPage;
   }
 
   get isFirst(): boolean {
@@ -62,24 +55,23 @@ export class ListData<TData> {
   }
 
   get isLast(): boolean {
-    const last = this.lastPage;
-    return last !== null && this.currentPage === last;
+    return this._isPaged && this.currentPage === this.lastPage;
   }
 
   get isEmpty(): boolean {
     return this.list.length === 0;
   }
 
-  get prevPage(): number | null {
+  get prevPage(): number {
     return this.hasPrev
-      ? this.currentPage! - 1
-      : null;
+      ? this.currentPage - 1
+      : 0;
   }
 
-  get nextPage(): number | null {
+  get nextPage(): number {
     return this.hasNext
-      ? this.currentPage! + 1
-      : null;
+      ? this.currentPage + 1
+      : 0;
   }
 
   toJSON(): ListDataType<TData> {
@@ -92,18 +84,10 @@ export class ListData<TData> {
       totalPages: this.totalPages,
       firstPage: this.firstPage,
       lastPage: this.lastPage,
-      hasPrev: this._isPaged
-        ? this.hasPrev
-        : null,
-      hasNext: this._isPaged
-        ? this.hasNext
-        : null,
-      isFirst: this._isPaged
-        ? this.isFirst
-        : null,
-      isLast: this._isPaged
-        ? this.isLast
-        : null,
+      hasPrev: this.hasPrev,
+      hasNext: this.hasNext,
+      isFirst: this.isFirst,
+      isLast: this.isLast,
       isEmpty: this.isEmpty,
       prevPage: this.prevPage,
       nextPage: this.nextPage,

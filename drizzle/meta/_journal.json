@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1773524345914,
-      "tag": "0000_regular_zuras",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1773525372262,
-      "tag": "0001_strange_ogun",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1773675732500,
-      "tag": "0002_even_amphibian",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1773748973820,
-      "tag": "0003_redundant_random",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1773827710175,
-      "tag": "0004_tiny_secret_warriors",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1774374712789,
-      "tag": "0005_sour_valkyrie",
+      "when": 1774618762717,
+      "tag": "0000_tiresome_marten_broadcloak",
       "breakpoints": true
     }
   ]

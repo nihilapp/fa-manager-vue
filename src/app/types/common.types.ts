@@ -71,8 +71,8 @@ export interface NavItem {
   colspan?: number;
 }
 
-export interface DataTableColumn {
-  key: string;
+export interface DataTableColumn<T = any> {
+  key: keyof T | (string & {});
   label: string;
   width?: string | number;
   headerStyle?: string;
@@ -84,5 +84,3 @@ export interface DataTableColumn {
   sortable?: boolean;
   filterable?: boolean;
 }
-
-export type ListPageData<TData = null> = Omit<ListDataType<TData>, 'list'>;

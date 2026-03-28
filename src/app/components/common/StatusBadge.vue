@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = withDefaults(defineProps<{
   class?: string;
-  color?: 'gray' | 'red' | 'rose' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple' | 'pink' | 'black';
+  color?: StatusColor;
   icon?: IconName;
   label: string;
   iconClass?: string;

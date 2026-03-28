@@ -25,16 +25,16 @@
 
 ## [Admin] 권한 체계 확장 및 보안 강화
 - [ ] `authHelper` 내 권한 검증 보조 함수(`assertSelfOrAdmin` 등) 구현
-- [ ] `PUT /api/users/:id` 등 사용자 수정 시 `role` 변경 방어 로직 적용
+- [ ] `PUT /api/players/:id` 등 플레이어 수정 시 `role` 변경 방어 로직 적용
 - [ ] 캠페인 멤버 추가/제거 시 관리자 우회 로직 적용
 - [ ] 캐릭터/세션/로그 관련 API 전수 권한 검토 및 관리자 우회 적용
 - [ ] `md/api.md` 문서 내 권한 정책 명시 및 갱신
 
 ## [Admin] 감사 로그 및 롤백 시스템
-- [x] `users` 테이블 권한 컬럼(`role`) 추가 및 `audit_logs` 테이블 신설 (완료)
+- [x] `players` 테이블 권한 컬럼(`role`) 추가 및 `audit_logs` 테이블 신설 (완료)
 - [x] 어드민 권한 검증(`ensureAdmin`) 및 로깅(`createAuditLog`) 유틸리티 구현 (완료)
 - [x] 어드민 전용 감사 로그 목록 조회 및 데이터 롤백 API 구현 (완료)
-- [x] 모든 도메인(`users`, `campaigns`, `characters` 등) CUD API에 감사 로그 통합 (완료)
+- [x] 모든 도메인(`players`, `campaigns`, `characters` 등) CUD API에 감사 로그 통합 (완료)
 - [x] 모든 도메인 생성(INSERT) 시 `creatorId`와 `updaterId` 동시 설정 (일관성 확보)
 - [x] 감사 로그 상세 조회 API (`GET /api/admin/audit-logs/[id]`) 구현 (완료)
 - [x] 롤백 시 FK 제약 조건 위반에 대한 세밀한 에러 핸들링 보완 (완료)

@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
   // 서비스 로직
   // ========== ========== ========== ==========
 
-  const { user, hasPermission, error, } = await authHelper(event);
+  const { hasPermission, error, } = await authHelper(event);
   if (error) return error;
 
   if (!Number.isFinite(campaignId) || !Number.isFinite(userId)) {
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!hasPermission(userId)) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.PLAYER_FORBIDDEN);
   }
 
   // 캠페인 조회

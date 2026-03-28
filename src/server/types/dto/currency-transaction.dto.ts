@@ -36,6 +36,6 @@ export interface CurrencyTransactionOutDto extends CommonOutDto {
   deltaEp: number;
   deltaSp: number;
   deltaCp: number;
-  user: UserOutDto | null;
+  user: PlayerOutDto | null;
   character: CharacterOutDto | null;
 }

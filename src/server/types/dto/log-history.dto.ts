@@ -34,5 +34,5 @@ export interface LogHistoryOutDto extends CommonOutDto {
   newData: any;
   description: string | null;
 
-  user: UserOutDto | null;
+  user: PlayerOutDto | null;
 }

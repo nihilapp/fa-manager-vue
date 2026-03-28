@@ -20,8 +20,8 @@ declare global {
   type PgJsonb = import('drizzle-orm/pg-core').PgJsonb;
   type PgEnum<TValues extends readonly string[]> = import('drizzle-orm/pg-core').PgEnum<TValues>;
   
-  type TypeUser = InferSelectModel<typeof import('../db/table/users.table')['usersTable']>;
-  type TypeNewUser = InferInsertModel<typeof import('../db/table/users.table')['usersTable']>;
+  type TypePlayer = InferSelectModel<typeof import('../db/table/players.table')['playersTable']>;
+  type TypeNewPlayer = InferInsertModel<typeof import('../db/table/players.table')['playersTable']>;
   type TypeCampaign = InferSelectModel<typeof import('../db/table/campaigns.table')['campaignsTable']>;
   type TypeNewCampaign = InferInsertModel<typeof import('../db/table/campaigns.table')['campaignsTable']>;
   type TypeCampaignMember = InferSelectModel<typeof import('../db/table/campaigns.table')['campaignMembersTable']>;
@@ -43,8 +43,8 @@ declare global {
   type TypeLogHistory = InferSelectModel<typeof import('../db/table/logHistories.table')['logHistoriesTable']>;
   type TypeNewLogHistory = InferInsertModel<typeof import('../db/table/logHistories.table')['logHistoriesTable']>;
   
-  type UserRole = import('./dto.types').UserRole;
-  type UserStatus = import('./dto.types').UserStatus;
+  type PlayerRole = import('./dto.types').PlayerRole;
+  type PlayerStatus = import('./dto.types').PlayerStatus;
   type CampaignRole = import('./dto.types').CampaignRole;
   type SessionRole = import('./dto.types').SessionRole;
   type Status = import('./dto.types').Status;
@@ -57,10 +57,10 @@ declare global {
   type CommonInDto = import('./dto.types').CommonInDto;
   type CommonQueryDto = import('./dto.types').CommonQueryDto;
   type CommonOutDto = import('./dto.types').CommonOutDto;
-  type UserQueryDto = import('./dto.types').UserQueryDto;
-  type UserCreateDto = import('./dto.types').UserCreateDto;
-  type UserUpdateDto = import('./dto.types').UserUpdateDto;
-  type UserOutDto = import('./dto.types').UserOutDto;
+  type PlayerQueryDto = import('./dto.types').PlayerQueryDto;
+  type PlayerCreateDto = import('./dto.types').PlayerCreateDto;
+  type PlayerUpdateDto = import('./dto.types').PlayerUpdateDto;
+  type PlayerOutDto = import('./dto.types').PlayerOutDto;
   type CampaignQueryDto = import('./dto.types').CampaignQueryDto;
   type CampaignCreateDto = import('./dto.types').CampaignCreateDto;
   type CampaignUpdateDto = import('./dto.types').CampaignUpdateDto;

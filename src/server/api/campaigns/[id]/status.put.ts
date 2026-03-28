@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!hasPermission(findCampaign.userId)) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CAMPAIGN_FORBIDDEN);
   }
 
   const oldStatus = findCampaign.status;

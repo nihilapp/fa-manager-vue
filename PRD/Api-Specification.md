@@ -36,11 +36,11 @@ http://{HOST}:{PORT}/api
 - **`name`** (String): 표시될 닉네임
 - **`discordId`** (String): 디스코드 연동 ID (아바타/프로필 연동 시 사용)
 
-### 2.1 사용자 계정 등록 및 복구
-- **Endpoint**: `POST /api/users`
+### 2.1 플레이어 계정 등록 및 복구
+- **Endpoint**: `POST /api/players`
 - **Description**: 신규 사용자를 등록합니다. 만약 Soft Delete(`deleteYn='Y'`) 상태인 사용자가 재요청 시 계정을 복구합니다.
 
-**Request Body** (`UserInDto`)
+**Request Body** (`PlayerInDto`)
 ```json
 {
   "name": "홍길동",
@@ -54,7 +54,7 @@ http://{HOST}:{PORT}/api
 | `discordId` | `string` | No | 디스코드 고유 ID |
 | `role` | `string` | No | 시스템 권한 (ex. `ADMIN`, `PLAYER` 등) |
 
-**Response (200 OK)** - `UserOutDto`
+**Response (200 OK)** - `PlayerOutDto`
 ```json
 {
   "id": 1,
@@ -66,8 +66,8 @@ http://{HOST}:{PORT}/api
 }
 ```
 
-### 2.2 사용자 목록 조회
-- **Endpoint**: `GET /api/users`
+### 2.2 플레이어 목록 조회
+- **Endpoint**: `GET /api/players`
 - **Description**: 등록된 사용자의 목록을 페이징하여 조회합니다.
 
 **Query Parameters**
@@ -94,14 +94,14 @@ http://{HOST}:{PORT}/api
 ]
 ```
 
-### 2.3 사용자 상세 조회
-- **Endpoint**: `GET /api/users/{id}`
-- **Description**: 특정 ID 기반의 사용자 상세 정보를 조회합니다. 캠페인이나 캐릭터 등의 연관 데이터가 포함될 수 일습니다.
+### 2.3 플레이어 상세 조회
+- **Endpoint**: `GET /api/players/{id}`
+- **Description**: 특정 ID 기반의 플레이어 상세 정보를 조회합니다. 캠페인이나 캐릭터 등의 연관 데이터가 포함될 수 일습니다.
 
 **Path Parameters**
 - `id` (`number`, **Required**): 사용자 식별자 (PK)
 
-**Response (200 OK)** - `UserOutDto`
+**Response (200 OK)** - `PlayerOutDto`
 ```json
 {
   "id": 1,
@@ -118,14 +118,14 @@ http://{HOST}:{PORT}/api
 }
 ```
 
-### 2.4 사용자 정보 수정
-- **Endpoint**: `PATCH /api/users/{id}`
+### 2.4 플레이어 정보 수정
+- **Endpoint**: `PATCH /api/players/{id}`
 - **Description**: 기존 사용자의 정보를 일부 수정합니다. 상태 변경(사용 중지 등)에도 쓰입니다.
 
 **Path Parameters**
 - `id` (`number`, **Required**): 사용자 식별자
 
-**Request Body** (`Partial<UserInDto>`)
+**Request Body** (`Partial<PlayerInDto>`)
 ```json
 {
   "name": "수정된 닉네임",
@@ -143,7 +143,7 @@ http://{HOST}:{PORT}/api
 ```
 
 ### 2.5 사용자 삭제 (Soft Delete)
-- **Endpoint**: `DELETE /api/users/{id}`
+- **Endpoint**: `DELETE /api/players/{id}`
 - **Description**: 사용자를 비활성화(`deleteYn = 'Y'`) 처리합니다. 실제 DB 레코드를 날리지 않습니다.
 
 **Path Parameters**
@@ -378,7 +378,7 @@ TRPG 캠페인 방 자체를 관리합니다.
 - `creator_id`, `updater_id`, `deleter_id` (integer)
 - `created_date`, `updated_date` (timestamp): 자동 생성 및 갱신 시각 지정
 
-### 1. `users` (사용자)
+### 1. `players` (사용자)
 | Column | Type | Constraints / Default |
 | :--- | :--- | :--- |
 | `id` | serial | Primary Key |

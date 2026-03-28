@@ -1,3 +1,3 @@
-export function useColumns(columns: DataTableColumn[]) {
+export function useColumns<T = any>(columns: DataTableColumn<T>[]) {
   return columns;
 }

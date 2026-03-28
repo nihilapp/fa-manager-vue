@@ -4,10 +4,10 @@ const withParams = <TParams extends object>(params: TParams) => ({
   queryKey: [ params, ] as const,
 });
 
-const users = createQueryKeys('users', {
-  check: (params: UserQueryDto = {}) => withParams(params),
-  index: (params: UserQueryDto = {}) => withParams(params),
-  me: (params: UserQueryDto = {}) => withParams(params),
+const players = createQueryKeys('players', {
+  check: (params: PlayerQueryDto = {}) => withParams(params),
+  index: (params: PlayerQueryDto = {}) => withParams(params),
+  me: (params: PlayerQueryDto = {}) => withParams(params),
   detail: (params: { id: string | number }) => withParams(params),
 });
 
@@ -54,7 +54,7 @@ const sessions = createQueryKeys('sessions', {
 });
 
 export const queryKeys = mergeQueryKeys(
-  users,
+  players,
   campaigns,
   characters,
   currencyTransactions,

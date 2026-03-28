@@ -2,12 +2,12 @@ import { bigint, index, integer, pgTable, primaryKey, text, varchar } from 'driz
 
 import { campaignsTable } from './campaigns.table';
 import { characterStatusEnum, commonColumns } from './common';
-import { usersTable } from './users.table';
+import { playersTable } from './players.table';
 
 export const charactersTable = pgTable('characters', {
   id: commonColumns.id,
 
-  userId: bigint('user_id', { mode: 'number', }).references(() => usersTable.id).notNull(),
+  userId: bigint('user_id', { mode: 'number', }).references(() => playersTable.id).notNull(),
   campaignId: bigint('campaign_id', { mode: 'number', }).references(() => campaignsTable.id),
   name: varchar('name', { length: 50, }).notNull(),
   status: characterStatusEnum('status').default('ACTIVE').notNull(),

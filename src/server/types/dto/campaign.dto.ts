@@ -30,7 +30,7 @@ export interface CampaignOutDto extends CommonOutDto {
   startDate: Date | string | null;
   endDate: Date | string | null;
 
-  user: UserOutDto | null;
+  user: PlayerOutDto | null;
   members: CampaignMemberOutDto[];
   sessions: SessionOutDto[];
   characters: CharacterOutDto[];
@@ -44,6 +44,6 @@ export interface CampaignMemberOutDto extends CommonOutDto {
   campaignId: number;
   role: CampaignRole;
 
-  user: UserOutDto | null;
+  user: PlayerOutDto | null;
   campaign: CampaignOutDto | null;
 }

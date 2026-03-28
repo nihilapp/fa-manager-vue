@@ -2,7 +2,7 @@ export * from './dto/common.dto';
 export * from './dto/campaign.dto';
 export * from './dto/session.dto';
 export * from './dto/session-log.dto';
-export * from './dto/user.dto';
+export * from './dto/player.dto';
 export * from './dto/character.dto';
 export * from './dto/currency-transaction.dto';
 export * from './dto/log-history.dto';
@@ -13,7 +13,7 @@ import type {
   DocStatus,
   DocVisibility
 } from './dto/common.dto';
-import type { UserOutDto } from './dto/user.dto';
+import type { PlayerOutDto } from './dto/player.dto';
 
 /**
  * Doc DTO
@@ -37,5 +37,5 @@ export interface DocOutDto extends CommonOutDto {
   visibility: DocVisibility;
   content: string | null;
 
-  user: UserOutDto | null;
+  user: PlayerOutDto | null;
 }

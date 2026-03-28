@@ -1,6 +1,6 @@
 export const useCommonStore = defineStore('commonStore', () => {
-  const userStore = useUserStore();
-  const { isAdmin, } = storeToRefs(userStore);
+  const playerStore = usePlayerStore();
+  const { isAdmin, } = storeToRefs(playerStore);
 
   const navItems = computed<NavItem[]>(() => [
     {

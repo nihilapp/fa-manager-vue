@@ -1,15 +1,11 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends { id: number }">
 import Paginator from '@app/components/table/Paginator.vue';
-
-type DataTableRow = Record<string, any> & {
-  id: string | number;
-};
 
 const props = withDefaults(defineProps<{
   title?: string;
-  items: DataTableRow[];
-  columns: DataTableColumn[];
-  pagination?: ListPageData<DataTableRow> | null;
+  items: T[];
+  columns: DataTableColumn<T>[];
+  pagination?: ListPageData<T> | null;
   showPagination?: boolean;
   pageButtonCount?: number;
   emptyMessage?: string;
@@ -25,6 +21,13 @@ const emit = defineEmits<{
   pageChange: [page: number];
 }>();
 
+defineSlots<{
+  [K in string]: (scope: {
+    row: T;
+    value: any;
+  }) => any;
+}>();
+
 const normalizedPageButtonCount = computed(() => {
   const count = Math.floor(props.pageButtonCount);
 
@@ -38,35 +41,32 @@ const normalizedPagination = computed(() => {
     return null;
 
   const raw = props.pagination;
-  const currentPage = raw.currentPage;
-  const pageSize = raw.pageSize;
-
-  if (currentPage === null || pageSize === null || pageSize <= 0)
+  if (raw.pageSize <= 0 || raw.totalPages <= 0)
     return null;
 
-  const filteredElements = Math.max(raw.filteredElements ?? raw.totalElements ?? props.items.length, 0);
-  const totalElements = Math.max(raw.totalElements ?? filteredElements, filteredElements);
-  const totalPages = Math.max(raw.totalPages ?? Math.ceil(filteredElements / pageSize), 0);
-  const firstPage = raw.firstPage ?? 0;
-  const lastPage = raw.lastPage ?? Math.max(firstPage, totalPages - 1);
-  const normalizedCurrentPage = Math.min(Math.max(currentPage, firstPage), lastPage);
-  const prevPage = raw.prevPage ?? (normalizedCurrentPage > firstPage
+  const filteredElements = Math.max(raw.filteredElements, 0);
+  const totalElements = Math.max(raw.totalElements, filteredElements);
+  const totalPages = Math.max(raw.totalPages, 0);
+  const firstPage = Math.max(raw.firstPage, 0);
+  const lastPage = Math.max(raw.lastPage, firstPage);
+  const normalizedCurrentPage = Math.min(Math.max(raw.currentPage, firstPage), lastPage);
+  const prevPage = normalizedCurrentPage > firstPage
     ? normalizedCurrentPage - 1
-    : null);
-  const nextPage = raw.nextPage ?? (normalizedCurrentPage < lastPage
+    : 0;
+  const nextPage = normalizedCurrentPage < lastPage
     ? normalizedCurrentPage + 1
-    : null);
+    : 0;
 
   return {
     filteredElements,
     totalElements,
     currentPage: normalizedCurrentPage,
-    pageSize,
+    pageSize: raw.pageSize,
     totalPages,
     firstPage,
     lastPage,
-    hasPrev: raw.hasPrev ?? prevPage !== null,
-    hasNext: raw.hasNext ?? nextPage !== null,
+    hasPrev: raw.hasPrev,
+    hasNext: raw.hasNext,
     prevPage,
     nextPage,
   };
@@ -98,7 +98,7 @@ function handlePageChange(page: number) {
   emit('pageChange', page);
 }
 
-function normalizeColumnWidth(width?: DataTableColumn['width']) {
+function normalizeColumnWidth(width?: DataTableColumn<T>['width']) {
   if (width === undefined)
     return undefined;
 
@@ -107,7 +107,7 @@ function normalizeColumnWidth(width?: DataTableColumn['width']) {
     : width;
 }
 
-function getColumnClass(column: DataTableColumn, type: 'header' | 'cell') {
+function getColumnClass(column: DataTableColumn<T>, type: 'header' | 'cell') {
   const hasCustomWidth = column.width !== undefined;
 
   return cn([
@@ -124,7 +124,7 @@ function getColumnClass(column: DataTableColumn, type: 'header' | 'cell') {
   ]);
 }
 
-function getColumnStyle(column: DataTableColumn) {
+function getColumnStyle(column: DataTableColumn<T>) {
   const width = normalizeColumnWidth(column.width);
 
   if (!width)
@@ -135,6 +135,22 @@ function getColumnStyle(column: DataTableColumn) {
     width,
     minWidth: width,
   };
+}
+
+function getColumnKey(column: DataTableColumn<T>) {
+  return String(column.key);
+}
+
+function getCellValue(row: T, column: DataTableColumn<T>) {
+  const { key, } = column;
+
+  if (typeof key !== 'string')
+    return undefined;
+
+  if (!(key in row))
+    return undefined;
+
+  return row[key as keyof T];
 }
 </script>
 
@@ -160,7 +176,7 @@ function getColumnStyle(column: DataTableColumn) {
             <div
               role="columnheader"
               v-for="column in columns"
-              :key="column.key"
+              :key="getColumnKey(column)"
               :class="cn([
                 getColumnClass(column, 'header'),
                 'min-h-10 px-3 py-2 text-xs font-700 tracking-[0.08em] text-stone-500 uppercase',
@@ -188,7 +204,7 @@ function getColumnStyle(column: DataTableColumn) {
               <div
                 role="cell"
                 v-for="column in columns"
-                :key="column.key"
+                :key="getColumnKey(column)"
                 :class="cn([
                   getColumnClass(column, 'cell'),
                   'min-h-13 px-3 py-2 text-sm text-stone-700',
@@ -196,12 +212,12 @@ function getColumnStyle(column: DataTableColumn) {
                 :style="getColumnStyle(column)"
               >
                 <template v-if="column.slotName">
-                  <slot :name="column.slotName" :row="item" :value="item[column.key]" />
+                  <slot :name="column.slotName" :row="item" :value="getCellValue(item, column)" />
                 </template>
 
                 <template v-else>
                   <span class="block w-full truncate">
-                    {{ item[column.key] ?? '-' }}
+                    {{ getCellValue(item, column) ?? '-' }}
                   </span>
                 </template>
               </div>
@@ -217,7 +233,7 @@ function getColumnStyle(column: DataTableColumn) {
               <div
                 role="cell"
                 v-for="column in columns"
-                :key="`${placeholderRow}-${column.key || 'empty'}`"
+                :key="`${placeholderRow}-${getColumnKey(column) || 'empty'}`"
                 :class="cn([
                   getColumnClass(column, 'cell'),
                   'min-h-13 px-3 py-2 text-sm text-stone-300',

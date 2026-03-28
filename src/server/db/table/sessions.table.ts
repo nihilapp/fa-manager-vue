@@ -3,7 +3,7 @@ import { bigint, index, integer, pgTable, text, timestamp, uniqueIndex, varchar 
 import { campaignsTable } from './campaigns.table';
 import { charactersTable } from './characters.table';
 import { commonColumns, sessionRoleEnum, statusEnum } from './common';
-import { usersTable } from './users.table';
+import { playersTable } from './players.table';
 
 export const sessionsTable = pgTable('sessions', {
   id: commonColumns.id,
@@ -28,7 +28,7 @@ export const sessionPlayersTable = pgTable('session_players', {
   id: commonColumns.id,
 
   sessionId: bigint('session_id', { mode: 'number', }).references(() => sessionsTable.id).notNull(),
-  userId: bigint('user_id', { mode: 'number', }).references(() => usersTable.id).notNull(),
+  userId: bigint('user_id', { mode: 'number', }).references(() => playersTable.id).notNull(),
   characterId: bigint('character_id', { mode: 'number', }).references(() => charactersTable.id).notNull(),
   role: sessionRoleEnum('role').default('PLAYER').notNull(),
 
@@ -41,7 +41,7 @@ export const sessionLogsTable = pgTable('session_logs', {
   id: commonColumns.id,
 
   sessionId: bigint('session_id', { mode: 'number', }).references(() => sessionsTable.id).notNull(),
-  userId: bigint('user_id', { mode: 'number', }).references(() => usersTable.id).notNull(),
+  userId: bigint('user_id', { mode: 'number', }).references(() => playersTable.id).notNull(),
   title: varchar('title', { length: 100, }).notNull(),
   content: text('content'),
   fileUrl: varchar('file_url', { length: 255, }),

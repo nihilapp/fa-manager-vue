@@ -120,10 +120,10 @@ export default defineEventHandler(async (event) => {
     filteredElements,
     isPaged
       ? page
-      : null,
+      : 0,
     isPaged
       ? size
-      : null
+      : 0
   );
 
   return BaseResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CHARACTER_LIST_SUCCESS);

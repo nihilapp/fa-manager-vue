@@ -1,5 +1,5 @@
-export type UserRole = 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN';
-export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'REST';
+export type PlayerRole = 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN';
+export type PlayerStatus = 'ACTIVE' | 'INACTIVE' | 'REST';
 export type CampaignRole = 'PLAYER' | 'MASTER' | 'SUB_MASTER';
 export type SessionRole = 'PLAYER' | 'MASTER';
 export type Status = 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'ON_HOLD';

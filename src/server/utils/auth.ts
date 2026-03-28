@@ -1,7 +1,7 @@
-type AuthResolvedUser = UserOutDto & { id: number };
+type AuthResolvedPlayer = PlayerOutDto & { id: number };
 type DiscordIdentitySource = 'header' | 'cookie' | 'development';
 
-const isAdminRole = (role?: UserOutDto['role']) => role === 'ROLE_ADMIN' || role === 'ROLE_SUPER_ADMIN';
+const isAdminRole = (role?: PlayerOutDto['role']) => role === 'ROLE_ADMIN' || role === 'ROLE_SUPER_ADMIN';
 const isDevelopmentEnvironment = process.env.NODE_ENV === 'development';
 const DISCORD_ID_COOKIE_KEY = 'discord_id';
 const DISCORD_ID_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
@@ -16,7 +16,7 @@ function getDiscordIdCookieOptions() {
   };
 }
 
-function resolveDiscordIdentity(event: H3Event): { discordId?: string; source?: DiscordIdentitySource; } {
+function resolveDiscordIdentity(event: H3Event): { discordId?: string; source?: DiscordIdentitySource } {
   const headerDiscordId = getDiscordId(event);
 
   if (headerDiscordId) {
@@ -56,13 +56,13 @@ function clearDiscordIdCookie(event: H3Event) {
 }
 
 const createAuthContext = (
-  user: AuthResolvedUser | null,
+  user: AuthResolvedPlayer | null,
   error: BaseResponseType | null,
   isDevelopmentBypass = false
 ) => {
   const isAdmin = isAdminRole(user?.role);
 
-  const hasPermission = (resourceUserId?: number | null) => {
+  const hasPermission = (resourcePlayerId?: number | null) => {
     if (isDevelopmentBypass) {
       return true;
     }
@@ -75,7 +75,7 @@ const createAuthContext = (
       return true;
     }
 
-    return resourceUserId === user.id;
+    return resourcePlayerId === user.id;
   };
 
   const checkAdmin = () => isAdmin;
@@ -133,7 +133,7 @@ export const authHelper = async (event: H3Event) => {
     );
   }
 
-  const user = await db.query.usersTable.findFirst({
+  const user = await db.query.playersTable.findFirst({
     where: (table, { eq, }) => eq(table.discordId, discordId),
   });
 
@@ -144,7 +144,7 @@ export const authHelper = async (event: H3Event) => {
 
     return createAuthContext(
       null,
-      BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.USER_NOT_FOUND),
+      BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND),
       source === 'development'
     );
   }
@@ -153,5 +153,5 @@ export const authHelper = async (event: H3Event) => {
     persistDiscordIdCookie(event, discordId);
   }
 
-  return createAuthContext(user as AuthResolvedUser, null, source === 'development');
+  return createAuthContext(user as AuthResolvedPlayer, null, source === 'development');
 };

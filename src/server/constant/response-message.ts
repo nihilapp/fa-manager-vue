@@ -26,21 +26,21 @@ export class RESPONSE_MESSAGE {
   // 사용자 관련 메시지
   // ========== ========== ========== ==========
 
-  static GET_USER_LIST_SUCCESS = '사용자 목록 조회 성공';
-  static GET_USER_DETAIL_SUCCESS = '사용자 상세 정보 조회 성공';
-  static GET_MY_INFO_SUCCESS = '내 정보 조회 성공';
-  static USER_NOT_FOUND = '해당 사용자를 찾을 수 없습니다.';
-  static USERNAME_ALREADY_EXISTS = '이미 사용 중인 사용자 이름입니다.';
+  static GET_PLAYER_LIST_SUCCESS = '플레이어 목록 조회 성공';
+  static GET_PLAYER_DETAIL_SUCCESS = '플레이어 상세 정보 조회 성공';
+  static GET_MY_PLAYER_INFO_SUCCESS = '내 플레이어 정보 조회 성공';
+  static PLAYER_NOT_FOUND = '해당 플레이어를 찾을 수 없습니다.';
+  static PLAYER_NAME_ALREADY_EXISTS = '이미 사용 중인 플레이어 이름입니다.';
   static DISCORD_ID_ALREADY_EXISTS = '이미 등록된 디스코드 사용자 ID입니다.';
-  static CREATE_USER_SUCCESS = '사용자 계정이 생성되었습니다.';
-  static UPDATE_USER_SUCCESS = '사용자 정보가 성공적으로 수정되었습니다.';
-  static UPDATE_USER_FAILURE = '사용자 정보를 수정할 수 없습니다.';
-  static UPDATE_USER_FORBIDDEN = '해당 사용자를 수정할 권한이 없습니다.';
-  static DELETE_USER_SUCCESS = '사용자 계정 성공적으로 삭제되었습니다.';
-  static DELETE_USER_FAILURE = '사용자를 삭제할 수 없습니다.';
-  static DELETE_USER_FORBIDDEN = '해당 사용자를 삭제할 권한이 없습니다.';
+  static CREATE_PLAYER_SUCCESS = '플레이어 계정이 생성되었습니다.';
+  static UPDATE_PLAYER_SUCCESS = '플레이어 정보가 성공적으로 수정되었습니다.';
+  static UPDATE_PLAYER_FAILURE = '플레이어 정보를 수정할 수 없습니다.';
+  static UPDATE_PLAYER_FORBIDDEN = '해당 플레이어를 수정할 권한이 없습니다.';
+  static DELETE_PLAYER_SUCCESS = '플레이어 계정이 성공적으로 삭제되었습니다.';
+  static DELETE_PLAYER_FAILURE = '플레이어를 삭제할 수 없습니다.';
+  static DELETE_PLAYER_FORBIDDEN = '해당 플레이어를 삭제할 권한이 없습니다.';
+  static PLAYER_FORBIDDEN = '해당 플레이어에 대한 권한이 없습니다.';
   static REQUIRE_DISCORD_ID = '디스코드 사용자 ID가 누락되었습니다.';
-  static USER_FORBIDDEN = '해당 작업에 대한 권한이 없습니다.';
 
   // ========== ========== ========== ==========
   // 캠페인 관련 메시지
@@ -49,6 +49,7 @@ export class RESPONSE_MESSAGE {
   static GET_CAMPAIGN_LIST_SUCCESS = '캠페인 목록 조회 성공';
   static GET_CAMPAIGN_DETAIL_SUCCESS = '캠페인 상세 정보 조회 성공';
   static CAMPAIGN_NOT_FOUND = '캠페인을 찾을 수 없습니다.';
+  static CAMPAIGN_FORBIDDEN = '해당 캠페인에 대한 권한이 없습니다. 캠페인 마스터만 가능합니다.';
   static CAMPAIGN_NAME_ALREADY_EXISTS = '이미 사용중인 캠페인 이름입니다.';
   static CREATE_CAMPAIGN_SUCCESS = '캠페인이 생성되었습니다.';
   static UPDATE_CAMPAIGN_SUCCESS = '캠페인 정보가 성공적으로 수정되었습니다.';
@@ -123,8 +124,7 @@ export class RESPONSE_MESSAGE {
   static DELETE_SESSION_SUCCESS = '세션이 삭제되었습니다.';
   static DELETE_SESSION_FAILURE = '세션을 삭제할 수 없습니다.';
   static SESSION_FORBIDDEN = '해당 세션에 대한 권한이 없습니다. 캠페인 마스터만 가능합니다.';
-  static PLAYER_FORBIDDEN = '플레이어 관리 권한이 없습니다.';
-  static PLAYER_ALREADY_EXISTS = '이미 해당 세션에 등록된 캐릭터입니다.';
+  static SESSION_CHARACTER_NOT_IN_CAMPAIGN = '해당 캐릭터는 이 세션의 캠페인 소속이 아닙니다.';
   static SESSION_PLAYER_ALREADY_REGISTERED = '이미 세션에 참여 중입니다.';
   static GET_SESSION_LOG_LIST_SUCCESS = '세션 로그 목록 조회 성공';
   static GET_SESSION_LOG_SUCCESS = '세션 로그 조회 성공';

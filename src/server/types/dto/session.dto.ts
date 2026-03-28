@@ -55,6 +55,6 @@ export interface SessionPlayerOutDto extends CommonOutDto {
   role: SessionRole;
 
   session: SessionOutDto | null;
-  user: UserOutDto | null;
+  user: PlayerOutDto | null;
   character: CharacterOutDto | null;
 }

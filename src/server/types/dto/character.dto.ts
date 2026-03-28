@@ -186,7 +186,7 @@ export interface CharacterOutDto extends CommonOutDto {
   reqCon16: string | null;
   reqCon18: string | null;
   reqCon20: string | null;
-  user: UserOutDto | null;
+  user: PlayerOutDto | null;
   campaign: CampaignOutDto | null;
   classes: CharacterClassOutDto[];
   sessions: SessionPlayerOutDto[];

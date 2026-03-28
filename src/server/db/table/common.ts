@@ -1,4 +1,4 @@
-import { bigint, char, pgEnum, timestamp, } from 'drizzle-orm/pg-core';
+import { bigint, char, pgEnum, timestamp } from 'drizzle-orm/pg-core';
 
 export const statusEnum = pgEnum('status', [ 'PREPARING', 'IN_PROGRESS', 'COMPLETED', 'CANCELED', 'ON_HOLD', ]);
 
@@ -6,13 +6,13 @@ export const campaignRoleEnum = pgEnum('campaign_role', [ 'PLAYER', 'MASTER', 'S
 
 export const sessionRoleEnum = pgEnum('session_role', [ 'PLAYER', 'MASTER', ]);
 
-export const userRoleEnum = pgEnum('user_role', [
+export const playerRoleEnum = pgEnum('player_role', [
   'ROLE_USER',
   'ROLE_ADMIN',
   'ROLE_SUPER_ADMIN',
 ]);
 
-export const userStatusEnum = pgEnum('user_status', [
+export const playerStatusEnum = pgEnum('player_status', [
   'ACTIVE',
   'INACTIVE',
   'REST',

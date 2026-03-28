@@ -2,9 +2,10 @@
 const route = useRoute();
 
 if (route.path === '/block') {
+  //
 }
 else {
-  const myInfoRequest = await useGetMyInfo();
+  const myInfoRequest = await useGetMyPlayerInfo();
   await myInfoRequest.execute();
 }
 </script>

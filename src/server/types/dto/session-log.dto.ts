@@ -26,5 +26,5 @@ export interface SessionLogOutDto extends CommonOutDto {
   fileUrl: string | null;
 
   session: SessionOutDto | null;
-  user: UserOutDto | null;
+  user: PlayerOutDto | null;
 }

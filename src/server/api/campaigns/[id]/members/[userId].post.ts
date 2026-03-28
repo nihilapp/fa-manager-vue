@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!hasPermission(userId)) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.PLAYER_FORBIDDEN);
   }
 
   // 2. 캠페인 존재 확인

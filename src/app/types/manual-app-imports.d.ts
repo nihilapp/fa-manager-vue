@@ -44,8 +44,9 @@ declare global {
   
   type AppConfig = import('@app/types/common.types').AppConfig;
   type NavItem = import('@app/types/common.types').NavItem;
-  type DataTableColumn = import('@app/types/common.types').DataTableColumn;
-  type ListPageData<T = null> = import('@app/types/common.types').ListPageData<T>;
+  type DataTableColumn<T = any> = import('@app/types/common.types').DataTableColumn<T>;
+  type ListPageData<T = null> = import('../../server/types/response.types').ListPageData<T>;
+  type StatusColor = import('@app/types/players.types').StatusColor;
   type IconName = import('@app/types/icons').IconName;
   type ColumnBuilder = typeof import('@app/utils/column-builder').ColumnBuilder;
   

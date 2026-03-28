@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!hasPermission(campaign.userId)) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.USER_FORBIDDEN);
+    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CAMPAIGN_FORBIDDEN);
   }
 
   // 캐릭터의 campaignId를 null로 해제
