@@ -1,7 +1,6 @@
 export const usePlayerStore = defineStore('playerStore', () => {
   const playerList = ref<PlayerOutDto[]>([]);
   const playerPageData = ref<ListPageData<PlayerOutDto> | null>(null);
-  const playerListCount = ref(0);
   const playerInfo = ref<PlayerOutDto | null>(null);
   const myInfo = ref<PlayerOutDto | null>(null);
 
@@ -11,19 +10,17 @@ export const usePlayerStore = defineStore('playerStore', () => {
     return isDev || [ 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN', ].includes(myInfo.value?.role ?? '');
   });
 
-  const setPlayerList = (
-    list: PlayerOutDto[],
-    pageData: ListPageData<PlayerOutDto>
-  ) => {
+  const setPlayerList = (list: PlayerOutDto[]) => {
     playerList.value = list;
+  };
+
+  const setPlayerPageData = (pageData: ListPageData<PlayerOutDto> | null) => {
     playerPageData.value = pageData;
-    playerListCount.value = pageData.totalElements;
   };
 
   const clearPlayerList = () => {
     playerList.value = [];
-    playerPageData.value = null;
-    playerListCount.value = 0;
+    setPlayerPageData(null);
   };
 
   const setPlayerInfo = (player: PlayerOutDto | null) => {
@@ -42,30 +39,19 @@ export const usePlayerStore = defineStore('playerStore', () => {
     myInfo.value = null;
   };
 
-  const setPlayerListPage = (page: number) => {
-    if (!playerPageData.value) {
-      return;
-    }
-    playerPageData.value = {
-      ...playerPageData.value,
-      currentPage: page,
-    };
-  };
-
   return {
     playerList,
     playerPageData,
-    playerListCount,
     playerInfo,
     myInfo,
     isAdmin,
 
     setPlayerList,
+    setPlayerPageData,
     clearPlayerList,
     setPlayerInfo,
     clearPlayerInfo,
     setMyInfo,
     clearMyInfo,
-    setPlayerListPage,
   };
 });

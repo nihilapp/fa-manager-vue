@@ -1,37 +1,25 @@
 export const useSessionStore = defineStore('sessionStore', () => {
   const sessionList = ref<SessionOutDto[]>([]);
-  const playerSessionList = ref<SessionOutDto[]>([]);
-
+  const sessionPageData = ref<ListPageData<SessionOutDto> | null>(null);
   const sessionInfo = ref<SessionOutDto | null>(null);
 
-  const sessionPageData = ref<ListPageData<SessionOutDto> | null>(null);
+  const playerSessionList = ref<SessionOutDto[]>([]);
   const playerSessionPageData = ref<ListPageData<SessionOutDto> | null>(null);
 
-  const setSessionList = (
-    list: SessionOutDto[],
-    pageData: ListPageData<SessionOutDto>
-  ) => {
+  const setSessionList = (list: SessionOutDto[]) => {
     sessionList.value = list;
-    sessionPageData.value = pageData;
   };
 
-  const setPlayerSessionList = (
-    list: SessionOutDto[],
-    pageData: ListPageData<SessionOutDto>
-  ) => {
-    playerSessionList.value = list;
-    playerSessionPageData.value = pageData;
+  const setSessionPageData = (pageData: ListPageData<SessionOutDto> | null) => {
+    sessionPageData.value = pageData;
   };
 
   const clearSessionList = () => {
     sessionList.value = [];
-    playerSessionList.value = [];
-
-    sessionPageData.value = null;
-    playerSessionPageData.value = null;
+    setSessionPageData(null);
   };
 
-  const setSessionInfo = (info: SessionOutDto) => {
+  const setSessionInfo = (info: SessionOutDto | null) => {
     sessionInfo.value = info;
   };
 
@@ -39,39 +27,32 @@ export const useSessionStore = defineStore('sessionStore', () => {
     sessionInfo.value = null;
   };
 
-  const setSessionListPage = (page: number) => {
-    if (!sessionPageData.value) {
-      return;
-    }
-    sessionPageData.value = {
-      ...sessionPageData.value,
-      currentPage: page,
-    };
+  const setPlayerSessionList = (list: SessionOutDto[]) => {
+    playerSessionList.value = list;
   };
 
-  const setPlayerSessionListPage = (page: number) => {
-    if (!playerSessionPageData.value) {
-      return;
-    }
-    playerSessionPageData.value = {
-      ...playerSessionPageData.value,
-      currentPage: page,
-    };
+  const setPlayerSessionPageData = (pageData: ListPageData<SessionOutDto> | null) => {
+    playerSessionPageData.value = pageData;
+  };
+
+  const clearPlayerSessionList = () => {
+    playerSessionList.value = [];
+    setPlayerSessionPageData(null);
   };
 
   return {
     sessionList,
-    playerSessionList,
     sessionPageData,
-    playerSessionPageData,
     sessionInfo,
-
+    playerSessionList,
+    playerSessionPageData,
     setSessionList,
+    setSessionPageData,
     clearSessionList,
-    setPlayerSessionList,
-    setSessionListPage,
     setSessionInfo,
     clearSessionInfo,
-    setPlayerSessionListPage,
+    setPlayerSessionList,
+    setPlayerSessionPageData,
+    clearPlayerSessionList,
   };
 });

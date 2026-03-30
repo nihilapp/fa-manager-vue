@@ -12,7 +12,11 @@ export const useGetPlayerSessionList = (playerId: number, options: Options = {})
   } = options;
 
   const sessionStore = useSessionStore();
-  const { setPlayerSessionList, clearSessionList, } = sessionStore;
+  const {
+    setPlayerSessionList,
+    setPlayerSessionPageData,
+    clearPlayerSessionList,
+  } = sessionStore;
 
   return useGet<ListData<SessionOutDto>>({
     api: `/players/${playerId}/sessions`,
@@ -27,14 +31,15 @@ export const useGetPlayerSessionList = (playerId: number, options: Options = {})
         ...pageData
       } = response.data;
 
-      setPlayerSessionList(list, pageData);
+      setPlayerSessionList(list);
+      setPlayerSessionPageData(pageData);
 
       if (callback) {
         callback(response);
       }
     },
     onError: (error) => {
-      clearSessionList();
+      clearPlayerSessionList();
 
       if (errorCallback) {
         errorCallback(error);

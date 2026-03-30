@@ -5,19 +5,23 @@ interface Options {
 
 export const useGetPlayerInfo = (id: number, options: Options = {}) => {
   const playerStore = usePlayerStore();
+  const {
+    setPlayerInfo,
+    clearPlayerInfo,
+  } = playerStore;
 
   return useGet<PlayerOutDto>({
     api: `/players/${id}`,
     key: queryKeys.players.detail({ id, }).queryKey,
     onSuccess: (response) => {
-      playerStore.setPlayerInfo(response.data);
+      setPlayerInfo(response.data);
 
       if (options.callback) {
         options.callback(response);
       }
     },
     onError: (error) => {
-      playerStore.clearPlayerInfo();
+      clearPlayerInfo();
 
       if (options.errorCallback) {
         options.errorCallback(error);

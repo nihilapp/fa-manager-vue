@@ -6,6 +6,11 @@ interface UseGetPlayerListOptions {
 
 export const useGetPlayerList = (options: UseGetPlayerListOptions = {}) => {
   const playerStore = usePlayerStore();
+  const {
+    setPlayerList,
+    setPlayerPageData,
+    clearPlayerList,
+  } = playerStore;
 
   const {
     query = {},
@@ -23,13 +28,16 @@ export const useGetPlayerList = (options: UseGetPlayerListOptions = {}) => {
         ...pageData
       } = response.data;
 
-      playerStore.setPlayerList(list, pageData);
+      setPlayerList(list);
+      setPlayerPageData(pageData);
 
       if (callback) {
         callback(response);
       }
     },
     onError: (error) => {
+      clearPlayerList();
+
       if (errorCallback) {
         errorCallback(error);
       }

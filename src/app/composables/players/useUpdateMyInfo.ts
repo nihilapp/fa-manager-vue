@@ -3,26 +3,27 @@ interface Options {
   errorCallback?: (error: ApiErrorResponse) => void;
 }
 
-export const useGetMyInfo = (options: Options = {}) => {
+export const useUpdateMyInfo = (options: Options = {}) => {
   const playerStore = usePlayerStore();
   const {
     setMyInfo,
-    clearMyInfo,
+    setPlayerInfo,
   } = playerStore;
 
-  return useGet<PlayerOutDto>({
+  return usePut<PlayerOutDto, PlayerUpdateDto>({
     api: '/players/me',
-    key: queryKeys.players.me({}).queryKey,
     onSuccess: (response) => {
       setMyInfo(response.data);
+
+      if (playerStore.playerInfo?.id === response.data.id) {
+        setPlayerInfo(response.data);
+      }
 
       if (options.callback) {
         options.callback(response);
       }
     },
     onError: (error) => {
-      clearMyInfo();
-
       if (options.errorCallback) {
         options.errorCallback(error);
       }

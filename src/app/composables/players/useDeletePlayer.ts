@@ -1,20 +1,28 @@
 interface Options {
-  callback?: (response: BaseApiResponse<PlayerOutDto>) => void;
+  callback?: (response: BaseApiResponse<null>) => void;
   errorCallback?: (error: ApiErrorResponse) => void;
 }
 
-export const useCreateNewPlayer = (options: Options = {}) => {
-  const router = useRouter();
+export const useDeletePlayer = (id: number, options: Options = {}) => {
   const playerStore = usePlayerStore();
-  const { setPlayerInfo, } = playerStore;
+  const {
+    clearPlayerInfo,
+    clearMyInfo,
+  } = playerStore;
   const playerList = useGetPlayerList();
 
-  return usePost<PlayerOutDto, PlayerCreateDto>({
-    api: '/players',
+  return useDelete<null, undefined>({
+    api: `/players/${id}`,
     onSuccess: async (response) => {
-      setPlayerInfo(response.data);
+      if (playerStore.playerInfo?.id === id) {
+        clearPlayerInfo();
+      }
+
+      if (playerStore.myInfo?.id === id) {
+        clearMyInfo();
+      }
+
       await playerList.refetch();
-      await router.push('/players');
 
       if (options.callback) {
         options.callback(response);
