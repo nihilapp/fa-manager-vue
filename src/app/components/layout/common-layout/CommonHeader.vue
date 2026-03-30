@@ -3,10 +3,10 @@ const commonStore = useCommonStore();
 const { navItems, } = storeToRefs(commonStore);
 
 const playerStore = usePlayerStore();
-const { myPlayerInfo, } = storeToRefs(playerStore);
+const { myInfo, } = storeToRefs(playerStore);
 
 const route = useRoute();
-const displayPlayerName = computed(() => myPlayerInfo.value?.name ?? '');
+const displayPlayerName = computed(() => myInfo.value?.name ?? '');
 </script>
 
 <template>

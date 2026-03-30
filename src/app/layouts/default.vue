@@ -6,7 +6,9 @@ import '@app/assets/styles/alt-body.css';
   <div data-app="nihil-app" class="flex h-full min-h-0 flex-col font-500 text-slate-700">
     <CommonHeader />
     <CommonContent>
-      <slot />
+      <div class="mx-auto w-full lg:max-w-300">
+        <slot />
+      </div>
     </CommonContent>
     <CommonFooter />
   </div>

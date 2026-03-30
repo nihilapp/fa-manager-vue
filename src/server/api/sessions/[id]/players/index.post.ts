@@ -1,78 +1,107 @@
 export default defineEventHandler(async (event) => {
-  const sessionId = Number(getRouterParam(event, 'id'));
-  const body = await readBody<SessionPlayerCreateDto>(event);
+  const query = getQuery<SessionQueryDto>(event);
+  query.deleteYn = query.deleteYn || 'N';
 
-  const { user: requester, hasPermission, error, } = await authHelper(event);
+  const { user, isAdmin, error, } = await authHelper(event);
   if (error) return error;
 
-  if (!Number.isFinite(sessionId) || !body?.characterId) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
-  }
-
-  // 2. 세션 존재 여부 확인
-  const session = await db.query.sessionsTable.findFirst({
-    where: (table, { eq, and, }) => and(
-      eq(table.id, sessionId),
-      eq(table.deleteYn, 'N')
-    ),
-    with: {
-      campaign: true,
+  const ownedCampaigns = await db.query.campaignsTable.findMany({
+    where: isAdmin
+      ? (table, { eq, }) => eq(table.deleteYn, 'N')
+      : (table, { eq, and, }) => and(
+          eq(table.userId, user!.id),
+          eq(table.deleteYn, 'N')
+        ),
+    columns: {
+      id: true,
     },
   });
 
-  if (!session || !session.campaign) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.SESSION_NOT_FOUND);
+  const campaignIds = ownedCampaigns
+    .map((campaign) => campaign.id)
+    .filter((id): id is number => Number.isFinite(id));
+
+  const page = Number(query.page || 0);
+  const size = Number(query.size || 0);
+  const isPaged = size > 0;
+
+  if (campaignIds.length === 0) {
+    const listData = new ListData<SessionOutDto>(
+      [],
+      0,
+      0,
+      isPaged
+        ? page
+        : 0,
+      isPaged
+        ? size
+        : 0
+    );
+
+    return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LIST_SUCCESS);
   }
 
-  // 3. 캐릭터 소유자 및 캠페인 일치 여부 확인
-  const character = await db.query.charactersTable.findFirst({
-    where: (table, { eq, }) => eq(table.id, body.characterId),
+  const columns = getTableColumns(sessionsTable);
+  const baseWhere = buildDrizzleWhere<SessionQueryDto>(query, {
+    id: 'eq',
+    idList: 'in',
+    campaignId: 'eq',
+    no: 'eq',
+    status: 'dynamic',
+    name: 'like',
+    useYn: 'eq',
+    deleteYn: 'eq',
+  }, columns);
+
+  const ownerWhere = inArray(sessionsTable.campaignId, campaignIds);
+  const where = baseWhere
+    ? and(baseWhere, ownerWhere)
+    : ownerWhere;
+
+  const totalRes = await db
+    .select({ count: count(), })
+    .from(sessionsTable)
+    .where(ownerWhere);
+  const totalElements = totalRes[0]?.count ?? 0;
+
+  const filteredRes = await db
+    .select({ count: count(), })
+    .from(sessionsTable)
+    .where(where);
+  const filteredElements = filteredRes[0]?.count ?? 0;
+
+  const list = await db.query.sessionsTable.findMany({
+    where,
+    orderBy: sortHelper(query.sort || '', columns) as SQL[],
+    limit: isPaged
+      ? size
+      : undefined,
+    offset: isPaged
+      ? page * size
+      : undefined,
+    with: {
+      campaign: true,
+      players: {
+        with: {
+          character: true,
+          user: true,
+        },
+      },
+    },
   });
 
-  if (!character) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CHARACTER_NOT_FOUND);
-  }
+  const listData = new ListData<SessionOutDto>(
+    list as SessionOutDto[],
+    totalElements,
+    filteredElements,
+    isPaged
+      ? page
+      : 0,
+    isPaged
+      ? size
+      : 0
+  );
 
-  // 본인 캐릭터이거나, 관리자이거나, 캠페인 마스터인 경우 허용
-  if (!hasPermission(character.userId) && !hasPermission(session.campaign.userId)) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CHARACTER_FORBIDDEN);
-  }
-
-  if (character.campaignId !== session.campaignId) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.SESSION_CHARACTER_NOT_IN_CAMPAIGN);
-  }
-
-  // 4. 플레이어 등록
-  const [ sessionPlayer, ] = await db.insert(sessionPlayersTable).values({
-    sessionId,
-    characterId: body.characterId,
-    userId: character.userId, // 요청자가 아닌 캐릭터 소유자 ID 사용
-    role: 'PLAYER',
-    creatorId: requester!.id,
-    updaterId: requester!.id,
-    createDate: new Date(),
-    updateDate: new Date(),
-  }).onConflictDoNothing({
-    target: [
-      sessionPlayersTable.sessionId,
-      sessionPlayersTable.userId,
-    ],
-  }).returning();
-
-  if (sessionPlayer) {
-    return BaseResponse.data(sessionPlayer, RESPONSE_CODE.CREATED, RESPONSE_MESSAGE.PLAYER_REGISTERED);
-  }
-
-  const existingPlayer = await db.query.sessionPlayersTable.findFirst({
-    where: (table, { eq, and, }) => and(
-      eq(table.sessionId, sessionId),
-      eq(table.userId, character.userId) // 요청자가 아닌 캐릭터 소유자 ID 사용
-    ),
-  });
-
-  if (!existingPlayer) {
-    return BaseResponse.error(RESPONSE_CODE.INTERNAL_SERVER_ERROR, RESPONSE_MESSAGE.INTERNAL_SERVER_ERROR);
-  }
-
-  return BaseResponse.data(existingPlayer, RESPONSE_CODE.OK, RESPONSE_MESSAGE.SESSION_PLAYER_ALREADY_REGISTERED);
+  return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LIST_SUCCESS);
 });
+

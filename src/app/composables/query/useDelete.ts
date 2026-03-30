@@ -1,4 +1,4 @@
-export interface UseDeleteReturn<TData, TBody> {
+interface UseDeleteReturn<TData, TBody> {
   data: Ref<BaseApiResponse<TData> | undefined>;
   response: Ref<BaseApiResponse<TData> | undefined>;
   error: Ref<ApiErrorResponse | undefined>;
@@ -9,23 +9,23 @@ export interface UseDeleteReturn<TData, TBody> {
   clear: () => void;
 };
 
-export interface UseDeleteOptions<TData, TBody extends ApiRequestBody = ApiRequestBody> {
+interface UseDeleteOptions<TData, TBody extends ApiRequestBody = ApiRequestBody> {
   api: string;
   enabled?: ApiRequestEnabled;
   key?: ApiRequestKey;
   fetcher?: (body?: TBody) => Promise<BaseApiResponse<TData>>;
-  onSuccess?: (data: BaseApiResponse<TData>) => void;
+  onSuccess?: (response: BaseApiResponse<TData>) => void;
   onError?: (error: ApiErrorResponse) => void;
 }
 
-export function useDelete<TData = unknown, TBody extends ApiRequestBody = ApiRequestBody>({
+const createUseDelete = <TData = unknown, TBody extends ApiRequestBody = ApiRequestBody>({
   api,
   enabled,
   key,
   fetcher,
   onSuccess,
   onError,
-}: UseDeleteOptions<TData, TBody>): UseDeleteReturn<TData, TBody> {
+}: UseDeleteOptions<TData, TBody>): UseDeleteReturn<TData, TBody> => {
   void key;
 
   const isEnabled = computed(() => toValue(enabled) ?? true);
@@ -88,4 +88,6 @@ export function useDelete<TData = unknown, TBody extends ApiRequestBody = ApiReq
     mutateAsync: execute,
     clear,
   };
-}
+};
+
+export const useDelete = createUseDelete;

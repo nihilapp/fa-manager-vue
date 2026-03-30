@@ -2,6 +2,7 @@ export interface CampaignQueryDto extends CommonQueryDto {
   userId?: number;
   name?: string;
   status?: Status;
+  role?: CampaignRole;
 }
 
 export interface CampaignCreateDto {

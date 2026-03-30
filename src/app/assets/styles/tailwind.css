@@ -43,25 +43,26 @@
   --font-weight-900: 900;
 
   --text-*: initial;
-  --text-xs: 0.8rem;
-  --text-sm: 1rem;
-  --text-md: 1.2rem;
-  --text-lg: 1.4rem;
-  --text-h1: 2.4rem;
-  --text-h2: 2.2rem;
-  --text-h3: 2rem;
-  --text-h4: 1.8rem;
-  --text-h5: 1.6rem;
-  --text-h6: 1.4rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.4rem;
+  --text-h1: 3.75rem;
+  --text-h2: 3rem;
+  --text-h3: 2.25rem;
+  --text-h4: 1.875rem;
+  --text-h5: 1.5rem;
+  --text-h6: 1.25rem;
 }
 
 @layer base {
   * {
-    @apply p-0 m-0 box-border font-sans;
+    @apply p-0 m-0 box-border;
   }
 
   body {
-    @apply bg-black-100!;
+    @apply font-sans text-md bg-black-100!;
   }
 
   button {
@@ -70,5 +71,13 @@
     &:disabled {
       @apply cursor-not-allowed;
     }
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-900;
+  }
+
+  h5, h6 {
+    @apply font-700;
   }
 }

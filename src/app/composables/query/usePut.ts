@@ -1,4 +1,4 @@
-export interface UsePutReturn<TData, TBody> {
+interface UsePutReturn<TData, TBody> {
   data: Ref<BaseApiResponse<TData> | undefined>;
   response: Ref<BaseApiResponse<TData> | undefined>;
   error: Ref<ApiErrorResponse | undefined>;
@@ -9,23 +9,23 @@ export interface UsePutReturn<TData, TBody> {
   clear: () => void;
 };
 
-export interface UsePutOptions<TData, TBody extends ApiRequestBody = ApiRequestBody> {
+interface UsePutOptions<TData, TBody extends ApiRequestBody = ApiRequestBody> {
   api: string;
   enabled?: ApiRequestEnabled;
   key?: ApiRequestKey;
   fetcher?: (body?: TBody) => Promise<BaseApiResponse<TData>>;
-  onSuccess?: (data: BaseApiResponse<TData>) => void;
+  onSuccess?: (response: BaseApiResponse<TData>) => void;
   onError?: (error: ApiErrorResponse) => void;
 }
 
-export function usePut<TData = unknown, TBody extends ApiRequestBody = ApiRequestBody>({
+const createUsePut = <TData = unknown, TBody extends ApiRequestBody = ApiRequestBody>({
   api,
   enabled,
   key,
   fetcher,
   onSuccess,
   onError,
-}: UsePutOptions<TData, TBody>): UsePutReturn<TData, TBody> {
+}: UsePutOptions<TData, TBody>): UsePutReturn<TData, TBody> => {
   void key;
 
   const isEnabled = computed(() => toValue(enabled) ?? true);
@@ -88,4 +88,6 @@ export function usePut<TData = unknown, TBody extends ApiRequestBody = ApiReques
     mutateAsync: execute,
     clear,
   };
-}
+};
+
+export const usePut = createUsePut;

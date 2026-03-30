@@ -5,8 +5,8 @@ if (route.path === '/block') {
   //
 }
 else {
-  const myInfoRequest = await useGetMyPlayerInfo();
-  await myInfoRequest.execute();
+  const myInfo = useGetMyInfo();
+  await myInfo.execute();
 }
 </script>
 

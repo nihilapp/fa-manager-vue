@@ -1,7 +1,10 @@
 type AuthResolvedPlayer = PlayerOutDto & { id: number };
 type DiscordIdentitySource = 'header' | 'cookie' | 'development';
 
-const isAdminRole = (role?: PlayerOutDto['role']) => role === 'ROLE_ADMIN' || role === 'ROLE_SUPER_ADMIN';
+function isAdminRole(role?: PlayerOutDto['role']) {
+  return role === 'ROLE_ADMIN' || role === 'ROLE_SUPER_ADMIN';
+}
+
 const isDevelopmentEnvironment = process.env.NODE_ENV === 'development';
 const DISCORD_ID_COOKIE_KEY = 'discord_id';
 const DISCORD_ID_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
@@ -35,7 +38,7 @@ function resolveDiscordIdentity(event: H3Event): { discordId?: string; source?: 
     };
   }
 
-  if (isDevelopmentEnvironment && process.env.ADMIN_DISCORD_ID) {
+  if (process.env.ADMIN_DISCORD_ID) {
     return {
       discordId: process.env.ADMIN_DISCORD_ID,
       source: 'development',
@@ -55,33 +58,81 @@ function clearDiscordIdCookie(event: H3Event) {
   });
 }
 
-const createAuthContext = (
+function createDevelopmentFallbackUser(discordId?: string): AuthResolvedPlayer {
+  return {
+    id: 0,
+    discordId: discordId || 'development',
+    name: 'Development',
+    role: 'ROLE_SUPER_ADMIN',
+    status: 'ACTIVE',
+    useYn: 'Y',
+    deleteYn: 'N',
+    creatorId: null,
+    createDate: null,
+    updaterId: null,
+    updateDate: null,
+    deleterId: null,
+    deleteDate: null,
+  };
+}
+
+async function resolveDevelopmentUser(discordId?: string, source?: DiscordIdentitySource) {
+  if (discordId) {
+    const matchedUser = await db.query.playersTable.findFirst({
+      where: (table, { eq, }) => eq(table.discordId, discordId),
+    });
+
+    if (matchedUser) {
+      return {
+        user: matchedUser as AuthResolvedPlayer,
+        shouldClearCookie: false,
+      };
+    }
+  }
+
+  const firstUser = await db.query.playersTable.findFirst({
+    where: (table, { eq, }) => eq(table.deleteYn, 'N'),
+  });
+
+  if (firstUser) {
+    return {
+      user: firstUser as AuthResolvedPlayer,
+      shouldClearCookie: source === 'cookie',
+    };
+  }
+
+  return {
+    user: createDevelopmentFallbackUser(discordId),
+    shouldClearCookie: source === 'cookie',
+  };
+}
+
+function createAuthContext(
   user: AuthResolvedPlayer | null,
-  error: BaseResponseType | null,
+  error: BaseApiResponse | null,
   isDevelopmentBypass = false
-) => {
-  const isAdmin = isAdminRole(user?.role);
+) {
+  const isAdmin = isDevelopmentBypass || isAdminRole(user?.role);
+  const actorId = user?.id ?? null;
 
-  const hasPermission = (resourcePlayerId?: number | null) => {
-    if (isDevelopmentBypass) {
-      return true;
-    }
-
-    if (!user) {
-      return false;
-    }
-
+  function hasPermission(resourcePlayerId?: number | null) {
     if (isAdmin) {
       return true;
     }
 
+    if (!user) {
+      return false;
+    }
+
     return resourcePlayerId === user.id;
-  };
+  }
 
-  const checkAdmin = () => isAdmin;
+  function checkAdmin() {
+    return isAdmin;
+  }
 
-  const canAccessSelf = () => {
-    if (isDevelopmentBypass) {
+  function canAccessSelf() {
+    if (isAdmin) {
       return true;
     }
 
@@ -89,19 +140,20 @@ const createAuthContext = (
       return false;
     }
 
-    return isAdmin || hasPermission(user.id);
-  };
+    return hasPermission(user.id);
+  }
 
-  const requireUser = () => {
+  function requireUser() {
     if (user) {
       return user;
     }
 
     return null;
-  };
+  }
 
   return {
     user,
+    actorId,
     isAdmin,
     isDevelopmentBypass,
     hasPermission,
@@ -110,26 +162,32 @@ const createAuthContext = (
     requireUser,
     error,
   };
-};
+}
 
 /**
  * 요청자의 정보를 확인하고 관리자 권한 또는 소유권을 검증하는 헬퍼
  */
-export const authHelper = async (event: H3Event) => {
+export async function authHelper(event: H3Event) {
   const { discordId, source, } = resolveDiscordIdentity(event);
 
-  if (!discordId) {
-    if (isDevelopmentEnvironment) {
-      return createAuthContext(
-        null,
-        BaseResponse.error(RESPONSE_CODE.UNAUTHORIZED, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID),
-        true
-      );
+  if (isDevelopmentEnvironment) {
+    const { user, shouldClearCookie, } = await resolveDevelopmentUser(discordId, source);
+
+    if (shouldClearCookie) {
+      clearDiscordIdCookie(event);
     }
 
+    if (discordId && (source === 'header' || source === 'cookie')) {
+      persistDiscordIdCookie(event, discordId);
+    }
+
+    return createAuthContext(user, null, true);
+  }
+
+  if (!discordId) {
     return createAuthContext(
       null,
-      BaseResponse.error(RESPONSE_CODE.UNAUTHORIZED, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID)
+      BaseApiResponse.error(RESPONSE_CODE.UNAUTHORIZED, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID)
     );
   }
 
@@ -144,8 +202,7 @@ export const authHelper = async (event: H3Event) => {
 
     return createAuthContext(
       null,
-      BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND),
-      source === 'development'
+      BaseApiResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND)
     );
   }
 
@@ -153,5 +210,5 @@ export const authHelper = async (event: H3Event) => {
     persistDiscordIdCookie(event, discordId);
   }
 
-  return createAuthContext(user as AuthResolvedPlayer, null, source === 'development');
-};
+  return createAuthContext(user as AuthResolvedPlayer, null, false);
+}

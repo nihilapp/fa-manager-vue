@@ -1,4 +1,4 @@
-export interface UsePostReturn<TData, TBody> {
+interface UsePostReturn<TData, TBody> {
   data: Ref<BaseApiResponse<TData> | undefined>;
   response: Ref<BaseApiResponse<TData> | undefined>;
   error: Ref<ApiErrorResponse | undefined>;
@@ -9,23 +9,23 @@ export interface UsePostReturn<TData, TBody> {
   clear: () => void;
 };
 
-export interface UsePostOptions<TData, TBody extends ApiRequestBody = ApiRequestBody> {
+interface UsePostOptions<TData, TBody extends ApiRequestBody = ApiRequestBody> {
   api: string;
   enabled?: ApiRequestEnabled;
   key?: ApiRequestKey;
   fetcher?: (body?: TBody) => Promise<BaseApiResponse<TData>>;
-  onSuccess?: (data: BaseApiResponse<TData>) => void;
+  onSuccess?: (response: BaseApiResponse<TData>) => void;
   onError?: (error: ApiErrorResponse) => void;
 }
 
-export function usePost<TData = unknown, TBody extends ApiRequestBody = ApiRequestBody>({
+const createUsePost = <TData = unknown, TBody extends ApiRequestBody = ApiRequestBody>({
   api,
   enabled,
   key,
   fetcher,
   onSuccess,
   onError,
-}: UsePostOptions<TData, TBody>): UsePostReturn<TData, TBody> {
+}: UsePostOptions<TData, TBody>): UsePostReturn<TData, TBody> => {
   void key;
 
   const isEnabled = computed(() => toValue(enabled) ?? true);
@@ -88,4 +88,6 @@ export function usePost<TData = unknown, TBody extends ApiRequestBody = ApiReque
     mutateAsync: execute,
     clear,
   };
-}
+};
+
+export const usePost = createUsePost;

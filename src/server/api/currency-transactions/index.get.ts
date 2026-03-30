@@ -71,5 +71,6 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
   // 응답
   // ========== ========== ========== ==========
-  return BaseResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CURRENCY_TRANSACTION_LIST_SUCCESS);
+  return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CURRENCY_TRANSACTION_LIST_SUCCESS);
 });
+

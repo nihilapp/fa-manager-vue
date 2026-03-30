@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
         : 0
     );
 
-    return BaseResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LIST_SUCCESS);
+    return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LIST_SUCCESS);
   }
 
   const columns = getTableColumns(sessionsTable);
@@ -100,5 +100,6 @@ export default defineEventHandler(async (event) => {
       : 0
   );
 
-  return BaseResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LIST_SUCCESS);
+  return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LIST_SUCCESS);
 });
+

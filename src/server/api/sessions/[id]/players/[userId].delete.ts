@@ -1,40 +1,107 @@
 export default defineEventHandler(async (event) => {
-  const sessionId = Number(getRouterParam(event, 'id'));
-  const targetUserId = Number(getRouterParam(event, 'userId'));
+  const query = getQuery<SessionQueryDto>(event);
+  query.deleteYn = query.deleteYn || 'N';
 
-  const { user, hasPermission, error, } = await authHelper(event);
+  const { user, isAdmin, error, } = await authHelper(event);
   if (error) return error;
 
-  if (!Number.isFinite(sessionId) || !Number.isFinite(targetUserId)) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.BAD_REQUEST);
-  }
-
-  // 2. 세션 및 캠페인 권한 확인
-  const session = await db.query.sessionsTable.findFirst({
-    where: (table, { eq, and, }) => and(
-      eq(table.id, sessionId),
-      eq(table.deleteYn, 'N')
-    ),
-    with: {
-      campaign: true,
+  const ownedCampaigns = await db.query.campaignsTable.findMany({
+    where: isAdmin
+      ? (table, { eq, }) => eq(table.deleteYn, 'N')
+      : (table, { eq, and, }) => and(
+          eq(table.userId, user!.id),
+          eq(table.deleteYn, 'N')
+        ),
+    columns: {
+      id: true,
     },
   });
 
-  if (!session || !session.campaign) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.SESSION_NOT_FOUND);
+  const campaignIds = ownedCampaigns
+    .map((campaign) => campaign.id)
+    .filter((id): id is number => Number.isFinite(id));
+
+  const page = Number(query.page || 0);
+  const size = Number(query.size || 0);
+  const isPaged = size > 0;
+
+  if (campaignIds.length === 0) {
+    const listData = new ListData<SessionOutDto>(
+      [],
+      0,
+      0,
+      isPaged
+        ? page
+        : 0,
+      isPaged
+        ? size
+        : 0
+    );
+
+    return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LIST_SUCCESS);
   }
 
-  // 본인 제거이거나, 관리자이거나, 캠페인 마스터인 경우 허용
-  if (!hasPermission(targetUserId) && !hasPermission(session.campaign.userId)) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.PLAYER_FORBIDDEN);
-  }
+  const columns = getTableColumns(sessionsTable);
+  const baseWhere = buildDrizzleWhere<SessionQueryDto>(query, {
+    id: 'eq',
+    idList: 'in',
+    campaignId: 'eq',
+    no: 'eq',
+    status: 'dynamic',
+    name: 'like',
+    useYn: 'eq',
+    deleteYn: 'eq',
+  }, columns);
 
-  // 3. 참여 기록 삭제 (하드 삭제)
-  await db.delete(sessionPlayersTable)
-    .where(and(
-      eq(sessionPlayersTable.sessionId, sessionId),
-      eq(sessionPlayersTable.userId, targetUserId) // 요청자 ID가 아닌 대상 유저 ID 사용
-    ));
+  const ownerWhere = inArray(sessionsTable.campaignId, campaignIds);
+  const where = baseWhere
+    ? and(baseWhere, ownerWhere)
+    : ownerWhere;
 
-  return BaseResponse.data(null, RESPONSE_CODE.OK, RESPONSE_MESSAGE.PLAYER_DELETED);
+  const totalRes = await db
+    .select({ count: count(), })
+    .from(sessionsTable)
+    .where(ownerWhere);
+  const totalElements = totalRes[0]?.count ?? 0;
+
+  const filteredRes = await db
+    .select({ count: count(), })
+    .from(sessionsTable)
+    .where(where);
+  const filteredElements = filteredRes[0]?.count ?? 0;
+
+  const list = await db.query.sessionsTable.findMany({
+    where,
+    orderBy: sortHelper(query.sort || '', columns) as SQL[],
+    limit: isPaged
+      ? size
+      : undefined,
+    offset: isPaged
+      ? page * size
+      : undefined,
+    with: {
+      campaign: true,
+      players: {
+        with: {
+          character: true,
+          user: true,
+        },
+      },
+    },
+  });
+
+  const listData = new ListData<SessionOutDto>(
+    list as SessionOutDto[],
+    totalElements,
+    filteredElements,
+    isPaged
+      ? page
+      : 0,
+    isPaged
+      ? size
+      : 0
+  );
+
+  return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LIST_SUCCESS);
 });
+

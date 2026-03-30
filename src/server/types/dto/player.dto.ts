@@ -32,4 +32,5 @@ export interface PlayerOutDto extends CommonOutDto {
   sessionLogs?: SessionLogOutDto[];
   docs?: DocOutDto[];
   logHistories?: LogHistoryOutDto[];
+  currencyTransactions?: CurrencyTransactionOutDto[];
 }

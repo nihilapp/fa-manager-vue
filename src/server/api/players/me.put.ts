@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   if (error) return error;
 
   if (!body) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
   }
 
   const findUser = await db.query.playersTable.findFirst({
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   });
 
   if (!findUser) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND);
+    return BaseApiResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND);
   }
 
   if (body.name && body.name !== findUser.name) {
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
       );
 
     if (existName[0]!.value > 0) {
-      return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.PLAYER_NAME_ALREADY_EXISTS);
+      return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.PLAYER_NAME_ALREADY_EXISTS);
     }
   }
 
@@ -41,5 +41,6 @@ export default defineEventHandler(async (event) => {
     eq(playersTable.id, user!.id)
   ).returning();
 
-  return BaseResponse.data(updateUser[0], RESPONSE_CODE.OK, RESPONSE_MESSAGE.UPDATE_PLAYER_SUCCESS);
+  return BaseApiResponse.data(updateUser[0], RESPONSE_CODE.OK, RESPONSE_MESSAGE.UPDATE_PLAYER_SUCCESS);
 });
+

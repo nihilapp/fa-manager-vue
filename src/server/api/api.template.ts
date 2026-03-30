@@ -31,11 +31,12 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
 
   // 단건이면
-  // return BaseResponse.data();
+  // return BaseApiResponse.data();
 
   // 다건이면
-  // return BaseResponse.page();
+  // return BaseApiResponse.page();
 
   // 실패면
-  // return BaseResponse.error();
+  // return BaseApiResponse.error();
 });
+

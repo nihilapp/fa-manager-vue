@@ -9,11 +9,11 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
 
   if (!body || !body.discordId) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRE_DISCORD_ID);
   }
 
   if (!body || !body.name) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
   }
 
   const existDiscordId = await db
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     );
 
   if (existDiscordId[0]!.value > 0) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.DISCORD_ID_ALREADY_EXISTS);
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.DISCORD_ID_ALREADY_EXISTS);
   }
 
   const existName = await db
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     );
 
   if (existName[0]!.value > 0) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.PLAYER_NAME_ALREADY_EXISTS);
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.PLAYER_NAME_ALREADY_EXISTS);
   }
 
   const newUser = await db.insert(playersTable).values({
@@ -52,5 +52,6 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
   // 응답
   // ========== ========== ========== ==========
-  return BaseResponse.data(newUser[0], RESPONSE_CODE.CREATED, RESPONSE_MESSAGE.CREATE_PLAYER_SUCCESS);
+  return BaseApiResponse.data(newUser[0], RESPONSE_CODE.CREATED, RESPONSE_MESSAGE.CREATE_PLAYER_SUCCESS);
 });
+

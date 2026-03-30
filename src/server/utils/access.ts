@@ -1,4 +1,4 @@
-export async function checkCommunityAccess(event: H3Event): Promise<BaseResponse> {
+export async function checkCommunityAccess(event: H3Event): Promise<BaseApiResponse> {
   const {
     user,
     error,
@@ -7,25 +7,25 @@ export async function checkCommunityAccess(event: H3Event): Promise<BaseResponse
     canAccessSelf,
   } = await authHelper(event);
 
+  if (isDevelopmentBypass) {
+    return BaseApiResponse.data(null, RESPONSE_CODE.OK, RESPONSE_MESSAGE.OK);
+  }
+
   if (error) {
     return error;
   }
 
-  if (isDevelopmentBypass) {
-    return BaseResponse.data(null, RESPONSE_CODE.OK, RESPONSE_MESSAGE.OK);
-  }
-
   if (!user) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.FORBIDDEN);
+    return BaseApiResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.FORBIDDEN);
   }
 
   if (checkAdmin()) {
-    return BaseResponse.data(null, RESPONSE_CODE.OK, RESPONSE_MESSAGE.OK);
+    return BaseApiResponse.data(null, RESPONSE_CODE.OK, RESPONSE_MESSAGE.OK);
   }
 
   if (canAccessSelf()) {
-    return BaseResponse.data(null, RESPONSE_CODE.OK, RESPONSE_MESSAGE.OK);
+    return BaseApiResponse.data(null, RESPONSE_CODE.OK, RESPONSE_MESSAGE.OK);
   }
 
-  return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.FORBIDDEN);
+  return BaseApiResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.FORBIDDEN);
 }

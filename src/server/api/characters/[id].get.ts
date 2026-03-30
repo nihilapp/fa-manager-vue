@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const sumCurrentCurrency = (transactions: TypeCurrencyTransaction[] = []) => {
+  function sumCurrentCurrency(transactions: TypeCurrencyTransaction[] = []) {
     return transactions
       .filter((transaction) => transaction.deleteYn !== 'Y')
       .reduce((acc, transaction) => {
@@ -16,23 +16,73 @@ export default defineEventHandler(async (event) => {
         gp: 0,
         pp: 0,
       });
+  }
+
+  const query = getQuery<CharacterQueryDto>(event);
+  query.deleteYn = query.deleteYn || 'N';
+
+  const { user, error, } = await authHelper(event);
+  if (error) return error;
+
+  const scopedQuery: CharacterQueryDto = {
+    ...query,
+    userId: user!.id,
   };
 
-  // ========== ========== ========== ==========
-  // 기본 정보
-  // ========== ========== ========== ==========
-  const id = Number(getRouterParam(event, 'id'));
+  const columns = getTableColumns(charactersTable);
+  const where = buildDrizzleWhere<CharacterQueryDto>(scopedQuery, {
+    id: 'eq',
+    idList: 'in',
+    userId: 'eq',
+    campaignId: 'eq',
+    name: 'like',
+    status: 'eq',
+    race: 'like',
+    currentLevel: 'dynamic',
+    str: 'dynamic',
+    dex: 'dynamic',
+    con: 'dynamic',
+    int: 'dynamic',
+    wis: 'dynamic',
+    cha: 'dynamic',
+    ac: 'dynamic',
+    hp: 'dynamic',
+    speed: 'like',
+    vision: 'like',
+    skills: 'like',
+    advantage: 'like',
+    disadvantage: 'like',
+    resistance: 'like',
+    immunity: 'like',
+    useYn: 'eq',
+    deleteYn: 'eq',
+  }, columns);
 
-  // ========== ========== ========== ==========
-  // 서비스 로직
-  // ========== ========== ========== ==========
+  const totalRes = await db
+    .select({ count: count(), })
+    .from(charactersTable)
+    .where(eq(charactersTable.userId, user!.id));
+  const totalElements = totalRes[0]!.count;
 
-  // 1. 캐릭터 상세 조회 (관계 데이터 포함)
-  const character = await db.query.charactersTable.findFirst({
-    where: (table, { eq, and, }) => and(
-      eq(table.id, id),
-      eq(table.deleteYn, 'N')
-    ),
+  const filteredRes = await db
+    .select({ count: count(), })
+    .from(charactersTable)
+    .where(where);
+  const filteredElements = filteredRes[0]!.count;
+
+  const page = Number(query.page || 0);
+  const size = Number(query.size || 0);
+  const isPaged = size > 0;
+
+  const list = await db.query.charactersTable.findMany({
+    where,
+    orderBy: sortHelper(query.sort || '', columns) as SQL[],
+    limit: isPaged
+      ? size
+      : undefined,
+    offset: isPaged
+      ? page * size
+      : undefined,
     with: {
       user: true,
       campaign: true,
@@ -46,37 +96,36 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  if (!character) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CHARACTER_NOT_FOUND);
-  }
+  const listData = new ListData<CharacterOutDto>(
+    (list as any[]).map((character) => {
+      const classes = character.classes || [];
+      const sessions = character.sessions || [];
+      const currentCurrency = sumCurrentCurrency(character.currencyTransactions || []);
 
-  // 2. 동적 필드 계산 (currentLevel, currentExp, currentCurrency)
-  const classes = character.classes || [];
-  const sessions = character.sessions || [];
-  const currentCurrency = sumCurrentCurrency(character.currencyTransactions || []);
+      const currentLevel = classes.reduce((acc: number, curr: any) => acc + (curr.level || 0), 0) || character.startLevel || 1;
+      const sessionExp = sessions.reduce((acc: number, curr: any) => acc + (curr.session?.rewardExp || 0), 0);
 
-  const currentLevel = classes.reduce((acc, curr) => acc + (curr.level || 0), 0) || character.startLevel || 1;
-  const sessionExp = sessions.reduce((acc, curr) => acc + (curr.session?.rewardExp || 0), 0);
-  const currentExp = (character.startExp || 0) + sessionExp;
+      return {
+        ...character,
+        currentLevel,
+        currentExp: (character.startExp || 0) + sessionExp,
+        currentCurrencyCp: currentCurrency.cp,
+        currentCurrencySp: currentCurrency.sp,
+        currentCurrencyEp: currentCurrency.ep,
+        currentCurrencyGp: currentCurrency.gp,
+        currentCurrencyPp: currentCurrency.pp,
+      } as CharacterOutDto;
+    }),
+    totalElements,
+    filteredElements,
+    isPaged
+      ? page
+      : 0,
+    isPaged
+      ? size
+      : 0
+  );
 
-  // 3. 결과 객체 구성 (CharacterOutDto 타입에 맞춤)
-  const result: CharacterOutDto = {
-    ...character,
-    classes: classes.map((item) => ({
-      ...item,
-      character: null,
-    })),
-    currentLevel,
-    currentExp,
-    currentCurrencyCp: currentCurrency.cp,
-    currentCurrencySp: currentCurrency.sp,
-    currentCurrencyEp: currentCurrency.ep,
-    currentCurrencyGp: currentCurrency.gp,
-    currentCurrencyPp: currentCurrency.pp,
-  } as unknown as CharacterOutDto;
-
-  // ========== ========== ========== ==========
-  // 응답
-  // ========== ========== ========== ==========
-  return BaseResponse.data(result, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CHARACTER_SUCCESS);
+  return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CHARACTER_LIST_SUCCESS);
 });
+

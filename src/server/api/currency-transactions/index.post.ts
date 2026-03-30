@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   // 서비스 로직
   // ========== ========== ========== ==========
   if (!body || !body.characterId || !body.description) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
   }
 
   const { user, hasPermission, error, } = await authHelper(event);
@@ -22,11 +22,11 @@ export default defineEventHandler(async (event) => {
   });
 
   if (!character) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CHARACTER_NOT_FOUND);
+    return BaseApiResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CHARACTER_NOT_FOUND);
   }
 
   if (!hasPermission(character.userId)) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CURRENCY_TRANSACTION_FORBIDDEN);
+    return BaseApiResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CURRENCY_TRANSACTION_FORBIDDEN);
   }
 
   const transactionType = body.transactionType || 'INIT';
@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (initTransaction) {
-      return BaseResponse.error(RESPONSE_CODE.CONFLICT, RESPONSE_MESSAGE.CHARACTER_INIT_TRANSACTION_ALREADY_EXISTS);
+      return BaseApiResponse.error(RESPONSE_CODE.CONFLICT, RESPONSE_MESSAGE.CHARACTER_INIT_TRANSACTION_ALREADY_EXISTS);
     }
   }
 
@@ -69,9 +69,10 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
   // 응답
   // ========== ========== ========== ==========
-  return BaseResponse.data(
+  return BaseApiResponse.data(
     result as CurrencyTransactionOutDto,
     RESPONSE_CODE.CREATED,
     RESPONSE_MESSAGE.CREATE_CURRENCY_TRANSACTION_SUCCESS
   );
 });
+

@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   if (error) return error;
 
   if (!isAdmin) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.LOG_ADMIN_ONLY);
+    return BaseApiResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.LOG_ADMIN_ONLY);
   }
 
   const columns = getTableColumns(logHistoriesTable);
@@ -69,5 +69,6 @@ export default defineEventHandler(async (event) => {
       : 0
   );
 
-  return BaseResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_LOG_LIST_SUCCESS);
+  return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_LOG_LIST_SUCCESS);
 });
+

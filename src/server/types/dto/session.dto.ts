@@ -3,6 +3,8 @@ export interface SessionQueryDto extends CommonQueryDto {
   no?: number;
   name?: string;
   status?: Status | null;
+  role?: SessionRole;
+  characterId?: number;
 }
 
 export interface SessionCreateDto {

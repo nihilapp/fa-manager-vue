@@ -96,14 +96,11 @@ declare global {
   type CurrencyTransactionUpdateDto = import('./dto.types').CurrencyTransactionUpdateDto;
   type CurrencyTransactionOutDto = import('./dto.types').CurrencyTransactionOutDto;
   
-  type BaseResponseType<T = null> = import('./response.types').BaseResponseType<T>;
+  type BaseApiResponse<T = null> = import('./response.types').BaseApiResponse<T>;
   type ListDataType<T = null> = import('./response.types').ListDataType<T>;
   
   type RESPONSE_CODE = import('../constant/response-code').RESPONSE_CODE;
   type RESPONSE_MESSAGE = import('../constant/response-message').RESPONSE_MESSAGE;
-  type BaseResponse<T = null> = import('./response.types').BaseResponseType<T> & {
-    responseTime?: number;
-  };
   type ListData<T = null> = import('./response.types').ListDataType<T>;
 }
 

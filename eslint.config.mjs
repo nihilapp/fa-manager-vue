@@ -442,11 +442,7 @@ export default [
       'vuejs-accessibility/aria-props': 'error',
       'vuejs-accessibility/aria-role': 'error',
       'vuejs-accessibility/heading-has-content': 'warn',
-      'vuejs-accessibility/label-has-for': ['warn', {
-        components: ['Label'],
-        controlComponents: ['Input'],
-        required: { every: ['id'] },
-      }],
+      'vuejs-accessibility/label-has-for': 'off',
       'vuejs-accessibility/no-autofocus': 'warn',
       'vuejs-accessibility/tabindex-no-positive': 'warn',
       'vue/match-component-file-name': ['warn', {

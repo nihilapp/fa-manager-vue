@@ -47,6 +47,9 @@ export default defineNuxtConfig({
         '@lukemorales/query-key-factory',
         'lodash-es',
         'class-variance-authority',
+        'vee-validate',
+        '@vee-validate/zod',
+        'zod',
       ],
     },
     plugins: [
@@ -57,6 +60,7 @@ export default defineNuxtConfig({
 
   experimental: {
     normalizeComponentNames: true,
+    typedPages: true,
   },
 
   components: [
@@ -115,6 +119,22 @@ export default defineNuxtConfig({
       {
         from: '@iconify/vue',
         imports: [ 'Icon', ],
+      },
+      {
+        from: 'zod',
+        imports: [ 'z', ],
+      },
+      {
+        from: 'vee-validate',
+        imports: [
+          'configure',
+          'Field',
+          'useForm',
+        ],
+      },
+      {
+        from: '@vee-validate/zod',
+        imports: [ 'toTypedSchema', ],
       },
     ],
   },

@@ -21,11 +21,11 @@ export interface UseGetOptions<TData> {
   key?: ApiRequestKey;
   staleTime?: number;
   gcTime?: number;
-  onSuccess?: (data: BaseApiResponse<TData>) => void;
+  onSuccess?: (response: BaseApiResponse<TData>) => void;
   onError?: (error: ApiErrorResponse) => void;
 }
 
-export async function useGet<TData = unknown>({
+export const useGet = <TData = unknown>({
   api,
   enabled,
   fetcher,
@@ -35,7 +35,7 @@ export async function useGet<TData = unknown>({
   gcTime,
   onSuccess,
   onError,
-}: UseGetOptions<TData>): Promise<UseGetReturn<TData>> {
+}: UseGetOptions<TData>): UseGetReturn<TData> => {
   void enabled;
   void staleTime;
   void gcTime;
@@ -44,26 +44,15 @@ export async function useGet<TData = unknown>({
   const error = ref<ApiErrorResponse>();
   const pending = ref(false);
   const status = ref<ApiRequestStatus>('idle');
-  const cacheKey = computed(() => key
-    ? (Array.isArray(key)
-      ? JSON.stringify(key)
-      : String(key))
-    : JSON.stringify([ 'get', api, toValue(query), ]));
+  const isEnabled = computed(() => toValue(enabled) ?? true);
 
-  const request = useFetch<BaseApiResponse<TData>>(api, {
-    ...createApiFetchOptions({
-      method: 'GET',
-      query: computed(() => toValue(query)),
-    }),
-    key: cacheKey,
-    immediate: false,
-    watch: false,
-    dedupe: 'cancel',
-    deep: false,
-    getCachedData: () => undefined,
-  });
+  void key;
 
   const execute = async () => {
+    if (!isEnabled.value) {
+      return response.value;
+    }
+
     pending.value = true;
     status.value = 'pending';
     error.value = undefined;
@@ -80,15 +69,12 @@ export async function useGet<TData = unknown>({
         return response.value;
       }
 
-      await request.execute();
+      const result = await $fetch<BaseApiResponse<TData>>(api, createApiFetchOptions({
+        method: 'GET',
+        query: toValue(query),
+      }));
 
-      if (request.error.value) {
-        error.value = handleApiRequestError(request.error.value, onError);
-        status.value = 'error';
-        return undefined;
-      }
-
-      response.value = handleApiResponse(request.data.value as BaseApiResponse<TData> | undefined, {
+      response.value = handleApiResponse(result, {
         onSuccess,
         onError,
       });
@@ -109,18 +95,16 @@ export async function useGet<TData = unknown>({
   };
 
   const clear = () => {
-    request.clear();
-    clearNuxtData(cacheKey.value);
     response.value = undefined;
     error.value = undefined;
     pending.value = false;
     status.value = 'idle';
   };
 
-  const refetch = async () => {
+  const refetch = () => {
     clear();
 
-    return await execute();
+    return execute();
   };
 
   return {
@@ -134,4 +118,4 @@ export async function useGet<TData = unknown>({
     refetch,
     clear,
   };
-}
+};

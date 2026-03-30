@@ -1,4 +1,4 @@
-export interface UsePatchReturn<TData, TBody> {
+interface UsePatchReturn<TData, TBody> {
   data: Ref<BaseApiResponse<TData> | undefined>;
   response: Ref<BaseApiResponse<TData> | undefined>;
   error: Ref<ApiErrorResponse | undefined>;
@@ -9,23 +9,23 @@ export interface UsePatchReturn<TData, TBody> {
   clear: () => void;
 };
 
-export interface UsePatchOptions<TData, TBody extends ApiRequestBody = ApiRequestBody> {
+interface UsePatchOptions<TData, TBody extends ApiRequestBody = ApiRequestBody> {
   api: string;
   enabled?: ApiRequestEnabled;
   key?: ApiRequestKey;
   fetcher?: (body?: TBody) => Promise<BaseApiResponse<TData>>;
-  onSuccess?: (data: BaseApiResponse<TData>) => void;
+  onSuccess?: (response: BaseApiResponse<TData>) => void;
   onError?: (error: ApiErrorResponse) => void;
 }
 
-export function usePatch<TData = unknown, TBody extends ApiRequestBody = ApiRequestBody>({
+const createUsePatch = <TData = unknown, TBody extends ApiRequestBody = ApiRequestBody>({
   api,
   enabled,
   key,
   fetcher,
   onSuccess,
   onError,
-}: UsePatchOptions<TData, TBody>): UsePatchReturn<TData, TBody> {
+}: UsePatchOptions<TData, TBody>): UsePatchReturn<TData, TBody> => {
   void key;
 
   const isEnabled = computed(() => toValue(enabled) ?? true);
@@ -88,4 +88,6 @@ export function usePatch<TData = unknown, TBody extends ApiRequestBody = ApiRequ
     mutateAsync: execute,
     clear,
   };
-}
+};
+
+export const usePatch = createUsePatch;

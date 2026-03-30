@@ -1,36 +1,29 @@
 export default defineEventHandler(async (event) => {
-  // ========== ========== ========== ==========
-  // 기본 정보
-  // ========== ========== ========== ==========
-  const id = getRouterParam(event, 'id');
+  const id = Number(getRouterParam(event, 'id'));
   const body = await readBody<PlayerUpdateDto>(event);
 
-  // ========== ========== ========== ==========
-  // 서비스 로직
-  // ========== ========== ========== ==========
-
-  const { user, isAdmin, hasPermission, error, } = await authHelper(event);
+  const { user, isAdmin, error, } = await authHelper(event);
   if (error) return error;
 
-  if (!body) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
+  if (!isAdmin) {
+    return BaseApiResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.UPDATE_PLAYER_FORBIDDEN);
   }
 
-  // 1. 사용자 존재 확인
+  if (!Number.isFinite(id) || !body) {
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.BAD_REQUEST);
+  }
+
   const findUser = await db.query.playersTable.findFirst({
-    where: (table, { eq, }) => eq(table.id, Number(id)),
+    where: (table, { eq, and, }) => and(
+      eq(table.id, id),
+      eq(table.deleteYn, 'N')
+    ),
   });
 
   if (!findUser) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND);
+    return BaseApiResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND);
   }
 
-  // 2. 권한 확인 (본인이거나 관리자)
-  if (!hasPermission(findUser.id)) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.UPDATE_PLAYER_FORBIDDEN);
-  }
-
-  // 3. 이름 변경 시 중복 체크
   if (body.name && body.name !== findUser.name) {
     const existName = await db
       .select({ value: count(), })
@@ -38,31 +31,23 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(playersTable.name, body.name),
-          ne(playersTable.id, Number(id))
+          ne(playersTable.id, id)
         )
       );
 
     if (existName[0]!.value > 0) {
-      return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.PLAYER_NAME_ALREADY_EXISTS);
+      return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.PLAYER_NAME_ALREADY_EXISTS);
     }
   }
 
-  // 3. 업데이트 실행 (email, discordId 제외)
   const updateUser = await db.update(playersTable).set({
     name: body.name || findUser.name,
-    role: isAdmin
-      ? (body.role || findUser.role)
-      : findUser.role, // 관리자만 권한 변경 가능
-    status: isAdmin
-      ? (body.status || findUser.status)
-      : findUser.status,
+    role: body.role || findUser.role,
+    status: body.status || findUser.status,
     ...resolveCommonMetaUpdate(body, findUser as unknown as CommonOutDto, user!.id),
   }).where(
-    eq(playersTable.id, Number(id))
+    eq(playersTable.id, id)
   ).returning();
 
-  // ========== ========== ========== ==========
-  // 응답
-  // ========== ========== ========== ==========
-  return BaseResponse.data(updateUser[0], RESPONSE_CODE.OK, RESPONSE_MESSAGE.UPDATE_PLAYER_SUCCESS);
+  return BaseApiResponse.data(updateUser[0], RESPONSE_CODE.OK, RESPONSE_MESSAGE.UPDATE_PLAYER_SUCCESS);
 });

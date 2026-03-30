@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   });
 
   if (!findUser) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND);
+    return BaseApiResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND);
   }
 
   await db.update(playersTable)
@@ -26,5 +26,6 @@ export default defineEventHandler(async (event) => {
       )
     );
 
-  return BaseResponse.data(null, RESPONSE_CODE.OK, RESPONSE_MESSAGE.DELETE_PLAYER_SUCCESS);
+  return BaseApiResponse.data(null, RESPONSE_CODE.OK, RESPONSE_MESSAGE.DELETE_PLAYER_SUCCESS);
 });
+

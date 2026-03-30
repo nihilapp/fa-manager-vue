@@ -4,11 +4,21 @@ const withParams = <TParams extends object>(params: TParams) => ({
   queryKey: [ params, ] as const,
 });
 
+interface PlayerSessionsQueryKeyParams extends SessionQueryDto {
+  playerId: string | number;
+}
+
+interface PlayerCampaignsQueryKeyParams extends CampaignQueryDto {
+  playerId: string | number;
+}
+
 const players = createQueryKeys('players', {
   check: (params: PlayerQueryDto = {}) => withParams(params),
   index: (params: PlayerQueryDto = {}) => withParams(params),
   me: (params: PlayerQueryDto = {}) => withParams(params),
   detail: (params: { id: string | number }) => withParams(params),
+  sessions: (params: PlayerSessionsQueryKeyParams) => withParams(params),
+  campaigns: (params: PlayerCampaignsQueryKeyParams) => withParams(params),
 });
 
 const campaigns = createQueryKeys('campaigns', {

@@ -1,17 +1,21 @@
 <script setup lang="ts">
-const playerStore = usePlayerStore();
-const { isAdmin, playerList, playerPageData, } = storeToRefs(playerStore);
-
-const router = useRouter();
-
-const currentPage = ref(0);
-
-const { execute, } = await useGetPlayerList({
-  page: currentPage.value,
-  size: 10,
+const props = withDefaults(defineProps<{
+  items?: PlayerOutDto[];
+  pagination?: ListPageData<PlayerOutDto> | null;
+  isAdmin?: boolean;
+}>(), {
+  items: () => [],
+  pagination: null,
+  isAdmin: false,
 });
 
-type PlayerListRow = typeof playerList.value[number];
+const emit = defineEmits<{
+  pageChange: [page: number];
+  detail: [id: number];
+  edit: [id: number];
+}>();
+
+type PlayerListRow = PlayerOutDto;
 
 const columns = useColumns<PlayerListRow>([
   ColumnBuilder.column<PlayerListRow>('id', '번호')
@@ -42,69 +46,67 @@ const statusLabelMap = computed(() => {
   return map;
 });
 
-function onChangePage(page: number) {
-  currentPage.value = page;
-}
+const onChangePage = (page: number) => {
+  emit('pageChange', page);
+};
 
-async function onClickDetail(playerId: string | number) {
-  await router.push(`/players/${playerId}`);
-}
+const onClickDetail = (id: number) => {
+  emit('detail', id);
+};
 
-async function onClickEdit(playerId: string | number) {
-  await router.push(`/players/${playerId}`);
-}
+const onClickEdit = (id: number) => {
+  emit('edit', id);
+};
 
-onMounted(() => {
-  execute();
-});
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-295 px-3 py-4 md:px-4 lg:px-6">
-    <DataTable
-      title="플레이어 리스트"
-      :items="playerList"
-      :columns="columns"
-      show-pagination
-      :page-button-count="5"
-      :pagination="playerPageData"
-      @page-change="onChangePage"
-    >
-      <template #status="{value}">
-        <div class="w-full">
-          <StatusBadge
-            :label="statusLabelMap.get(value as PlayerStatus)!.name"
-            :color="statusLabelMap.get(value as PlayerStatus)!.color"
-            class="min-w-18 justify-center"
-          />
-        </div>
-      </template>
+  <DataTable
+    :items="props.items"
+    :columns="columns"
+    show-pagination
+    :page-button-count="5"
+    :pagination="props.pagination"
+    @page-change="onChangePage"
+  >
+    <template #status="{value}">
+      <div class="w-full">
+        <StatusBadge
+          :label="statusLabelMap.get(value as PlayerStatus)!.name"
+          :color="statusLabelMap.get(value as PlayerStatus)!.color"
+          class="min-w-18 justify-center"
+        />
+      </div>
+    </template>
 
-      <template #actions="{row}">
-        <div class="flex w-full gap-1.5">
-          <Button
-            icon-name="fa6-solid:magnifying-glass"
-            label="상세보기"
-            mode="ghost"
-            color="blue"
-            button-class="min-h-8 min-w-0 px-2.5 py-1 text-xs"
-            icon-class="size-3.5"
-            @run="onClickDetail(row.id)"
-          />
-          <Button
-            v-if="isAdmin"
-            icon-name="fa6-solid:pen-to-square"
-            label="수정"
-            mode="outline"
-            color="gray"
-            button-class="min-h-8 min-w-0 px-2.5 py-1 text-xs"
-            icon-class="size-3.5"
-            @run="onClickEdit(row.id)"
-          />
-        </div>
-      </template>
-    </DataTable>
-  </div>
+    <template #actions="{row}">
+      <div class="flex w-full gap-1.5">
+        <Button
+          icon-name="fa6-solid:magnifying-glass"
+          label="상세보기"
+          mode="ghost"
+          color="blue"
+          button-class="min-h-8 min-w-0 px-2.5 py-1 text-xs"
+          icon-class="size-3.5"
+          is-link
+          :link="(`/players/detail/${row.id}`)"
+          @run="onClickDetail(row.id)"
+        />
+        <Button
+          v-if="isAdmin"
+          icon-name="fa6-solid:pen-to-square"
+          label="수정"
+          mode="outline"
+          color="gray"
+          button-class="min-h-8 min-w-0 px-2.5 py-1 text-xs"
+          icon-class="size-3.5"
+          is-link
+          :link="(`/players/detail/${row.id}`)"
+          @run="onClickEdit(row.id)"
+        />
+      </div>
+    </template>
+  </DataTable>
 </template>
 
 <style scoped>

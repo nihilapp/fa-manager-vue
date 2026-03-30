@@ -1,3 +1,3 @@
-export function iconName(name: IconName) {
+export const iconName = (name: IconName) => {
   return name;
-}
+};

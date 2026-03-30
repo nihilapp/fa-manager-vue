@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 
   // 1. 필수값 확인
   if (!body || !body.name || !body.race) {
-    return BaseResponse.error(
+    return BaseApiResponse.error(
       RESPONSE_CODE.BAD_REQUEST,
       RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING
     );
@@ -108,5 +108,6 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
   // 응답
   // ========== ========== ========== ==========
-  return BaseResponse.data(character, RESPONSE_CODE.CREATED, RESPONSE_MESSAGE.CREATE_CHARACTER_SUCCESS);
+  return BaseApiResponse.data(character, RESPONSE_CODE.CREATED, RESPONSE_MESSAGE.CREATE_CHARACTER_SUCCESS);
 });
+

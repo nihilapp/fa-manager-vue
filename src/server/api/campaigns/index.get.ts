@@ -90,11 +90,12 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
 
   // 단건이면
-  // return BaseResponse.data();
+  // return BaseApiResponse.data();
 
   // 다건이면
-  return BaseResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CAMPAIGN_LIST_SUCCESS);
+  return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CAMPAIGN_LIST_SUCCESS);
 
   // 실패면
-  // return BaseResponse.error();
+  // return BaseApiResponse.error();
 });
+

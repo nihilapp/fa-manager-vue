@@ -7,7 +7,7 @@ useSetMeta({
 </script>
 
 <template>
-  <PlayerListTable />
+  <PlayerList />
 </template>
 
 <style scoped>

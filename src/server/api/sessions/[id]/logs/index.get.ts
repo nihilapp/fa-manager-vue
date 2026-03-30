@@ -1,59 +1,74 @@
 export default defineEventHandler(async (event) => {
-  const sessionId = Number(getRouterParam(event, 'id'));
-  const query = getQuery<SessionLogQueryDto>(event);
+  const query = getQuery<SessionQueryDto>(event);
   query.deleteYn = query.deleteYn || 'N';
 
-  if (!Number.isFinite(sessionId)) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.BAD_REQUEST);
-  }
+  const { user, error, } = await authHelper(event);
+  if (error) return error;
 
-  const session = await db.query.sessionsTable.findFirst({
+  const ownedCampaigns = await db.query.campaignsTable.findMany({
     where: (table, { eq, and, }) => and(
-      eq(table.id, sessionId),
+      eq(table.userId, user!.id),
       eq(table.deleteYn, 'N')
     ),
+    columns: {
+      id: true,
+    },
   });
 
-  if (!session) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.SESSION_NOT_FOUND);
-  }
-
-  const columns = getTableColumns(sessionLogsTable);
-  const where = and(
-    eq(sessionLogsTable.sessionId, sessionId),
-    buildDrizzleWhere<SessionLogQueryDto>(query, {
-      id: 'eq',
-      idList: 'in',
-      userId: 'eq',
-      title: 'like',
-      useYn: 'eq',
-      deleteYn: 'eq',
-      creatorId: 'eq',
-      createDate: 'dynamic',
-      updaterId: 'eq',
-      updateDate: 'dynamic',
-      deleterId: 'eq',
-      deleteDate: 'dynamic',
-    }, columns)
-  );
-
-  const totalRes = await db
-    .select({ count: count(), })
-    .from(sessionLogsTable)
-    .where(eq(sessionLogsTable.sessionId, sessionId));
-  const totalElements = totalRes[0]?.count ?? 0;
-
-  const filteredRes = await db
-    .select({ count: count(), })
-    .from(sessionLogsTable)
-    .where(where);
-  const filteredElements = filteredRes[0]?.count ?? 0;
+  const campaignIds = ownedCampaigns
+    .map((campaign) => campaign.id)
+    .filter((id): id is number => Number.isFinite(id));
 
   const page = Number(query.page || 0);
   const size = Number(query.size || 0);
   const isPaged = size > 0;
 
-  const list = await db.query.sessionLogsTable.findMany({
+  if (campaignIds.length === 0) {
+    const listData = new ListData<SessionOutDto>(
+      [],
+      0,
+      0,
+      isPaged
+        ? page
+        : 0,
+      isPaged
+        ? size
+        : 0
+    );
+
+    return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LIST_SUCCESS);
+  }
+
+  const columns = getTableColumns(sessionsTable);
+  const baseWhere = buildDrizzleWhere<SessionQueryDto>(query, {
+    id: 'eq',
+    idList: 'in',
+    campaignId: 'eq',
+    no: 'eq',
+    status: 'dynamic',
+    name: 'like',
+    useYn: 'eq',
+    deleteYn: 'eq',
+  }, columns);
+
+  const ownerWhere = inArray(sessionsTable.campaignId, campaignIds);
+  const where = baseWhere
+    ? and(baseWhere, ownerWhere)
+    : ownerWhere;
+
+  const totalRes = await db
+    .select({ count: count(), })
+    .from(sessionsTable)
+    .where(ownerWhere);
+  const totalElements = totalRes[0]?.count ?? 0;
+
+  const filteredRes = await db
+    .select({ count: count(), })
+    .from(sessionsTable)
+    .where(where);
+  const filteredElements = filteredRes[0]?.count ?? 0;
+
+  const list = await db.query.sessionsTable.findMany({
     where,
     orderBy: sortHelper(query.sort || '', columns) as SQL[],
     limit: isPaged
@@ -63,13 +78,18 @@ export default defineEventHandler(async (event) => {
       ? page * size
       : undefined,
     with: {
-      session: true,
-      user: true,
+      campaign: true,
+      players: {
+        with: {
+          character: true,
+          user: true,
+        },
+      },
     },
   });
 
-  const listData = new ListData<SessionLogOutDto>(
-    list as SessionLogOutDto[],
+  const listData = new ListData<SessionOutDto>(
+    list as SessionOutDto[],
     totalElements,
     filteredElements,
     isPaged
@@ -80,5 +100,6 @@ export default defineEventHandler(async (event) => {
       : 0
   );
 
-  return BaseResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LOG_LIST_SUCCESS);
+  return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LIST_SUCCESS);
 });
+

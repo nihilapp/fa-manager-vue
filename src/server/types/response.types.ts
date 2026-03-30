@@ -1,8 +1,9 @@
-export interface BaseResponseType<TData = null> {
+export interface BaseApiResponse<TData = null> {
   data: TData;
   error: boolean;
   code: RESPONSE_CODE;
   message: RESPONSE_MESSAGE;
+  responseTime?: number;
 }
 
 export interface ListDataType<TData = null> {

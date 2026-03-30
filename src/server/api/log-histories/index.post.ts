@@ -2,14 +2,14 @@ export default defineEventHandler(async (event) => {
   const body = await readBody<LogHistoryCreateDto>(event);
 
   if (!body?.userId || !body.tableName || !body.targetId || !body.actionType) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
   }
 
   const { user, isAdmin, error, } = await authHelper(event);
   if (error) return error;
 
   if (!isAdmin) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.LOG_ADMIN_ONLY);
+    return BaseApiResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.LOG_ADMIN_ONLY);
   }
 
   const targetUser = await db.query.playersTable.findFirst({
@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   });
 
   if (!targetUser) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND);
+    return BaseApiResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND);
   }
 
   const [ logHistory, ] = await db.insert(logHistoriesTable).values({
@@ -42,9 +42,10 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  return BaseResponse.data(
+  return BaseApiResponse.data(
     result as LogHistoryOutDto,
     RESPONSE_CODE.CREATED,
     RESPONSE_MESSAGE.CREATE_LOG_SUCCESS
   );
 });
+

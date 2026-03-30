@@ -1,105 +1,137 @@
 export default defineEventHandler(async (event) => {
-  // ========== ========== ========== ==========
-  // 기본 정보
-  // ========== ========== ========== ==========
-  const id = Number(getRouterParam(event, 'id'));
-  const body = await readBody<CharacterUpdateDto>(event);
+  function sumCurrentCurrency(transactions: TypeCurrencyTransaction[] = []) {
+    return transactions
+      .filter((transaction) => transaction.deleteYn !== 'Y')
+      .reduce((acc, transaction) => {
+        acc.cp += transaction.deltaCp || 0;
+        acc.sp += transaction.deltaSp || 0;
+        acc.ep += transaction.deltaEp || 0;
+        acc.gp += transaction.deltaGp || 0;
+        acc.pp += transaction.deltaPp || 0;
+        return acc;
+      }, {
+        cp: 0,
+        sp: 0,
+        ep: 0,
+        gp: 0,
+        pp: 0,
+      });
+  }
 
-  // ========== ========== ========== ==========
-  // 서비스 로직
-  // ========== ========== ========== ==========
+  const query = getQuery<CharacterQueryDto>(event);
+  query.deleteYn = query.deleteYn || 'N';
 
-  // 1. 권한 확인 (X-Discord-ID 헤더 체크 및 유저 검증 포함)
-  const { user, isAdmin, hasPermission, error, } = await authHelper(event);
+  const { user, isAdmin, error, } = await authHelper(event);
   if (error) return error;
 
-  // 2. 필수값 확인
-  if (!body) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
-  }
+  const scopedQuery: CharacterQueryDto = isAdmin
+    ? { ...query }
+    : {
+        ...query,
+        userId: user!.id,
+      };
 
-  // 3. 캐릭터 존재 여부 확인
-  const character = await db.query.charactersTable.findFirst({
-    where: (table, { eq, and, }) => and(
-      eq(table.id, id),
-      eq(table.deleteYn, 'N')
-    ),
+  const columns = getTableColumns(charactersTable);
+  const where = buildDrizzleWhere<CharacterQueryDto>(scopedQuery, {
+    id: 'eq',
+    idList: 'in',
+    userId: 'eq',
+    campaignId: 'eq',
+    name: 'like',
+    status: 'eq',
+    race: 'like',
+    currentLevel: 'dynamic',
+    str: 'dynamic',
+    dex: 'dynamic',
+    con: 'dynamic',
+    int: 'dynamic',
+    wis: 'dynamic',
+    cha: 'dynamic',
+    ac: 'dynamic',
+    hp: 'dynamic',
+    speed: 'like',
+    vision: 'like',
+    skills: 'like',
+    advantage: 'like',
+    disadvantage: 'like',
+    resistance: 'like',
+    immunity: 'like',
+    useYn: 'eq',
+    deleteYn: 'eq',
+  }, columns);
+
+  const totalRes = await db
+    .select({ count: count(), })
+    .from(charactersTable)
+    .where(
+      isAdmin
+        ? undefined
+        : eq(charactersTable.userId, user!.id)
+    );
+  const totalElements = totalRes[0]!.count;
+
+  const filteredRes = await db
+    .select({ count: count(), })
+    .from(charactersTable)
+    .where(where);
+  const filteredElements = filteredRes[0]!.count;
+
+  const page = Number(query.page || 0);
+  const size = Number(query.size || 0);
+  const isPaged = size > 0;
+
+  const list = await db.query.charactersTable.findMany({
+    where,
+    orderBy: sortHelper(query.sort || '', columns) as SQL[],
+    limit: isPaged
+      ? size
+      : undefined,
+    offset: isPaged
+      ? page * size
+      : undefined,
+    with: {
+      user: true,
+      campaign: true,
+      classes: true,
+      sessions: {
+        with: {
+          session: true,
+        },
+      },
+      currencyTransactions: true,
+    },
   });
 
-  if (!character) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CHARACTER_NOT_FOUND);
-  }
+  const listData = new ListData<CharacterOutDto>(
+    (list as any[]).map((character) => {
+      const classes = character.classes || [];
+      const sessions = character.sessions || [];
+      const currentCurrency = sumCurrentCurrency(character.currencyTransactions || []);
 
-  // 4. 소유권 확인
-  if (!hasPermission(character.userId)) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CHARACTER_FORBIDDEN);
-  }
+      const currentLevel = classes.reduce((acc: number, curr: any) => acc + (curr.level || 0), 0) || character.startLevel || 1;
+      const sessionExp = sessions.reduce((acc: number, curr: any) => acc + (curr.session?.rewardExp || 0), 0);
 
-  // 5. 캐릭터 수정
-  const [ updatedCharacter, ] = await db.update(charactersTable)
-    .set({
-      name: body.name,
-      campaignId: isAdmin
-        ? body.campaignId
-        : character.campaignId, // 관리자만 캠페인 수정 가능
-      status: body.status,
-      race: body.race,
-      startLevel: body.startLevel,
-      startExp: body.startExp,
+      return {
+        ...character,
+        currentLevel,
+        currentExp: (character.startExp || 0) + sessionExp,
+        currentCurrencyCp: currentCurrency.cp,
+        currentCurrencySp: currentCurrency.sp,
+        currentCurrencyEp: currentCurrency.ep,
+        currentCurrencyGp: currentCurrency.gp,
+        currentCurrencyPp: currentCurrency.pp,
+      } as CharacterOutDto;
+    }),
+    totalElements,
+    filteredElements,
+    isPaged
+      ? page
+      : 0,
+    isPaged
+      ? size
+      : 0
+  );
 
-      // D&D Stats
-      str: body.str,
-      dex: body.dex,
-      con: body.con,
-      int: body.int,
-      wis: body.wis,
-      cha: body.cha,
-      ac: body.ac,
-      hp: body.hp,
-      speed: body.speed,
-      vision: body.vision,
-      skills: body.skills,
-      advantage: body.advantage,
-      disadvantage: body.disadvantage,
-      resistance: body.resistance,
-      immunity: body.immunity,
-      // Equipment
-      mainHand: body.mainHand,
-      offHand: body.offHand,
-      armor: body.armor,
-      head: body.head,
-      gauntlet: body.gauntlet,
-      boots: body.boots,
-      belt: body.belt,
-      cloak: body.cloak,
-      accessory1: body.accessory1,
-      accessory2: body.accessory2,
-      accessory3: body.accessory3,
-      accessory4: body.accessory4,
-
-      // Requirements
-      reqStrDex8: body.reqStrDex8,
-      reqStrDex10: body.reqStrDex10,
-      reqStrDex12: body.reqStrDex12,
-      reqStrDex14: body.reqStrDex14,
-      reqStr16: body.reqStr16,
-      reqStr18: body.reqStr18,
-      reqStr20: body.reqStr20,
-      reqCon8: body.reqCon8,
-      reqCon10: body.reqCon10,
-      reqCon12: body.reqCon12,
-      reqCon14: body.reqCon14,
-      reqCon16: body.reqCon16,
-      reqCon18: body.reqCon18,
-      reqCon20: body.reqCon20,
-
-      ...resolveCommonMetaUpdate(body, character as unknown as CommonOutDto, user!.id),
-    })
-    .where(eq(charactersTable.id, id))
-    .returning();
-
-  // ========== ========== ========== ==========
-  // 응답
-  // ========== ========== ========== ==========
-  return BaseResponse.data(updatedCharacter, RESPONSE_CODE.OK, RESPONSE_MESSAGE.UPDATE_CHARACTER_SUCCESS);
+  return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CHARACTER_LIST_SUCCESS);
 });
+

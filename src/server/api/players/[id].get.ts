@@ -1,15 +1,22 @@
 export default defineEventHandler(async (event) => {
-  // ========== ========== ========== ==========
-  // 기본 정보
-  // ========== ========== ========== ==========
-  const id = getRouterParam(event, 'id');
+  const id = Number(getRouterParam(event, 'id'));
 
-  // ========== ========== ========== ==========
-  // 서비스 로직
-  // ========== ========== ========== ==========
+  const { isAdmin, error, } = await authHelper(event);
+  if (error) return error;
 
-  const user = await db.query.playersTable.findFirst({
-    where: (playersTable, { eq, }) => eq(playersTable.id, Number(id)),
+  if (!isAdmin) {
+    return BaseApiResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.PLAYER_FORBIDDEN);
+  }
+
+  if (!Number.isFinite(id)) {
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.BAD_REQUEST);
+  }
+
+  const findUser = await db.query.playersTable.findFirst({
+    where: (table, { eq, and, }) => and(
+      eq(table.id, id),
+      eq(table.deleteYn, 'N')
+    ),
     with: {
       campaigns: true,
       campaignMembers: true,
@@ -18,15 +25,13 @@ export default defineEventHandler(async (event) => {
       sessionLogs: true,
       docs: true,
       logHistories: true,
+      currencyTransactions: true,
     },
   });
 
-  if (!user) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND);
+  if (!findUser) {
+    return BaseApiResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND);
   }
 
-  // ========== ========== ========== ==========
-  // 응답
-  // ========== ========== ========== ==========
-  return BaseResponse.data(user, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_PLAYER_DETAIL_SUCCESS);
+  return BaseApiResponse.data(findUser, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_PLAYER_DETAIL_SUCCESS);
 });

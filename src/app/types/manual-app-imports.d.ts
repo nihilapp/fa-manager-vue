@@ -3,6 +3,9 @@ type PiniaImports = typeof import('pinia');
 type NuxtAppImports = typeof import('nuxt/app');
 type PiniaNuxtImports = typeof import('@pinia/nuxt/dist/runtime/composables');
 type CVAImports = typeof import('class-variance-authority');
+type ZodImports = typeof import('zod');
+type VeeValidateImports = typeof import('vee-validate');
+type VeeValidateZodImports = typeof import('@vee-validate/zod');
 
 declare global {
   const ref: VueImports['ref'];
@@ -41,10 +44,18 @@ declare global {
   const iconName: typeof import('@app/utils/icon-name')['iconName'];
   const ColumnBuilder: typeof import('@app/utils/column-builder')['ColumnBuilder'];
   const cva: CVAImports['cva'];
+  const z: ZodImports['z'];
+  const configure: VeeValidateImports['configure'];
+  const Field: VeeValidateImports['Field'];
+  const useForm: VeeValidateImports['useForm'];
+  const toTypedSchema: VeeValidateZodImports['toTypedSchema'];
   
   type AppConfig = import('@app/types/common.types').AppConfig;
   type NavItem = import('@app/types/common.types').NavItem;
   type DataTableColumn<T = any> = import('@app/types/common.types').DataTableColumn<T>;
+  type BaseApiResponse<T = null> = import('../../server/types/response.types').BaseApiResponse<T>;
+  type ApiErrorResponse = import('../../server/types/response.types').BaseApiResponse<null>;
+  type ApiRequestStatus = import('@app/composables/query/useApiRequest').ApiRequestStatus;
   type ListPageData<T = null> = import('../../server/types/response.types').ListPageData<T>;
   type StatusColor = import('@app/types/players.types').StatusColor;
   type IconName = import('@app/types/icons').IconName;

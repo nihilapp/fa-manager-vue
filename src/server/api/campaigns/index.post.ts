@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
   if (error) return error;
 
   if (!body || !body.name) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
   }
 
   // 2. 이름 중복 체크
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
     .where(eq(campaignsTable.name, body.name));
 
   if (existName[0]!.value > 0) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.CAMPAIGN_NAME_ALREADY_EXISTS);
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.CAMPAIGN_NAME_ALREADY_EXISTS);
   }
 
   // 3. 트랜잭션 실행: 캠페인 생성 + 생성자 멤버 등록
@@ -81,7 +81,7 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
 
   // 단건이면
-  return BaseResponse.data({
+  return BaseApiResponse.data({
     ...result[0]!,
     user: null,
     members: [],
@@ -90,8 +90,9 @@ export default defineEventHandler(async (event) => {
   } as unknown as CampaignOutDto, RESPONSE_CODE.CREATED, RESPONSE_MESSAGE.CREATE_CAMPAIGN_SUCCESS);
 
   // 다건이면
-  // return BaseResponse.page();
+  // return BaseApiResponse.page();
 
   // 실패면
-  // return BaseResponse.error();
+  // return BaseApiResponse.error();
 });
+

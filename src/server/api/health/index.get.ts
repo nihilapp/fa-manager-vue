@@ -25,11 +25,12 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
 
   // 단건이면
-  return BaseResponse.data<boolean>(true, RESPONSE_CODE.OK, RESPONSE_MESSAGE.SERVER_IS_ALIVE);
+  return BaseApiResponse.data<boolean>(true, RESPONSE_CODE.OK, RESPONSE_MESSAGE.SERVER_IS_ALIVE);
 
   // 다건이면
-  // return BaseResponse.page();
+  // return BaseApiResponse.page();
 
   // 실패면
-  // return BaseResponse.error();
+  // return BaseApiResponse.error();
 });
+

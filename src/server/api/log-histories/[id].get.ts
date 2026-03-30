@@ -1,30 +1,51 @@
 export default defineEventHandler(async (event) => {
-  const id = Number(getRouterParam(event, 'id'));
+  const body = await readBody<LogHistoryCreateDto>(event);
 
-  const { isAdmin, error, } = await authHelper(event);
+  if (!body?.userId || !body.tableName || !body.targetId || !body.actionType) {
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
+  }
+
+  const { user, isAdmin, error, } = await authHelper(event);
   if (error) return error;
 
   if (!isAdmin) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.LOG_ADMIN_ONLY);
+    return BaseApiResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.LOG_ADMIN_ONLY);
   }
 
-  const logHistory = await db.query.logHistoriesTable.findFirst({
+  const targetUser = await db.query.playersTable.findFirst({
     where: (table, { eq, and, }) => and(
-      eq(table.id, id),
+      eq(table.id, body.userId),
       eq(table.deleteYn, 'N')
     ),
+  });
+
+  if (!targetUser) {
+    return BaseApiResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.PLAYER_NOT_FOUND);
+  }
+
+  const [ logHistory, ] = await db.insert(logHistoriesTable).values({
+    userId: body.userId,
+    tableName: body.tableName,
+    targetId: body.targetId,
+    actionType: body.actionType,
+    oldData: body.oldData,
+    newData: body.newData,
+    description: body.description,
+    creatorId: user!.id,
+    updaterId: user!.id,
+  }).returning();
+
+  const result = await db.query.logHistoriesTable.findFirst({
+    where: (table, { eq, }) => eq(table.id, logHistory!.id),
     with: {
       user: true,
     },
   });
 
-  if (!logHistory) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.LOG_NOT_FOUND);
-  }
-
-  return BaseResponse.data(
-    logHistory as LogHistoryOutDto,
-    RESPONSE_CODE.OK,
-    RESPONSE_MESSAGE.GET_LOG_DETAIL_SUCCESS
+  return BaseApiResponse.data(
+    result as LogHistoryOutDto,
+    RESPONSE_CODE.CREATED,
+    RESPONSE_MESSAGE.CREATE_LOG_SUCCESS
   );
 });
+

@@ -2,7 +2,7 @@ type Primitive = string | number | boolean;
 
 export type ApiRequestBody
   = string
-    | Record<string, unknown>
+    | object
     | Primitive[]
     | ReadableStream
     | Blob
@@ -22,27 +22,27 @@ export type ApiRequestQuery
 
 export type ApiRequestKey = string | unknown[] | readonly unknown[];
 export type ApiRequestStatus = 'idle' | 'pending' | 'success' | 'error';
-export type ApiErrorResponse = BaseResponse<null>;
-export type BaseApiResponse<TData> = BaseResponse<TData> | ApiErrorResponse;
+type BaseApiResponse<TData = null> = import('../../../server/types/response.types').BaseApiResponse<TData>;
+type ApiErrorResponse = BaseApiResponse<null>;
 
 export interface ApiRequestHandlers<TData> {
-  onSuccess?: (data: BaseApiResponse<TData>) => void;
+  onSuccess?: (response: BaseApiResponse<TData>) => void;
   onError?: (error: ApiErrorResponse) => void;
 }
 
-export function createApiRequestHeaders() {
+export const createApiRequestHeaders = () => {
   const token = useCookie<string | null>('token');
 
   return token.value
     ? { Authorization: `Bearer ${token.value}`, }
     : undefined;
-}
+};
 
-export function createApiFetchOptions<TBody extends ApiRequestBody = ApiRequestBody>(options: {
+export const createApiFetchOptions = <TBody extends ApiRequestBody = ApiRequestBody>(options: {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   query?: ApiRequestQuery;
   body?: TBody;
-}) {
+}) => {
   const {
     method,
     query,
@@ -56,9 +56,9 @@ export function createApiFetchOptions<TBody extends ApiRequestBody = ApiRequestB
     query,
     body,
   };
-}
+};
 
-function extractApiErrorData(error: unknown): ApiErrorResponse | undefined {
+const extractApiErrorData = (error: unknown): ApiErrorResponse | undefined => {
   if (!error || typeof error !== 'object') {
     return undefined;
   }
@@ -76,12 +76,12 @@ function extractApiErrorData(error: unknown): ApiErrorResponse | undefined {
     : undefined;
 
   return directData;
-}
+};
 
-export function handleApiResponse<TData>(
+export const handleApiResponse = <TData>(
   response: BaseApiResponse<TData> | undefined,
   handlers: ApiRequestHandlers<TData> = {}
-): BaseApiResponse<TData> | undefined {
+): BaseApiResponse<TData> | undefined => {
   if (!response) {
     return response;
   }
@@ -93,12 +93,12 @@ export function handleApiResponse<TData>(
   }
 
   return response;
-}
+};
 
-export function handleApiRequestError<TData>(
+export const handleApiRequestError = <TData>(
   error: unknown,
   onError?: (error: ApiErrorResponse) => void
-): ApiErrorResponse | undefined {
+): ApiErrorResponse | undefined => {
   const errorData = extractApiErrorData(error);
 
   if (!errorData) {
@@ -108,4 +108,4 @@ export function handleApiRequestError<TData>(
   checkAndHandleApiError(errorData, onError);
 
   return errorData;
-}
+};

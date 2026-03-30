@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const sumCurrentCurrency = (transactions: TypeCurrencyTransaction[] = []) => {
+  function sumCurrentCurrency(transactions: TypeCurrencyTransaction[] = []) {
     return transactions
       .filter((transaction) => transaction.deleteYn !== 'Y')
       .reduce((acc, transaction) => {
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
         gp: 0,
         pp: 0,
       });
-  };
+  }
 
   const query = getQuery<CharacterQueryDto>(event);
   query.deleteYn = query.deleteYn || 'N';
@@ -126,5 +126,6 @@ export default defineEventHandler(async (event) => {
       : 0
   );
 
-  return BaseResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CHARACTER_LIST_SUCCESS);
+  return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CHARACTER_LIST_SUCCESS);
 });
+

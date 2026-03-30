@@ -3,6 +3,7 @@ import Paginator from '@app/components/table/Paginator.vue';
 
 const props = withDefaults(defineProps<{
   title?: string;
+  description?: string;
   items: T[];
   columns: DataTableColumn<T>[];
   pagination?: ListPageData<T> | null;
@@ -11,6 +12,7 @@ const props = withDefaults(defineProps<{
   emptyMessage?: string;
 }>(), {
   title: '',
+  description: '',
   pagination: null,
   showPagination: true,
   pageButtonCount: 10,
@@ -94,20 +96,20 @@ const placeholderRowCount = computed(() => {
 const placeholderRows = computed(() =>
   Array.from({ length: placeholderRowCount.value, }, (_, index) => `placeholder-${index}`));
 
-function handlePageChange(page: number) {
+const handlePageChange = (page: number) => {
   emit('pageChange', page);
-}
+};
 
-function normalizeColumnWidth(width?: DataTableColumn<T>['width']) {
+const normalizeColumnWidth = (width?: DataTableColumn<T>['width']) => {
   if (width === undefined)
     return undefined;
 
   return typeof width === 'number'
     ? `${width}px`
     : width;
-}
+};
 
-function getColumnClass(column: DataTableColumn<T>, type: 'header' | 'cell') {
+const getColumnClass = (column: DataTableColumn<T>, type: 'header' | 'cell') => {
   const hasCustomWidth = column.width !== undefined;
 
   return cn([
@@ -122,9 +124,9 @@ function getColumnClass(column: DataTableColumn<T>, type: 'header' | 'cell') {
       : column.cellStyle,
     column.align,
   ]);
-}
+};
 
-function getColumnStyle(column: DataTableColumn<T>) {
+const getColumnStyle = (column: DataTableColumn<T>) => {
   const width = normalizeColumnWidth(column.width);
 
   if (!width)
@@ -135,13 +137,13 @@ function getColumnStyle(column: DataTableColumn<T>) {
     width,
     minWidth: width,
   };
-}
+};
 
-function getColumnKey(column: DataTableColumn<T>) {
+const getColumnKey = (column: DataTableColumn<T>) => {
   return String(column.key);
-}
+};
 
-function getCellValue(row: T, column: DataTableColumn<T>) {
+const getCellValue = (row: T, column: DataTableColumn<T>) => {
   const { key, } = column;
 
   if (typeof key !== 'string')
@@ -151,12 +153,12 @@ function getCellValue(row: T, column: DataTableColumn<T>) {
     return undefined;
 
   return row[key as keyof T];
-}
+};
 </script>
 
 <template>
   <div class="flex flex-col gap-3">
-    <figure class="overflow-hidden rounded-2 border border-stone-300 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
+    <figure class="overflow-hidden rounded-2 border border-stone-300 bg-white">
       <div
         v-if="title"
         class="flex items-center justify-between border-b border-stone-200 bg-linear-to-r from-stone-50 to-white px-4 py-3"
@@ -165,8 +167,8 @@ function getCellValue(row: T, column: DataTableColumn<T>) {
           <span class="text-md font-700 text-stone-900">
             {{ title }}
           </span>
-          <span class="text-xs text-stone-500">
-            정리된 목록을 빠르게 훑고 필요한 액션으로 이동합니다.
+          <span class="text-sm text-stone-500">
+            {{ description }}
           </span>
         </div>
       </div>
@@ -179,7 +181,7 @@ function getCellValue(row: T, column: DataTableColumn<T>) {
               :key="getColumnKey(column)"
               :class="cn([
                 getColumnClass(column, 'header'),
-                'min-h-10 px-3 py-2 text-xs font-700 tracking-[0.08em] text-stone-500 uppercase',
+                'min-h-10 px-3 py-2 text-sm font-700 tracking-[0.08em] text-stone-500 uppercase',
               ])"
               :style="getColumnStyle(column)"
             >
@@ -249,7 +251,7 @@ function getCellValue(row: T, column: DataTableColumn<T>) {
 
           <div
             v-else
-            class="flex min-h-40 items-center justify-center px-4 py-8 text-center text-sm font-500 text-stone-500"
+            class="flex min-h-40 items-center justify-center px-4 py-8 text-center text-md font-500 text-stone-500"
           >
             {{ emptyMessage }}
           </div>

@@ -1,22 +1,22 @@
-function resolveMessage(message: BaseResponse['message'] | string): string {
+const resolveMessage = (message: ApiErrorResponse['message'] | string): string => {
   return typeof message === 'string'
     ? message
     : String(message);
-}
+};
 
-function resolveRedirectPath(code: BaseResponse['code']): string | undefined {
+const resolveRedirectPath = (code: ApiErrorResponse['code']): string | undefined => {
   if (code === RESPONSE_CODE.UNAUTHORIZED) {
     return '/block';
   }
 
   return undefined;
-}
+};
 
-function shouldLogApiError(code: BaseResponse['code']): boolean {
+const shouldLogApiError = (code: ApiErrorResponse['code']): boolean => {
   return code === RESPONSE_CODE.FORBIDDEN
     || code === RESPONSE_CODE.INTERNAL_SERVER_ERROR
     || code === RESPONSE_CODE.BAD_GATEWAY;
-}
+};
 
 /**
  * ResponseType의 에러 여부 확인 및 처리
@@ -24,10 +24,10 @@ function shouldLogApiError(code: BaseResponse['code']): boolean {
  * @param errorCallback - 에러 콜백 함수
  * @returns 에러가 있으면 true, 없으면 false
  */
-export function checkAndHandleApiError<TData = unknown>(
+export const checkAndHandleApiError = <TData = unknown>(
   response: BaseApiResponse<TData> | undefined,
   errorCallback?: (error: ApiErrorResponse) => void
-): boolean {
+): boolean => {
   if (!response) {
     return false;
   }
@@ -73,4 +73,4 @@ export function checkAndHandleApiError<TData = unknown>(
   }
 
   return false;
-}
+};

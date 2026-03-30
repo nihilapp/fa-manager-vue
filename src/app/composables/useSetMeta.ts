@@ -1,4 +1,4 @@
-function resolveUrl(path: string | undefined, fallbackPath: string): string {
+const resolveUrl = (path: string | undefined, fallbackPath: string): string => {
   const targetPath = path?.trim() || fallbackPath;
   const siteUrl = appConfig.site.url.trim();
 
@@ -7,7 +7,7 @@ function resolveUrl(path: string | undefined, fallbackPath: string): string {
   }
 
   return new URL(targetPath, siteUrl).toString();
-}
+};
 
 export const useSetMeta = (meta: SiteMetadata) => {
   const pageTitle = meta.title.trim();

@@ -47,36 +47,36 @@ const pageNumbers = computed(() => {
   return Array.from({ length: count, }, (_, index) => pageGroupStart + index);
 });
 
-function emitPageChange(page: number) {
+const emitPageChange = (page: number) => {
   const nextPage = Math.min(Math.max(page, props.pagination.firstPage), props.pagination.lastPage);
 
   if (nextPage === props.pagination.currentPage)
     return;
 
   emit('pageChange', nextPage);
-}
+};
 
-function goToFirstPage() {
+const goToFirstPage = () => {
   emitPageChange(props.pagination.firstPage);
-}
+};
 
-function goToPrevPage() {
+const goToPrevPage = () => {
   if (!props.pagination.hasPrev)
     return;
 
   emitPageChange(props.pagination.prevPage);
-}
+};
 
-function goToNextPage() {
+const goToNextPage = () => {
   if (!props.pagination.hasNext)
     return;
 
   emitPageChange(props.pagination.nextPage);
-}
+};
 
-function goToLastPage() {
+const goToLastPage = () => {
   emitPageChange(props.pagination.lastPage);
-}
+};
 </script>
 
 <template>

@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   if (error) return error;
 
   if (!body || !body.campaignId || body.no === undefined || !body.name) {
-    return BaseResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
   }
 
   // 2. 캠페인 조회 및 마스터 권한 확인
@@ -14,11 +14,11 @@ export default defineEventHandler(async (event) => {
   });
 
   if (!campaign) {
-    return BaseResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CAMPAIGN_NOT_FOUND);
+    return BaseApiResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CAMPAIGN_NOT_FOUND);
   }
 
   if (!hasPermission(campaign.userId)) {
-    return BaseResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.SESSION_FORBIDDEN);
+    return BaseApiResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.SESSION_FORBIDDEN);
   }
 
   // 3. 세션 생성
@@ -42,5 +42,6 @@ export default defineEventHandler(async (event) => {
     updateDate: new Date(),
   }).returning();
 
-  return BaseResponse.data(session, RESPONSE_CODE.CREATED, RESPONSE_MESSAGE.CREATE_SESSION_SUCCESS);
+  return BaseApiResponse.data(session, RESPONSE_CODE.CREATED, RESPONSE_MESSAGE.CREATE_SESSION_SUCCESS);
 });
+

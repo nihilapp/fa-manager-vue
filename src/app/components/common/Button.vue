@@ -10,12 +10,16 @@ const props = withDefaults(defineProps<{
   color?: 'gray' | 'red' | 'blue' | 'black';
   buttonClass?: string;
   iconClass?: string;
+  isLink?: boolean;
+  link?: string;
 }>(), {
   disabled: false,
   loading: false,
   type: 'button',
   mode: 'fill',
   color: 'gray',
+  isLink: false,
+  link: '',
 });
 
 const emit = defineEmits<{
@@ -63,7 +67,7 @@ const buttonVariants = cva(
       {
         mode: 'fill',
         color: 'gray',
-        class: 'border-stone-700 bg-stone-700 text-white hover:border-stone-600 hover:bg-stone-600 focus-visible:ring-stone-300/80',
+        class: 'border-stone-500 bg-stone-500 text-white hover:border-stone-600 hover:bg-stone-600 focus-visible:ring-stone-300/80',
       },
       {
         mode: 'ghost',
@@ -73,12 +77,12 @@ const buttonVariants = cva(
       {
         mode: 'outline',
         color: 'gray',
-        class: 'border-stone-300 bg-white text-stone-700 hover:border-stone-400 hover:bg-stone-50 hover:text-stone-900 focus-visible:ring-stone-300/80',
+        class: 'border-stone-500 bg-white text-stone-600 hover:border-stone-500 hover:bg-stone-500 hover:text-white focus-visible:ring-stone-300/80',
       },
       {
         mode: 'fill',
         color: 'red',
-        class: 'border-red-600 bg-red-600 text-white hover:border-red-500 hover:bg-red-500 focus-visible:ring-red-200/90',
+        class: 'border-red-500 bg-red-500 text-white hover:border-red-600 hover:bg-red-600 focus-visible:ring-red-200/90',
       },
       {
         mode: 'ghost',
@@ -88,27 +92,27 @@ const buttonVariants = cva(
       {
         mode: 'outline',
         color: 'red',
-        class: 'border-red-200 bg-white text-red-700 hover:border-red-300 hover:bg-red-50 hover:text-red-800 focus-visible:ring-red-200/90',
+        class: 'border-red-500 bg-white text-red-600 hover:border-red-500 hover:bg-red-500 hover:text-white focus-visible:ring-red-200/90',
       },
       {
         mode: 'fill',
         color: 'blue',
-        class: 'border-sky-600 bg-sky-600 text-white hover:border-sky-500 hover:bg-sky-500 focus-visible:ring-sky-200/90',
+        class: 'border-blue-500 bg-blue-500 text-white hover:border-blue-600 hover:bg-blue-600 focus-visible:ring-blue-200/90',
       },
       {
         mode: 'ghost',
         color: 'blue',
-        class: 'border-sky-100 bg-sky-50 text-sky-700 hover:border-sky-200 hover:bg-sky-100 hover:text-sky-800 focus-visible:ring-sky-200/90',
+        class: 'border-blue-100 bg-blue-50 text-blue-700 hover:border-blue-200 hover:bg-blue-100 hover:text-blue-800 focus-visible:ring-blue-200/90',
       },
       {
         mode: 'outline',
         color: 'blue',
-        class: 'border-sky-200 bg-white text-sky-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800 focus-visible:ring-sky-200/90',
+        class: 'border-blue-500 bg-white text-blue-600 hover:border-blue-500 hover:bg-blue-500 hover:text-white focus-visible:ring-blue-200/90',
       },
       {
         mode: 'fill',
         color: 'black',
-        class: 'border-black-900 bg-black-900 text-white hover:border-black-700 hover:bg-black-700 focus-visible:ring-black-300/80',
+        class: 'border-black-500 bg-black-500 text-white hover:border-black-600 hover:bg-black-600 focus-visible:ring-black-300/80',
       },
       {
         mode: 'ghost',
@@ -118,12 +122,12 @@ const buttonVariants = cva(
       {
         mode: 'outline',
         color: 'black',
-        class: 'border-black-300 bg-white text-black-900 hover:border-black-400 hover:bg-black-100 hover:text-black-950 focus-visible:ring-black-300/80',
+        class: 'border-black-500 bg-white text-black-700 hover:border-black-500 hover:bg-black-500 hover:text-white focus-visible:ring-black-300/80',
       },
     ],
     defaultVariants: {
       mode: 'fill',
-      color: 'gray',
+      color: 'blue',
       iconOnly: false,
       loading: false,
     },
@@ -164,7 +168,19 @@ const onClickButton = (event: MouseEvent) => {
 </script>
 
 <template>
+  <NuxtLink v-if="isLink" :to="link" :class="buttonClassName">
+    <GetIcon
+      v-if="props.iconName"
+      :icon-name="props.iconName"
+      :class="iconClassName"
+    />
+    <span v-if="hasLabel" class="truncate">
+      <slot>{{ label }}</slot>
+    </span>
+  </NuxtLink>
+
   <button
+    v-else
     v-bind="forwardedAttrs"
     :aria-busy="loading || undefined"
     :aria-label="!hasLabel ? accessibleLabel : undefined"

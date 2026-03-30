@@ -63,5 +63,6 @@ export default defineEventHandler(async (event) => {
       : 0
   );
 
-  return BaseResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CAMPAIGN_LIST_SUCCESS);
+  return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CAMPAIGN_LIST_SUCCESS);
 });
+
