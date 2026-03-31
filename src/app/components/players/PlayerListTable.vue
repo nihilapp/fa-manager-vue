@@ -15,6 +15,9 @@ const emit = defineEmits<{
   edit: [id: number];
 }>();
 
+const playerStore = usePlayerStore();
+const { getPlayerStatusInfo, } = playerStore;
+
 type PlayerListRow = PlayerOutDto;
 
 const columns = useColumns<PlayerListRow>([
@@ -37,15 +40,6 @@ const columns = useColumns<PlayerListRow>([
     .build(),
 ]);
 
-const statusLabelMap = computed(() => {
-  const map = new Map<PlayerStatus, { name: string; color: StatusColor }>();
-  map.set('ACTIVE', { name: '활성', color: 'green', });
-  map.set('INACTIVE', { name: '비활성', color: 'gray', });
-  map.set('REST', { name: '휴면', color: 'orange', });
-
-  return map;
-});
-
 const onChangePage = (page: number) => {
   emit('pageChange', page);
 };
@@ -56,6 +50,10 @@ const onClickDetail = (id: number) => {
 
 const onClickEdit = (id: number) => {
   emit('edit', id);
+};
+
+const getStatusInfo = (value: string | null | undefined) => {
+  return getPlayerStatusInfo(value);
 };
 
 </script>
@@ -72,8 +70,8 @@ const onClickEdit = (id: number) => {
     <template #status="{value}">
       <div class="w-full">
         <StatusBadge
-          :label="statusLabelMap.get(value as PlayerStatus)!.name"
-          :color="statusLabelMap.get(value as PlayerStatus)!.color"
+          :label="getStatusInfo(value as string | null | undefined).name"
+          :color="getStatusInfo(value as string | null | undefined).color"
           class="min-w-18 justify-center"
         />
       </div>

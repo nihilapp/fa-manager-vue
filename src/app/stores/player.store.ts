@@ -1,3 +1,13 @@
+interface StatusInfo {
+  name: string;
+  color: StatusColor;
+}
+
+const unknownPlayerStatusInfo: StatusInfo = {
+  name: '알 수 없음',
+  color: 'gray',
+};
+
 export const usePlayerStore = defineStore('playerStore', () => {
   const playerList = ref<PlayerOutDto[]>([]);
   const playerPageData = ref<ListPageData<PlayerOutDto> | null>(null);
@@ -9,6 +19,19 @@ export const usePlayerStore = defineStore('playerStore', () => {
 
     return isDev || [ 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN', ].includes(myInfo.value?.role ?? '');
   });
+
+  const playerStatusMap = new Map<PlayerStatus, StatusInfo>([
+    [ 'ACTIVE', { name: '활성', color: 'green', }, ],
+    [ 'INACTIVE', { name: '비활성', color: 'gray', }, ],
+    [ 'REST', { name: '휴면', color: 'orange', }, ],
+  ]);
+
+  const getPlayerStatusInfo = (status?: string | null): StatusInfo => {
+    if (!status)
+      return unknownPlayerStatusInfo;
+
+    return playerStatusMap.get(status as PlayerStatus) ?? unknownPlayerStatusInfo;
+  };
 
   const setPlayerList = (list: PlayerOutDto[]) => {
     playerList.value = list;
@@ -45,6 +68,8 @@ export const usePlayerStore = defineStore('playerStore', () => {
     playerInfo,
     myInfo,
     isAdmin,
+    playerStatusMap,
+    getPlayerStatusInfo,
 
     setPlayerList,
     setPlayerPageData,
