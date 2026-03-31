@@ -17,7 +17,7 @@ const attrs = useAttrs();
 
 const cssVariants = cva(
   [
-    'inline-flex min-h-7 items-center gap-1.5 rounded-2 border px-2.5 py-1 text-xs font-700 leading-none tracking-[0.04em] whitespace-nowrap transition-colors duration-200 ease-in-out',
+    'inline-flex items-center gap-1.5 rounded-2 border px-2.5 py-1 font-700 whitespace-nowrap transition-colors duration-200 ease-in-out',
   ],
   {
     variants: {

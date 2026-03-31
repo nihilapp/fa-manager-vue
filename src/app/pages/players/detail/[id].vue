@@ -10,11 +10,12 @@ const { playerInfo, } = storeToRefs(playerStore);
 console.log(playerInfo.value);
 
 useSetMeta({
-  title: `플레이어 [${playerInfo.value?.name}] 정보`,
+  title: `플레이어 [${playerInfo.value!.name}] 정보`,
   url: `/players/detail/${route.params.id}`,
 });
 
 onMounted(() => {
+  console.log('언제 실행');
   playerInfoReq.execute();
   playerSessionListReq.execute();
 });
