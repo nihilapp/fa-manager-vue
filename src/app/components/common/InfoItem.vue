@@ -13,7 +13,7 @@ const slots = defineSlots<{
 
 const cssVariants = cva(
   [
-    'flex-1 shrink-0 min-w-0 flex gap-2 items-center justify-center',
+    'flex-1 shrink-0 min-w-0 flex gap-2 items-start',
   ],
   {
     variants: {
@@ -33,11 +33,11 @@ const cssVariants = cva(
 <template>
   <div
     :class="cn([
-      cssVariants({}),
+      cssVariants({direction}),
       props.class,
     ])"
   >
-    <div class="font-700 p-2 py-1 rounded-2 border-2 border-blue-100 bg-blue-50 text-blue-500">
+    <div class="font-700 text-blue-500">
       {{ title }}
     </div>
     <slot v-if="slots.content" name="content" />

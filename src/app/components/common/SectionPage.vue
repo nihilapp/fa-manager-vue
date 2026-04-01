@@ -5,7 +5,9 @@ const props = defineProps<{
 }>();
 
 const cssVariants = cva(
-  [],
+  [
+    'p-5',
+  ],
   {
     variants: {},
     compoundVariants: [],
@@ -20,8 +22,13 @@ const slots = defineSlots<{
 </script>
 
 <template>
-  <section>
-    <div class="pt-5 mb-5 flex flex-row items-center justify-between">
+  <section
+    :class="cn([
+      cssVariants({}),
+      props.class,
+    ])"
+  >
+    <div class="mb-5 flex flex-row items-center justify-between">
       <h2 class="text-h3">
         {{ title }}
       </h2>

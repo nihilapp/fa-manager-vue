@@ -102,4 +102,3 @@ export default defineEventHandler(async (event) => {
 
   return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_SESSION_LIST_SUCCESS);
 });
-

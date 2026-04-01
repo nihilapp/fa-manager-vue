@@ -10,33 +10,34 @@ const resolveUrl = (path: string | undefined, fallbackPath: string): string => {
 };
 
 export const useSetMeta = (meta: SiteMetadata) => {
-  const pageTitle = meta.title.trim();
-  const documentTitle = pageTitle
-    ? `${pageTitle} - ${appConfig.site.title}`
-    : appConfig.site.title;
-  const siteDescription = meta.description || appConfig.site.description;
-  const siteUrl = resolveUrl(meta.url, '/');
-  const siteImageLink = resolveUrl(meta.imageLink, appConfig.images.cover.link);
-  const siteImageAlt = meta.imageAlt || appConfig.images.cover.alt;
-  const siteType = meta.type || (appConfig.site.type as OpenGraphType);
+  const pageTitle = computed(() => toValue(meta.title)?.trim() || '');
+  const documentTitle = computed(() => pageTitle.value
+    ? `${pageTitle.value} - ${appConfig.site.title}`
+    : appConfig.site.title);
+  const siteDescription = computed(() => toValue(meta.description)?.trim() || appConfig.site.description);
+  const siteUrl = computed(() => resolveUrl(toValue(meta.url), '/'));
+  const siteImageLink = computed(() => resolveUrl(toValue(meta.imageLink), appConfig.images.cover.link));
+  const siteImageAlt = computed(() => toValue(meta.imageAlt)?.trim() || appConfig.images.cover.alt);
+  const siteType = computed(() => toValue(meta.type) || (appConfig.site.type as OpenGraphType));
+  const robots = computed(() => toValue(meta.robots) || 'index, follow');
 
   useSeoMeta({
-    title: documentTitle,
-    description: siteDescription,
+    title: () => documentTitle.value,
+    description: () => siteDescription.value,
     author: appConfig.author.name,
-    robots: meta.robots || 'index, follow',
-    ogTitle: documentTitle,
-    ogDescription: siteDescription,
+    robots: () => robots.value,
+    ogTitle: () => documentTitle.value,
+    ogDescription: () => siteDescription.value,
     ogLocale: 'ko_KR',
-    ogType: siteType,
+    ogType: () => siteType.value,
     ogSiteName: appConfig.site.title,
-    ogUrl: siteUrl,
-    ogImage: siteImageLink,
-    ogImageAlt: siteImageAlt,
+    ogUrl: () => siteUrl.value,
+    ogImage: () => siteImageLink.value,
+    ogImageAlt: () => siteImageAlt.value,
     twitterCard: 'summary_large_image',
-    twitterTitle: documentTitle,
-    twitterDescription: siteDescription,
-    twitterImage: siteImageLink,
+    twitterTitle: () => documentTitle.value,
+    twitterDescription: () => siteDescription.value,
+    twitterImage: () => siteImageLink.value,
   });
 
   useHead({
@@ -46,13 +47,13 @@ export const useSetMeta = (meta: SiteMetadata) => {
       { name: 'version', content: appConfig.site.version, },
       { property: 'og:image:width', content: '1920', },
       { property: 'og:image:height', content: '1080', },
-      { property: 'og:image:alt', content: siteImageAlt, },
+      { property: 'og:image:alt', content: () => siteImageAlt.value, },
       { name: 'twitter:image:width', content: '1920', },
       { name: 'twitter:image:height', content: '1080', },
-      { name: 'twitter:image:alt', content: siteImageAlt, },
+      { name: 'twitter:image:alt', content: () => siteImageAlt.value, },
     ],
     link: [
-      { rel: 'canonical', href: siteUrl, },
+      { rel: 'canonical', href: () => siteUrl.value, },
     ],
     htmlAttrs: {
       lang: 'ko',

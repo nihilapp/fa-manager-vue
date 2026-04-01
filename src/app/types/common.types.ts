@@ -1,3 +1,5 @@
+type ResolvableMetaValue<T> = MaybeRefOrGetter<T>;
+
 export type OpenGraphType
   = | 'article'
     | 'book'
@@ -13,23 +15,25 @@ export type OpenGraphType
     | 'video.episode';
 
 export interface SiteMetadata {
-  title: string;
-  url: string;
-  description?: string;
-  author?: string;
-  keywords?: string;
-  type?: OpenGraphType;
-  tags?: string;
-  section?: string;
-  created?: string;
-  updated?: string;
-  imageLink?: string;
-  imageAlt?: string;
-  robots?:
+  title: ResolvableMetaValue<string>;
+  url: ResolvableMetaValue<string>;
+  description?: ResolvableMetaValue<string | undefined>;
+  author?: ResolvableMetaValue<string | undefined>;
+  keywords?: ResolvableMetaValue<string | undefined>;
+  type?: ResolvableMetaValue<OpenGraphType | undefined>;
+  tags?: ResolvableMetaValue<string | undefined>;
+  section?: ResolvableMetaValue<string | undefined>;
+  created?: ResolvableMetaValue<string | undefined>;
+  updated?: ResolvableMetaValue<string | undefined>;
+  imageLink?: ResolvableMetaValue<string | undefined>;
+  imageAlt?: ResolvableMetaValue<string | undefined>;
+  robots?: ResolvableMetaValue<
     | 'index, follow'
     | 'noindex, nofollow'
     | 'index, nofollow'
-    | 'noindex, follow';
+    | 'noindex, follow'
+    | undefined
+  >;
 }
 
 export interface AppConfig {
