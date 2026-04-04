@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const router = useRouter();
 const characterStore = useCharacterStore();
 const { characterList, characterPageData, } = storeToRefs(characterStore);
 
@@ -22,8 +21,12 @@ const onChangePage = (page: number) => {
   void getCharacterList(page);
 };
 
-const onClickAddCharacter = () => {
-  void router.push('/characters/add-character');
+const onClickCharacterDetail = (id: number) => {
+  void navigateTo(`/characters/detail/${id}`);
+};
+
+const onClickCharacterEdit = (id: number) => {
+  void navigateTo(`/characters/edit/${id}`);
 };
 
 onMounted(() => {
@@ -34,13 +37,15 @@ onMounted(() => {
 <template>
   <SectionPage title="캐릭터 목록">
     <template #buttons>
-      <Button label="캐릭터 생성" color="blue" icon-name="fa6-solid:plus" @run="onClickAddCharacter" />
+      <Button label="캐릭터 생성" color="blue" icon-name="fa6-solid:plus" is-link link="/characters/add-character" />
     </template>
 
     <CharacterListTable
       :items="characterList"
       :pagination="characterPageData"
       @page-change="onChangePage"
+      @detail="onClickCharacterDetail"
+      @edit="onClickCharacterEdit"
     />
   </SectionPage>
 </template>

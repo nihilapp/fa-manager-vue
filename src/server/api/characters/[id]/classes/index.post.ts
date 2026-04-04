@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+async function loadCharacterDetail(characterId: number) {
   function sumCurrentCurrency(transactions: TypeCurrencyTransaction[] = []) {
     return transactions
       .filter((transaction) => transaction.deleteYn !== 'Y')
@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
         acc.ep += transaction.deltaEp || 0;
         acc.gp += transaction.deltaGp || 0;
         acc.pp += transaction.deltaPp || 0;
+
         return acc;
       }, {
         cp: 0,
@@ -18,77 +19,11 @@ export default defineEventHandler(async (event) => {
       });
   }
 
-  const query = getQuery<CharacterQueryDto>(event);
-  query.deleteYn = query.deleteYn || 'N';
-
-  const { user, isAdmin, error, } = await authHelper(event);
-  if (error) return error;
-
-  const scopedQuery: CharacterQueryDto = isAdmin
-    ? { ...query }
-    : {
-        ...query,
-        userId: user!.id,
-      };
-
-  const columns = getTableColumns(charactersTable);
-  const where = buildDrizzleWhere<CharacterQueryDto>(scopedQuery, {
-    id: 'eq',
-    idList: 'in',
-    userId: 'eq',
-    campaignId: 'eq',
-    name: 'like',
-    status: 'eq',
-    race: 'like',
-    currentLevel: 'dynamic',
-    str: 'dynamic',
-    dex: 'dynamic',
-    con: 'dynamic',
-    int: 'dynamic',
-    wis: 'dynamic',
-    cha: 'dynamic',
-    ac: 'dynamic',
-    hp: 'dynamic',
-    speed: 'like',
-    vision: 'like',
-    skills: 'like',
-    advantage: 'like',
-    disadvantage: 'like',
-    resistance: 'like',
-    immunity: 'like',
-    useYn: 'eq',
-    deleteYn: 'eq',
-  }, columns);
-
-  const totalRes = await db
-    .select({ count: count(), })
-    .from(charactersTable)
-    .where(
-      isAdmin
-        ? undefined
-        : eq(charactersTable.userId, user!.id)
-    );
-  const totalElements = totalRes[0]!.count;
-
-  const filteredRes = await db
-    .select({ count: count(), })
-    .from(charactersTable)
-    .where(where);
-  const filteredElements = filteredRes[0]!.count;
-
-  const page = Number(query.page || 0);
-  const size = Number(query.size || 0);
-  const isPaged = size > 0;
-
-  const list = await db.query.charactersTable.findMany({
-    where,
-    orderBy: sortHelper(query.sort || '', columns) as SQL[],
-    limit: isPaged
-      ? size
-      : undefined,
-    offset: isPaged
-      ? page * size
-      : undefined,
+  const character = await db.query.charactersTable.findFirst({
+    where: (table, { eq, and, }) => and(
+      eq(table.id, characterId),
+      eq(table.deleteYn, 'N')
+    ),
     with: {
       user: true,
       campaign: true,
@@ -102,36 +37,76 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  const listData = new ListData<CharacterOutDto>(
-    (list as any[]).map((character) => {
-      const classes = character.classes || [];
-      const sessions = character.sessions || [];
-      const currentCurrency = sumCurrentCurrency(character.currencyTransactions || []);
+  if (!character) {
+    return null;
+  }
 
-      const currentLevel = classes.reduce((acc: number, curr: any) => acc + (curr.level || 0), 0) || character.startLevel || 1;
-      const sessionExp = sessions.reduce((acc: number, curr: any) => acc + (curr.session?.rewardExp || 0), 0);
+  const currentCurrency = sumCurrentCurrency(character.currencyTransactions || []);
+  const currentLevel = (character.classes || []).reduce((acc, item) => acc + (item.level || 0), 0) || character.startLevel || 1;
+  const currentExp = (character.startExp || 0) + (character.sessions || []).reduce((acc, item) => acc + (item.session?.rewardExp || 0), 0);
 
-      return {
-        ...character,
-        currentLevel,
-        currentExp: (character.startExp || 0) + sessionExp,
-        currentCurrencyCp: currentCurrency.cp,
-        currentCurrencySp: currentCurrency.sp,
-        currentCurrencyEp: currentCurrency.ep,
-        currentCurrencyGp: currentCurrency.gp,
-        currentCurrencyPp: currentCurrency.pp,
-      } as CharacterOutDto;
-    }),
-    totalElements,
-    filteredElements,
-    isPaged
-      ? page
-      : 0,
-    isPaged
-      ? size
-      : 0
+  return {
+    ...character,
+    currentLevel,
+    currentExp,
+    currentCurrencyCp: currentCurrency.cp,
+    currentCurrencySp: currentCurrency.sp,
+    currentCurrencyEp: currentCurrency.ep,
+    currentCurrencyGp: currentCurrency.gp,
+    currentCurrencyPp: currentCurrency.pp,
+  } as unknown as CharacterOutDto;
+}
+
+export default defineEventHandler(async (event) => {
+  const characterId = Number(getRouterParam(event, 'id'));
+  const body = await readBody<CharacterClassCreateDto>(event);
+
+  if (!Number.isFinite(characterId) || !body?.className?.trim()) {
+    return BaseApiResponse.error(RESPONSE_CODE.BAD_REQUEST, RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING);
+  }
+
+  const { hasPermission, error, } = await authHelper(event);
+  if (error) return error;
+
+  const character = await db.query.charactersTable.findFirst({
+    where: (table, { eq, and, }) => and(
+      eq(table.id, characterId),
+      eq(table.deleteYn, 'N')
+    ),
+  });
+
+  if (!character) {
+    return BaseApiResponse.error(RESPONSE_CODE.NOT_FOUND, RESPONSE_MESSAGE.CHARACTER_NOT_FOUND);
+  }
+
+  if (!hasPermission(character.userId)) {
+    return BaseApiResponse.error(RESPONSE_CODE.FORBIDDEN, RESPONSE_MESSAGE.CHARACTER_FORBIDDEN);
+  }
+
+  const className = body.className.trim();
+  const existingClass = await db.query.characterClassesTable.findFirst({
+    where: (table, { eq, and, }) => and(
+      eq(table.characterId, characterId),
+      eq(table.className, className)
+    ),
+  });
+
+  if (existingClass) {
+    return BaseApiResponse.error(RESPONSE_CODE.CONFLICT, RESPONSE_MESSAGE.CONFLICT);
+  }
+
+  await db.insert(characterClassesTable).values({
+    characterId,
+    className,
+    subClassName: body.subClassName?.trim() ?? '',
+    level: body.level ?? 1,
+  });
+
+  const result = await loadCharacterDetail(characterId);
+
+  return BaseApiResponse.data(
+    result as unknown as CharacterOutDto,
+    RESPONSE_CODE.CREATED,
+    RESPONSE_MESSAGE.CREATE_CHARACTER_CLASS_SUCCESS
   );
-
-  return BaseApiResponse.page(listData, RESPONSE_CODE.OK, RESPONSE_MESSAGE.GET_CHARACTER_LIST_SUCCESS);
 });
-

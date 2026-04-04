@@ -1,0 +1,1 @@
+ALTER TABLE "character_classes" ADD COLUMN "sub_class_name" varchar(50) DEFAULT '' NOT NULL;

@@ -1,5 +1,5 @@
 interface UseUpdateCharacterClassOptions {
-  callback?: (response: BaseApiResponse<ListData<CharacterOutDto>>) => void;
+  callback?: (response: BaseApiResponse<CharacterOutDto>) => void;
   errorCallback?: (error: ApiErrorResponse) => void;
 }
 
@@ -14,7 +14,7 @@ export const useUpdateCharacterClass = (
   const myCharacterListRequest = useGetMyCharacterList();
   const characterInfoRequest = useGetCharacterInfo(characterId);
 
-  return usePut<ListData<CharacterOutDto>, CharacterClassUpdateDto>({
+  return usePut<CharacterOutDto, CharacterClassUpdateDto>({
     api: `/characters/${characterId}/classes/${className}`,
     onSuccess: async (response) => {
       const character = extractItemById<CharacterOutDto>(response.data, characterId);

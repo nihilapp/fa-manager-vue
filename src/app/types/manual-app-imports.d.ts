@@ -57,7 +57,7 @@ declare global {
   type ApiErrorResponse = import('../../server/types/response.types').BaseApiResponse<null>;
   type ApiRequestStatus = import('@app/composables/query/useApiRequest').ApiRequestStatus;
   type ListPageData<T = null> = import('../../server/types/response.types').ListPageData<T>;
-  type StatusColor = import('@app/types/players.types').StatusColor;
+  type StatusColor = StatusColor;
   type IconName = import('@app/types/icons').IconName;
   type ColumnBuilder = typeof import('@app/utils/column-builder').ColumnBuilder;
   

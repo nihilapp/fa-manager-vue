@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const router = useRouter();
 const playerStore = usePlayerStore();
 const { isAdmin, playerList, playerPageData, } = storeToRefs(playerStore);
 
@@ -23,15 +22,11 @@ const onChangePage = (page: number) => {
 };
 
 const onClickDetail = async (playerId: number) => {
-  await router.push(`/players/detail/${playerId}`);
+  await navigateTo(`/players/detail/${playerId}`);
 };
 
 const onClickEdit = async (playerId: number) => {
-  await router.push(`/players/detail/${playerId}`);
-};
-
-const onClickAddPlayer = () => {
-  router.push('/players/add-player');
+  await navigateTo(`/players/detail/${playerId}`);
 };
 
 onMounted(() => {
@@ -42,7 +37,7 @@ onMounted(() => {
 <template>
   <SectionPage title="플레이어 목록">
     <template #buttons>
-      <Button label="플레이어 등록" color="blue" icon-name="fa6-solid:plus" @run="onClickAddPlayer" />
+      <Button label="플레이어 등록" color="blue" icon-name="fa6-solid:plus" is-link link="/players/add-player" />
     </template>
 
     <PlayerListTable

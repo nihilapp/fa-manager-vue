@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   // ========== ========== ========== ==========
 
   // 1. 필수값 확인
-  if (!body || !body.name || !body.race) {
+  if (!body || !body.name) {
     return BaseApiResponse.error(
       RESPONSE_CODE.BAD_REQUEST,
       RESPONSE_MESSAGE.REQUIRED_FIELDS_MISSING
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
       userId: targetUserId,
       creatorId: user!.id,
       name: body.name,
-      race: body.race,
+      race: body.race?.trim() ?? '',
       campaignId: targetCampaignId,
       status: body.status || 'ACTIVE',
       startLevel: body.startLevel || 0,

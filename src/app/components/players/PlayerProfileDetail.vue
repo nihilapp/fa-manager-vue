@@ -32,7 +32,8 @@ const sessionTotal = computed(() => props.sessionPageData?.totalElements ?? prop
         :label="props.backLabel"
         color="blue"
         icon-name="fa6-solid:arrow-left"
-        @run="navigateTo(props.backTo)"
+        is-link
+        :link="props.backTo"
       />
     </template>
 
@@ -77,7 +78,7 @@ const sessionTotal = computed(() => props.sessionPageData?.totalElements ?? prop
               <NuxtLink
                 v-for="character in props.characterList"
                 :key="character.id"
-                to="/characters"
+                :to="(`/characters/detail/${character.id}`)"
                 class="flex flex-col gap-1 rounded-2 border border-slate-200 px-3 py-2 hover:bg-slate-50"
               >
                 <span class="font-700 text-blue-600">

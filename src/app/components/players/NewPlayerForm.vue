@@ -1,18 +1,4 @@
 <script setup lang="ts">
-const props = defineProps<{
-  class?: string;
-}>();
-const router = useRouter();
-
-const cssVariants = cva(
-  [],
-  {
-    variants: {},
-    compoundVariants: [],
-    defaultVariants: {},
-  }
-);
-
 const playerRoleOptions = [ 'ROLE_USER', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN', ] as const;
 const playerStatusOptions = [ 'ACTIVE', 'INACTIVE', 'REST', ] as const;
 const playerRoleSelectOptions = [
@@ -59,15 +45,12 @@ const onResetForm = () => {
   });
 };
 
-const onClickBack = () => {
-  router.push('/players');
-};
 </script>
 
 <template>
   <SectionPage title="플레이어 등록">
     <template #buttons>
-      <Button label="목록으로" color="blue" icon-name="fa6-solid:arrow-left" @run="onClickBack" />
+      <Button label="목록으로" color="blue" icon-name="fa6-solid:arrow-left" is-link link="/players" />
     </template>
 
     <form

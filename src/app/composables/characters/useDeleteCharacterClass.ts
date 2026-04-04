@@ -1,5 +1,5 @@
 interface UseDeleteCharacterClassOptions {
-  callback?: (response: BaseApiResponse<ListData<CharacterOutDto>>) => void;
+  callback?: (response: BaseApiResponse<CharacterOutDto>) => void;
   errorCallback?: (error: ApiErrorResponse) => void;
 }
 
@@ -14,7 +14,7 @@ export const useDeleteCharacterClass = (
   const myCharacterListRequest = useGetMyCharacterList();
   const characterInfoRequest = useGetCharacterInfo(characterId);
 
-  return useDelete<ListData<CharacterOutDto>>({
+  return useDelete<CharacterOutDto>({
     api: `/characters/${characterId}/classes/${className}`,
     onSuccess: async (response) => {
       const character = extractItemById<CharacterOutDto>(response.data, characterId);

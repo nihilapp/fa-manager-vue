@@ -9,6 +9,8 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
   pageChange: [page: number];
+  detail: [id: number];
+  edit: [id: number];
 }>();
 
 type CharacterListRow = CharacterOutDto & {
@@ -18,6 +20,7 @@ type CharacterListRow = CharacterOutDto & {
 const columns = useColumns<CharacterListRow>([
   ColumnBuilder.column<CharacterListRow>('name', '이름')
     .start()
+    .slot('name')
     .build(),
   ColumnBuilder.column<CharacterListRow>('classes', '클래스')
     .start()
@@ -42,10 +45,23 @@ const columns = useColumns<CharacterListRow>([
     .slot('beyondLink')
     .width(160)
     .build(),
+  ColumnBuilder.column<CharacterListRow>('', '액션')
+    .center()
+    .slot('actions')
+    .width(200)
+    .build(),
 ]);
 
 const onChangePage = (page: number) => {
   emit('pageChange', page);
+};
+
+const onClickDetail = (id: number) => {
+  emit('detail', id);
+};
+
+const onClickEdit = (id: number) => {
+  emit('edit', id);
 };
 
 const getClassText = (row: CharacterListRow) => {
@@ -53,7 +69,7 @@ const getClassText = (row: CharacterListRow) => {
     return '-';
 
   return row.classes
-    .map((characterClass) => `${characterClass.className} Lv.${characterClass.level}`)
+    .map((characterClass) => `${characterClass.className} / ${characterClass.subClassName} Lv.${characterClass.level}`)
     .join(' / ');
 };
 
@@ -75,6 +91,15 @@ const getBeyondLink = (row: CharacterListRow) => {
     :pagination="props.pagination"
     @page-change="onChangePage"
   >
+    <template #name="{row}">
+      <NuxtLink
+        :to="(`/characters/detail/${(row as CharacterListRow).id}`)"
+        class="text-blue-600 hover:text-blue-700 hover:underline"
+      >
+        {{ (row as CharacterListRow).name }}
+      </NuxtLink>
+    </template>
+
     <template #classes="{row}">
       <span class="block w-full truncate">
         {{ getClassText(row as CharacterListRow) }}
@@ -103,6 +128,33 @@ const getBeyondLink = (row: CharacterListRow) => {
         <span v-else class="text-stone-400">
           -
         </span>
+      </div>
+    </template>
+
+    <template #actions="{row}">
+      <div class="flex w-full gap-1.5">
+        <Button
+          icon-name="fa6-solid:magnifying-glass"
+          label="상세보기"
+          mode="ghost"
+          color="blue"
+          button-class="min-h-8 min-w-0 px-2.5 py-1 text-xs"
+          icon-class="size-3.5"
+          is-link
+          :link="(`/characters/detail/${row.id}`)"
+          @run="onClickDetail(row.id)"
+        />
+        <Button
+          icon-name="fa6-solid:pen-to-square"
+          label="수정"
+          mode="outline"
+          color="gray"
+          button-class="min-h-8 min-w-0 px-2.5 py-1 text-xs"
+          icon-class="size-3.5"
+          is-link
+          :link="(`/characters/edit/${row.id}`)"
+          @run="onClickEdit(row.id)"
+        />
       </div>
     </template>
   </DataTable>

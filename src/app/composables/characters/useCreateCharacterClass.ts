@@ -1,5 +1,5 @@
 interface UseCreateCharacterClassOptions {
-  callback?: (response: BaseApiResponse<ListData<CharacterOutDto>>) => void;
+  callback?: (response: BaseApiResponse<CharacterOutDto>) => void;
   errorCallback?: (error: ApiErrorResponse) => void;
 }
 
@@ -10,7 +10,7 @@ export const useCreateCharacterClass = (characterId: number, options: UseCreateC
   const myCharacterListRequest = useGetMyCharacterList();
   const characterInfoRequest = useGetCharacterInfo(characterId);
 
-  return usePost<ListData<CharacterOutDto>, CharacterClassCreateDto>({
+  return usePost<CharacterOutDto, CharacterClassCreateDto>({
     api: `/characters/${characterId}/classes`,
     onSuccess: async (response) => {
       const character = extractItemById<CharacterOutDto>(response.data, characterId);

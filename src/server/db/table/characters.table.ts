@@ -74,6 +74,7 @@ export const charactersTable = pgTable('characters', {
 export const characterClassesTable = pgTable('character_classes', {
   characterId: bigint('character_id', { mode: 'number', }).references(() => charactersTable.id).notNull(),
   className: varchar('class_name', { length: 50, }).notNull(),
+  subClassName: varchar('sub_class_name', { length: 50, }).default('').notNull(),
   level: integer('level').notNull(),
 }, (table) => [
   primaryKey({ columns: [ table.characterId, table.className, ], }),

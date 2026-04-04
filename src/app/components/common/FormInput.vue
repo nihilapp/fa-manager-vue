@@ -23,7 +23,7 @@ defineOptions({
 const attrs = useAttrs();
 const VeeField = Field;
 
-const inputValue = defineModel<string>('input-value', { default: '', });
+const inputValue = defineModel<string | number>('input-value', { default: '', });
 const inputId = computed(() => props.name || undefined);
 const validationName = computed(() => props.name?.trim() || '');
 const hasValidation = computed(() => validationName.value.length > 0);

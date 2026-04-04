@@ -24,7 +24,7 @@ export interface CharacterQueryDto extends CommonQueryDto {
 
 export interface CharacterCreateDto {
   name: string;
-  race: string;
+  race?: string;
   userId?: number;
   campaignId?: number;
   status?: CharacterStatus;
@@ -195,21 +195,25 @@ export interface CharacterOutDto extends CommonOutDto {
 export interface CharacterClassQueryDto {
   characterId?: number;
   className?: string;
+  subClassName?: string;
   level?: number;
 }
 
 export interface CharacterClassCreateDto {
   className: string;
+  subClassName: string;
   level?: number;
 }
 
 export interface CharacterClassUpdateDto {
+  subClassName?: string;
   level?: number;
 }
 
 export interface CharacterClassOutDto {
   characterId: number;
   className: string;
+  subClassName: string;
   level: number;
 
   character: CharacterOutDto | null;
